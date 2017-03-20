@@ -30,6 +30,7 @@ public:
 	static void split(const std::string& str, const std::string& delimiter, TokenMap& tokenMap);
 	static void trim(std::string& str);
 	static void replace(std::string& str, const std::string& rp, const std::string& by);
+	static bool startWith(const std::string& str, const std::string& mark);
 };
 
 NS_HIVE_END
