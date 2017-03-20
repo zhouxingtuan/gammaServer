@@ -7,9 +7,9 @@ A server framework with multi threads. Base on epoll and provides socket,http,ht
 3) goto src/gamma and build
 
 # developing plans
-1) complete and test framework
-2) add C++ module
-3) add lua/luajit module
-4) add javascript(V8 engine) module
-5) add python module
+1) complete and test framework ing...
+2) add C++ module (waiting)
+3) add lua/luajit module (waiting)
+4) add javascript(V8 engine) module (waiting)
+5) add python module (waiting)
 
