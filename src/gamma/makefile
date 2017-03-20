@@ -2,7 +2,7 @@
 JEMALLOC_LIB := ./../../third/jemalloc/lib/libjemalloc_pic.a ./../../third/jemalloc/lib/libjemalloc.a
 JEMALLOC_INC := ./../../third/jemalloc/include/jemalloc/
 
-CURL_LIB := libcurl.a
+CURL_LIB := /usr/local/lib/libcurl.a
 CURL_INC := /usr/local/include/curl/
 
 CORE_LIB := ./../libcore/libcore.a
