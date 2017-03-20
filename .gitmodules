@@ -1,0 +1,3 @@
+[submodule "third/jemalloc"]
+	path = third/jemalloc
+	url = git@github.com:jemalloc/jemalloc.git
