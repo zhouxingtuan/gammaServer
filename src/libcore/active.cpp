@@ -7,7 +7,6 @@
 //
 
 #include "active.h"
-#include "log.h"
 
 NS_HIVE_BEGIN
 

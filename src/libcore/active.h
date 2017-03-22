@@ -9,6 +9,7 @@
 #ifndef __hive__active__
 #define __hive__active__
 
+#include "log.h"
 #include "epoll.h"
 #include <sys/eventfd.h>
 
