@@ -45,7 +45,7 @@ void ActiveWorker::initialize(void){
 		m_pEpoll->retain();
 		m_pEpoll->setWorker(this);	// 设置Worker指针
 		if( !m_pEpoll->createEpoll() ){
-			fprintf(stderr, "ERROR ActiveWorker createEpoll failed\n");
+			LOG_ERROR("createEpoll failed");
 		}
 	}
 	if(NULL == m_pTimer){
@@ -55,7 +55,7 @@ void ActiveWorker::initialize(void){
 	}
 	// 把自己加入到Epoll监听中
 	if( !createEvent(m_pEpoll) ){
-		fprintf(stderr, "ERROR ActiveWorker createEvent failed\n");
+		LOG_ERROR("createEvent failed");
 	}
 }
 void ActiveWorker::destroy(void){

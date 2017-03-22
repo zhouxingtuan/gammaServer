@@ -34,7 +34,7 @@ void MainWorker::destroyInstance(void){
 }
 
 bool MainWorker::closeListener(uint32 handle){
-	fprintf(stderr, "--MainWorker::closeListener try handle=%d\n", handle);
+	LOG_DEBUG("handle=%d", handle);
 	Listener* pListener = getListener(handle);
 	if(NULL == pListener){
 		return false;
@@ -42,14 +42,14 @@ bool MainWorker::closeListener(uint32 handle){
 	m_pEpoll->objectRemove(pListener);
 	pListener->resetData();
 	m_pListenerPool->idle(handle);
-	fprintf(stderr, "--MainWorker::closeListener OK handle=%d\n", handle);
+	LOG_DEBUG("OK handle=%d", handle);
 	return true;
 }
 uint32 MainWorker::openListener(const char* ip, uint16 port, AcceptSocketFunction pFunc, bool isNeedEncrypt, bool isNeedDecrypt){
-	fprintf(stderr, "--MainWorker::openListener try to open Listener ip=%s port=%d\n", ip, port);
+	LOG_DEBUG("try to open Listener ip=%s port=%d", ip, port);
 	Listener* pListener = (Listener*)m_pListenerPool->create();
 	if(NULL == pListener){
-		fprintf(stderr, "--MainWorker::openListener NULL == pListener\n");
+		LOG_ERROR("NULL == pListener");
 		return 0;
 	}
 	uint32 handle = pListener->getHandle();
@@ -58,18 +58,18 @@ uint32 MainWorker::openListener(const char* ip, uint16 port, AcceptSocketFunctio
 	pListener->setAcceptSocketFunction(pFunc);
 	if( !pListener->openSocket() ){
 		closeListener(handle);
-		fprintf(stderr, "--MainWorker::openListener Listener openSocket failed\n");
+		LOG_ERROR("Listener openSocket failed");
 		return 0;
 	}
 	if( !m_pEpoll->objectAdd(pListener, EPOLLIN) ){
 		pListener->closeSocket();
 		closeListener(handle);
-		fprintf(stderr, "--MainWorker::openListener Listener objectAdd to epoll failed\n");
+		LOG_ERROR("Listener objectAdd to epoll failed");
 		return 0;
 	}
 	pListener->setIsNeedEncrypt(isNeedEncrypt);
 	pListener->setIsNeedDecrypt(isNeedDecrypt);
-	fprintf(stderr, "--MainWorker::openListener handle=%d fd=%d ip=%s port=%d\n", handle, pListener->getSocketFD(), ip, port);
+	LOG_INFO("handle=%d fd=%d ip=%s port=%d", handle, pListener->getSocketFD(), ip, port);
 	return handle;
 }
 uint32 MainWorker::openHttpListener(const char* ip, uint16 port){
@@ -110,14 +110,14 @@ void MainWorker::onAcceptHttps(int fd, const char* ip, uint16 port, Listener* pL
 }
 
 void MainWorker::update(void){
-	fprintf(stderr, "--MainWorker start nodeID=%d serviceID=%d \n", m_nodeID, getServiceID());
+	LOG_INFO("start nodeID=%d serviceID=%d", m_nodeID, getServiceID());
 	int64 timeout;
 	while(1){
 		timeout = m_pTimer->getWaitTimeout();
 		m_pEpoll->update(timeout);
 		m_pTimer->update();
 	}
-	fprintf(stderr, "--MainWorker exit nodeID=%d serviceID=%d \n", m_nodeID, getServiceID());
+	LOG_INFO("exit nodeID=%d serviceID=%d", m_nodeID, getServiceID());
 }
 
 void MainWorker::initialize(uint16 nodeID, uint16 epollWorkerNumber, uint16 workerNumber){

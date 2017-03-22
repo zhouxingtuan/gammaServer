@@ -42,7 +42,7 @@ bool GlobalHandler::dispatchTask(uint32 handle, Task* pTask){
 	}
 	unlock();
 	if(NULL == pHandler){
-		fprintf(stderr, "ERROR GlobalHandler dispatchTask Handler not found=%d\n", handle);
+		LOG_ERROR("Handler not found=%d", handle);
 		return false;
 	}
 	// 生成Task并且派发消息
@@ -62,7 +62,7 @@ bool GlobalHandler::dispatchToHandler(Packet* pPacket){
 	}
 	unlock();
 	if(NULL == pHandler){
-		fprintf(stderr, "ERROR GlobalHandler dispatchToHandler Handler not found=%d\n", handle);
+		LOG_ERROR("Handler not found=%d", handle);
 		return false;
 	}
 	// 生成Task并且派发消息
@@ -79,7 +79,7 @@ int64 GlobalHandler::activeTimer(uint32 handle, uint32 callbackID){
 	}
 	unlock();
 	if(NULL == pHandler){
-		fprintf(stderr, "ERROR GlobalHandler activeTimer Handler not found=%d\n", handle);
+		LOG_ERROR("Handler not found=%d", handle);
 		return false;
 	}
 	int64 timeCount = pHandler->timerActiveCallback(callbackID);

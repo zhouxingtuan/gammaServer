@@ -43,7 +43,7 @@ void GlobalService::sendCurlRequest(RequestData* pRequest){
 	}
 	unlock();
 	if(NULL == pWorker){
-		fprintf(stderr, "ERROR GlobalService sendCurlRequest EpollWorker not found=%d\n", service);
+		LOG_ERROR("EpollWorker not found=%d", service);
 		return;
 	}
 	pWorker->sendCurlRequest(pRequest);
@@ -71,7 +71,7 @@ bool GlobalService::dispatchTaskToEpollWorker(uint32 service, Task* pTask){
 	}
 	unlock();
 	if(NULL == pWorker){
-		fprintf(stderr, "ERROR GlobalService dispatchTask EpollWorker not found=%d\n", service);
+		LOG_ERROR("EpollWorker not found=%d", service);
 		return false;
 	}
 	pWorker->acceptTask(pTask);
@@ -94,7 +94,7 @@ bool GlobalService::sendToNode(uint32 nodeID, Packet* pPacket){
 	// 发送消息给其它网络节点
 	uint32 handle = getNodeConnect(nodeID);
 	if(0 == handle){
-		fprintf(stderr, "ERROR GlobalService sendToNode node connect not found=%d\n", nodeID);
+		LOG_ERROR("node connect not found=%d", nodeID);
 		return false;
 	}
 	return dispatchToEpollWorker(handle, pPacket);
@@ -123,7 +123,7 @@ bool GlobalService::dispatchToEpollWorker(uint32 handle, Packet* pPacket){
 	}
 	unlock();
 	if(NULL == pWorker){
-		fprintf(stderr, "ERROR GlobalService dispatchToService EpollWorker not found=%d\n", service);
+		LOG_ERROR("EpollWorker not found=%d", service);
 		return false;
 	}
 	bool result = pWorker->dispatchToConnect(handle, pPacket);
@@ -132,7 +132,7 @@ bool GlobalService::dispatchToEpollWorker(uint32 handle, Packet* pPacket){
 }
 void GlobalService::initialize(uint16 epollWorkerNumber){
 	if(epollWorkerNumber > MAX_EPOLL_WORKER_NUMBER){
-		fprintf(stderr, "INFO epoll worker only support=%d reset from=%d\n", MAX_EPOLL_WORKER_NUMBER, epollWorkerNumber);
+		LOG_ERROR("epoll worker only support=%d reset from=%d", MAX_EPOLL_WORKER_NUMBER, epollWorkerNumber);
 		epollWorkerNumber = MAX_EPOLL_WORKER_NUMBER;
 	}
 	m_epollWorkerNumber = epollWorkerNumber;
@@ -142,7 +142,7 @@ void GlobalService::initialize(uint16 epollWorkerNumber){
 		EpollWorker* pWorker = new EpollWorker(i);
 		pWorker->retain();
 		if(!pWorker->startThread()){
-			fprintf(stderr, "ERROR GlobalService start EpollWorker failed serviceID=%d\n", i);
+			LOG_ERROR("EpollWorker startThread failed serviceID=%d", i);
 		}
 		m_epollWorkers[i] = pWorker;
 	}

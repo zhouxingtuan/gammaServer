@@ -180,7 +180,7 @@ int Accept::readSocket(void){
         	}
             packetLength = *(int*)((void*)(recvBufferPtr));
 			if( packetLength < (int)sizeof(PacketHead) || packetLength > getMaxLength() ){
-				fprintf(stderr, "head length is invalid packetLength=%d\n", packetLength);
+				LOG_ERROR("head length is invalid packetLength=%d", packetLength);
 				break;	// 这里直接将数据丢弃
 			}
             writeLength = std::min( (int)(nread-(recvBufferPtr-recvBuffer)), packetLength );

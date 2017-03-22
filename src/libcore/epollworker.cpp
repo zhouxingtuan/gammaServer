@@ -22,14 +22,14 @@ EpollWorker::~EpollWorker(void){
 int EpollWorker::threadFunction(void){
 	initialize();
 	this->retain();
-	fprintf(stderr, "--EpollWorker start serviceID=%d \n", getServiceID());
+	LOG_INFO("start serviceID=%d", getServiceID());
 	int64 timeout;
 	while(1){
 		timeout = m_pTimer->getWaitTimeout();
 		m_pEpoll->update(timeout);
 		m_pTimer->update();
 	}
-	fprintf(stderr, "--EpollWorker exit serviceID=%d \n", getServiceID());
+	LOG_INFO("exit serviceID=%d", getServiceID());
 	EpollWorker::destroy();
 	this->release();
 	return 0;
@@ -82,7 +82,7 @@ void EpollWorker::initialize(void){
 	if (m_pSSLCTX == NULL) {
 		ERR_print_errors_fp(stderr);
 	}else{
-		fprintf(stderr, "SSL_CTX_new OK\n");
+		LOG_INFO("SSL_CTX_new OK");
 	}
 }
 void EpollWorker::destroy(void){
@@ -97,7 +97,7 @@ void EpollWorker::destroy(void){
 }
 bool EpollWorker::initHttpsCertificate(const char* publicKey, const char* privateKey){
 	if (m_pSSLCTX == NULL) {
-		fprintf(stderr, "HttpManager::initHttpsCertificate m_pSSLCTX == NULL\n");
+		LOG_ERROR("m_pSSLCTX == NULL");
 		return false;
 	}
 	/* 载入用户的数字证书, 此证书用来发送给客户端。 证书里包含有公钥 */
@@ -131,7 +131,7 @@ bool EpollWorker::dispatchToConnect(uint32 handle, Packet* pPacket){
 
 int64 EpollWorker::checkConnectIdentify(Accept* pAccept){
 	if(pAccept->getConnectionState() < CS_IDENTIFY_OK){
-		fprintf(stderr, "--EpollWorker::checkConnectIdentify not CS_IDENTIFY_OK and remove\n");
+		LOG_ERROR("Accept is not CS_IDENTIFY_OK and remove");
 		pAccept->epollRemove();
 	}else{
 		pAccept->setOnline(true);
@@ -142,7 +142,7 @@ int64 EpollWorker::checkConnectIdentify(Accept* pAccept){
 }
 int64 EpollWorker::checkConnectOnline(Accept* pAccept){
 	if(!pAccept->isOnline()){
-		fprintf(stderr, "EpollWorker::checkConnectOnline is not online and remove handle=%d\n", pAccept->getHandle());
+		LOG_ERROR("Accept is not online and remove handle=%d", pAccept->getHandle());
 		pAccept->epollRemove();
 		return -1;
 	}
@@ -159,12 +159,12 @@ int64 EpollWorker::keepConnectOnline(Accept* pAccept){
 }
 
 uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt){
-	fprintf(stderr, "--EpollWorker::openAccept fd=%d ip=%s port=%d\n", fd, ip, port);
+	LOG_ERROR("fd=%d ip=%s port=%d", fd, ip, port);
 	// 获取一个连接对象Accept，将对象一并加入到epoll中
 	Accept* pAccept = (Accept*)m_pGroup->createDestination(POOL_TYPE_ACCEPT);
 	if(NULL == pAccept){
 		close(fd);
-		fprintf(stderr, "--EpollWorker::openAccept create accept NULL == pAccept\n");
+		LOG_ERROR("create accept NULL == pAccept");
 		return 0;
 	}
 	uint32 handle = pAccept->getHandle();
@@ -188,13 +188,13 @@ uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedE
 	pAccept->setIsNeedDecrypt(isNeedDecrypt);
 	// 发送消息，通知有连接到来？
 //	m_pConnectObject->onAcceptIn(handle, ip, port);
-	fprintf(stderr, "--EpollWorker::openAccept handle=%d fd=%d ip=%s port=%d\n", handle, fd, ip, port);
+	LOG_ERROR("handle=%d fd=%d ip=%s port=%d", handle, fd, ip, port);
 	return handle;
 }
 uint32 EpollWorker::openClient(uint32 bindHandle, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt){
 	Client* pClient = (Client*)m_pGroup->createDestination(POOL_TYPE_CLIENT);
 	if(NULL == pClient){
-		fprintf(stderr, "--EpollWorker::openClient create client NULL == pClient\n");
+		LOG_ERROR("create client NULL == pClient");
 		return 0;
 	}
 	uint32 handle = pClient->getHandle();
@@ -203,20 +203,20 @@ uint32 EpollWorker::openClient(uint32 bindHandle, const char* ip, uint16 port, b
 	pClient->setSocket(ip, port);
 	pClient->setConnectionState(CS_CONNECT_START);
 	if( !pClient->connectServer() ){
-		fprintf(stderr, "--EpollWorker::openClient Client::connectServer failed\n");
+		LOG_ERROR("Client::connectServer failed");
 		closeClient(handle);
 		return 0;
 	}
 	// 添加当前的socket到epoll中进行监听
 	if( !m_pEpoll->objectAdd(pClient, EPOLLIN | EPOLLOUT) ){
-		fprintf(stderr, "--EpollWorker::openClient Epoll::objectAdd failed\n");
+		LOG_ERROR("Epoll::objectAdd failed");
 		closeClient(handle);
 		return 0;
 	}
 	pClient->setBindHandle(bindHandle);
 	pClient->setIsNeedEncrypt(isNeedEncrypt);
 	pClient->setIsNeedDecrypt(isNeedDecrypt);
-	fprintf(stderr, "--EpollWorker::openClient handle=%d ip=%s port=%d bindHandle=%d\n", handle, ip, port, bindHandle);
+	LOG_DEBUG("openClient handle=%d ip=%s port=%d bindHandle=%d", handle, ip, port, bindHandle);
 	return handle;
 }
 void EpollWorker::receiveClient(Client* pClient){
@@ -230,7 +230,7 @@ void EpollWorker::receiveClient(Client* pClient){
 uint32 EpollWorker::openHttp(int fd, const char* ip, uint16 port){
 	Http* pHttp = (Http*)m_pGroup->createDestination(POOL_TYPE_HTTP);
 	if(NULL == pHttp){
-		fprintf(stderr, "--EpollWorker::openHttp create http NULL == pHttp\n");
+		LOG_ERROR("create http NULL == pHttp");
 		return 0;
 	}
 	pHttp->initialize();
@@ -248,7 +248,7 @@ uint32 EpollWorker::openHttp(int fd, const char* ip, uint16 port){
 uint32 EpollWorker::openHttps(int fd, const char* ip, uint16 port){
 	Https* pHttps = (Https*)m_pGroup->createDestination(POOL_TYPE_HTTPS);
 	if(NULL == pHttps){
-		fprintf(stderr, "--EpollWorker::openHttps create https NULL == pHttps\n");
+		LOG_ERROR("create https NULL == pHttps");
 		return 0;
 	}
 	pHttps->initialize();
@@ -261,7 +261,7 @@ uint32 EpollWorker::openHttps(int fd, const char* ip, uint16 port){
 	uint32 handle = pHttps->getHandle();
 	if( !pHttps->bindSSL(m_pSSLCTX) ){
 		closeHttps(handle);
-		fprintf(stderr, "--EpollWorker::openHttps bind ssl failed fd=%d\n", fd);
+		LOG_ERROR("bind ssl failed fd=%d", fd);
 		return 0;
 	}
 	// 读取数据
@@ -277,7 +277,7 @@ bool EpollWorker::closeAccept(uint32 handle){
 	m_pEpoll->objectRemove(pAccept);
 	pAccept->resetData();
 	m_pGroup->idleDestination(handle);
-	fprintf(stderr, "--EpollWorker::closeAccept handle=%d\n", handle);
+	LOG_DEBUG("handle=%d", handle);
 	return true;
 }
 bool EpollWorker::closeClient(uint32 handle){
@@ -288,7 +288,7 @@ bool EpollWorker::closeClient(uint32 handle){
 	m_pEpoll->objectRemove(pClient);
 	pClient->resetData();
 	m_pGroup->idleDestination(handle);
-	fprintf(stderr, "--EpollWorker::closeClient handle=%d\n", handle);
+	LOG_ERROR("handle=%d", handle);
 	return true;
 }
 bool EpollWorker::closeHttp(uint32 handle){
@@ -341,7 +341,7 @@ void EpollWorker::notifyCloseConnect(Accept* pAccept){
 }
 
 void EpollWorker::onCurlResponse(Buffer* pBuffer, uint32 callbackID, bool isRequestOK){
-	fprintf(stderr, "onCurlResponse callback=%d isRequestOK=%d\n", callbackID, (int)isRequestOK);
+	LOG_DEBUG("callback=%d isRequestOK=%d", callbackID, (int)isRequestOK);
 
 }
 

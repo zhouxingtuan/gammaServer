@@ -33,7 +33,7 @@ public:
 		uint64 value = 1;
 		int nwrite = write(m_fd, &value, sizeof(uint64));
 		if(nwrite != sizeof(uint64)){
-			fprintf(stderr, "--Active::wakeup write failed\n");
+			LOG_ERROR("write failed");
 			return false;
 		}
 //		fprintf(stderr, "--Active::wakeup m_fd write %llu\n", value);

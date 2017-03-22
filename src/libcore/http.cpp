@@ -118,7 +118,7 @@ void Http::epollIn(void){
 	do{
 		result = readSocket();
 		if(NULL == this->getBuffer()){
-			fprintf(stderr, "buffer not create readSocket result=%d\n", result);
+			LOG_ERROR("buffer not create readSocket result=%d", result);
 			break;
 		}
 		parse_size = this->getParseSize();
@@ -177,7 +177,7 @@ void Http::epollOut(void){
 	}
 }
 void Http::epollRemove(void){
-	fprintf(stderr, "Http::epollRemove handle=%d\n", this->getHandle());
+	LOG_DEBUG("handle=%d", this->getHandle());
 	// 移除回调
 	this->onRemoveRequest();
 	// 清理状态，移除出epoll

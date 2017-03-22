@@ -97,7 +97,7 @@ public:
 	}
 
 	virtual void doTask(Handler* pHandler){
-		fprintf(stderr, "--ReceivePacketTask::doTask\n");
+		LOG_DEBUG("--ReceivePacketTask::doTask");
     	pHandler->onReceivePacket(m_pPacket, this);
 	}
 	virtual void doTask(ActiveWorker* pHandler){}

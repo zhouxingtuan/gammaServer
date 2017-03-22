@@ -54,15 +54,15 @@ void HandlerQueue::createWorker(int workerNumber){
 	if( m_workers.size() > 0 ){
 		return;
 	}
-	fprintf(stderr, "--HandlerQueue::createWorker number=%d\n", workerNumber);
+	LOG_INFO("number=%d", workerNumber);
 	pthread_cond_init(&m_cond, NULL);
 	for(int i=0; i<workerNumber; ++i){
 		Worker* pWorker = new Worker(this);
 		m_workers.push_back(pWorker);
 		if( !pWorker->startThread() ){
-			fprintf(stderr, "ERROR HandlerQueue::createWorker failed index=%d\n", i);
+			LOG_ERROR("failed index=%d", i);
 		}else{
-			fprintf(stderr, "--HandlerQueue::createWorker success index=%d\n", i);
+			LOG_INFO("success index=%d", i);
 		}
 	}
 }

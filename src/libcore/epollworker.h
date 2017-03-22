@@ -213,7 +213,7 @@ public:
 	virtual void doTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
 		if( !pWorker->closeConnect(m_connectHandle) ){
-			fprintf(stderr, "CloseConnectTask Connect not found handle=%d\n", m_connectHandle);
+			LOG_ERROR("CloseConnectTask Connect not found handle=%d", m_connectHandle);
 		}
 		GlobalHandler::getInstance()->dispatchTask(m_bindHandle, this);
 	}

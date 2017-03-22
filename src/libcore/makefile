@@ -15,7 +15,7 @@ AR = ar
 ARFLAGS = cr
 DEBUG= -g -ggdb
 
-OBJS = common.o util.o systemsignal.o token.o buffer.o destination.o packet.o destinationpool.o destinationgroup.o\
+OBJS = common.o util.o systemsignal.o token.o log.o buffer.o destination.o packet.o destinationpool.o destinationgroup.o\
 		object.o objectpool.o objecthashpool.o timer.o task.o epoll.o active.o activeworker.o \
 		accept.o client.o http.o https.o listener.o timerhandle.o handler.o multicurl.o \
 		globalhandler.o epollworker.o globalservice.o worker.o handlerqueue.o mainworker.o
@@ -46,7 +46,9 @@ systemsignal.o:systemsignal.cpp systemsignal.h
 
 token.o:common.o token.cpp token.h
 
-buffer.o:common.o buffer.cpp buffer.h
+log.o:common.o log.cpp log.h
+
+buffer.o:common.o log.o buffer.cpp buffer.h
 
 task.o:common.o task.cpp task.h
 

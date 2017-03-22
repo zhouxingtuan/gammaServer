@@ -66,7 +66,7 @@ bool Https::bindSSL(SSL_CTX* ctx){
     SSL_set_fd(m_pSSL, this->getSocketFD());
     /* 建立 SSL 连接 */
     if (SSL_accept(m_pSSL) == -1) {
-		fprintf(stderr, "\n");
+		LOG_ERROR("SSL_accept failed");
     	return false;
     }
     return true;

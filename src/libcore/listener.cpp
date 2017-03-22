@@ -43,11 +43,11 @@ bool Listener::epollActive(uint32 events){
 	return true;
 }
 void Listener::epollRemove(void){
-	fprintf(stderr, "--Listener::epollRemove\n");
+	LOG_DEBUG("handle=%d\n", this->getHandle());
 	MainWorker::getInstance()->closeListener(this->getHandle());
 }
 void Listener::epollCheck(void){
-	fprintf(stderr, "--Listener::epollCheck\n");
+//	fprintf(stderr, "--Listener::epollCheck\n");
 	getEpoll()->objectChange(this, EPOLLIN);
 }
 void Listener::resetData(void){
@@ -66,23 +66,23 @@ bool Listener::openSocket(void){
     servaddr.sin_port = htons( this->getPort() );
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if(fd == -1){
-		fprintf(stderr, "--Listener::openSocket failed ip(%s) port(%d)\n", this->getIP(), this->getPort());
+		LOG_ERROR("failed ip(%s) port(%d)", this->getIP(), this->getPort());
 		return false;
     }
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     if(fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0)|O_NONBLOCK) == -1){
-		fprintf(stderr, "--Listener::openSocket setNonBlocking to listen socket failed ip(%s) port(%d)\n", this->getIP(), this->getPort());
+		LOG_ERROR("setNonBlocking to listen socket failed ip(%s) port(%d)", this->getIP(), this->getPort());
 		goto LISTEN_FAILED;
     }
     if(bind(fd, (struct sockaddr *)&servaddr, sizeof(struct sockaddr)) == -1){
-		fprintf(stderr, "--Listener::openSocket bind listen socket error ip(%s) port(%d)\n", this->getIP(), this->getPort());
+		LOG_ERROR("bind listen socket error ip(%s) port(%d)", this->getIP(), this->getPort());
 		goto LISTEN_FAILED;
     }
     if(listen(fd, MAX_LISTEN_SIZE) == -1){
-  		fprintf(stderr, "--Listener::openSocket socket listen error ip(%s) port(%d)\n", this->getIP(), this->getPort());
+  		LOG_ERROR("socket listen error ip(%s) port(%d)", this->getIP(), this->getPort());
 		goto LISTEN_FAILED;
     }
-    fprintf(stderr, "--Listener::openSocket OK ip=%s port=%d\n", this->getIP(), this->getPort());
+    LOG_INFO("OK ip=%s port=%d", this->getIP(), this->getPort());
     this->setSocketFD(fd);
     return true;
 LISTEN_FAILED:

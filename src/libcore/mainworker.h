@@ -170,7 +170,7 @@ public:
 	virtual void doTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
 		if( !pWorker->closeListener(m_listenerHandle) ){
-			fprintf(stderr, "CloseListenerTask Listener not found handle=%d\n", m_listenerHandle);
+			LOG_ERROR("Listener not found handle=%d", m_listenerHandle);
 		}
 		GlobalHandler::getInstance()->dispatchTask(m_bindHandle, this);
 	}

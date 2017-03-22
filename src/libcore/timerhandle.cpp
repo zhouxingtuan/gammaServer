@@ -142,7 +142,7 @@ void StartTimerTask::doTask(Handler* pHandler){
 		pHandle->setActiveObject(m_handlerID);
 		pHandle->setTimer(m_timeCount, TimerManager::getInstance()->getTimer());
 	}else{
-		fprintf(stderr, "StartTimerTask::doTask Bug happened. May have memory leak!\n");
+		LOG_ERROR("Bug happened. May have memory leak!");
 	}
 }
 

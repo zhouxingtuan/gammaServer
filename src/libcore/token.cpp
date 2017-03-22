@@ -13,7 +13,7 @@ NS_HIVE_BEGIN
 void Token::readConfig(const std::string& file, TokenMap& tokenMap){
 	std::ifstream in(file);
 	if(!in.is_open()){
-		fprintf(stderr, "config file can not open: %s\n", file.c_str());
+		LOG_ERROR("config file can not open: %s", file.c_str());
 		return;
 	}
 	char buffer[1024];

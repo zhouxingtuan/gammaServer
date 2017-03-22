@@ -47,7 +47,7 @@ void EasyCurl::epollRemove(void){
 	}
 }
 int64 EasyCurl::timerCallback(void){
-	fprintf(stderr, "--EasyCurl::timerCallback remove easy curl\n");
+	LOG_DEBUG("remove easy curl");
 	memcpy(this->m_pError, curl_timeout_response, sizeof(curl_timeout_response));
 	getMultiCurl()->responseRequest(this, false);
 	getMultiCurl()->removeAndClearEasy(this);
@@ -71,7 +71,7 @@ bool EasyCurl::initializeEasy(RequestData* pRequest){
 		m_pEasy = curl_easy_init();
 	}
 	if(NULL == m_pEasy){
-		fprintf(stderr, "--EasyCurl::initEasy easy is NULL\n");
+		LOG_ERROR("easy is NULL");
 		return false;
 	}
 	m_pError[0] = 0;
@@ -85,7 +85,7 @@ bool EasyCurl::initializeEasy(RequestData* pRequest){
 	curl_easy_setopt(m_pEasy, CURLOPT_SSL_VERIFYPEER, 0L);	// https支持，不检测
 	curl_easy_setopt(m_pEasy, CURLOPT_SSL_VERIFYHOST, 0L);	// https支持，不检测
 	if(!this->setTimer(EASY_CURL_REQUEST_TIMEOUT, getMultiCurl()->getEpollWorker()->getTimer())){
-		fprintf(stderr, "--EasyCurl::initEasy easy is NULL\n");
+		LOG_ERROR("easy is NULL");
 		return false;
 	}
 	// 记录请求信息
@@ -328,11 +328,11 @@ void MultiCurl::mcodeCheck(const char *where, CURLMcode code){
 			break;
 		case CURLM_BAD_SOCKET:
 			s="CURLM_BAD_SOCKET";
-			fprintf(stderr, "ERROR: %s returns %s\n", where, s);
+			LOG_ERROR("ERROR: %s returns %s", where, s);
 			/* ignore this error */
 			return;
 		}
-		fprintf(stderr, "ERROR: %s returns %s\n", where, s);
+		LOG_ERROR("ERROR: %s returns %s", where, s);
 		//exit(code);
 	}
 }
@@ -374,13 +374,13 @@ void CurlResponseTask::doTask(ActiveWorker* pHandler){
 void CurlRequestTask::doTask(ActiveWorker* pHandler){
 	EpollWorker* pWorker = (EpollWorker*)pHandler;
 	if (!pWorker->getMultiCurl()->acceptRequest(m_pRequest)){
-		fprintf(stderr, "--CurlRequestTask::doTask acceptRequest Failed\n");
+		LOG_ERROR("acceptRequest Failed");
 		// callbackID 为0时，不需要返回调用结果
 		if (m_pRequest->m_callbackID == 0){
 			return;
 		}
 		// 返回请求错误的结果
-		fprintf(stderr, "CurlRequestTask::doTask curl queue is full handle=%d\n", m_pRequest->m_originHandle);
+		LOG_ERROR("curl queue is full handle=%d", m_pRequest->m_originHandle);
 		Buffer* pResponse = m_pRequest->m_body;
 		pResponse->clear();
 		pResponse->write(curl_full_response, sizeof(curl_full_response), 0);

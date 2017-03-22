@@ -51,15 +51,15 @@ void Active::closeEvent(void){
 bool Active::createEvent(Epoll* pEpoll){
 	m_fd = eventfd(0, 0);
 	if (m_fd == -1){
-		fprintf(stderr, "--Active::createEvent m_fd == -1\n");
+		LOG_ERROR("m_fd == -1");
 		goto ACTIVE_CREATE_FAILED;
 	}
 	if (!set_non_blocking(m_fd)){
-		fprintf(stderr, "--Active::createEvent set_non_blocking m_fd failed\n");
+		LOG_ERROR("set_non_blocking m_fd failed");
 		goto ACTIVE_CREATE_FAILED;
 	}
 	if (!pEpoll->objectAdd(this, EPOLLIN)){
-		fprintf(stderr, "--Active::createEvent objectAdd m_fd failed\n");
+		LOG_ERROR("objectAdd m_fd failed");
 		goto ACTIVE_CREATE_FAILED;
 	}
 	return true;
