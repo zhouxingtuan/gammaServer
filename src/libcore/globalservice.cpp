@@ -82,7 +82,13 @@ bool GlobalService::dispatchTask(uint32 handle, Task* pTask){
 	DestinationHandle h(handle);
 	uint32 service = h.service;
 	if(0 == service){
-		return GlobalHandler::getInstance()->dispatchTask(handle, pTask);
+		if(0 == h.type && 0 == h.index){
+			// 派发任务给MainWorker
+			MainWorker::getInstance()->acceptTask(pTask);
+			return true;
+		}else{
+			return GlobalHandler::getInstance()->dispatchTask(handle, pTask);
+		}
 	}else{
 		return dispatchTaskToEpollWorker(service, pTask);
 	}
@@ -102,8 +108,13 @@ bool GlobalService::sendToNode(uint32 nodeID, Packet* pPacket){
 bool GlobalService::sendToService(uint32 handle, Packet* pPacket){
 	DestinationHandle h(handle);
 	if(0 == h.service){
-		// 分发消息给GlobalHandler
-		return GlobalHandler::getInstance()->dispatchToHandler(pPacket);
+		if(0 == h.type && 0 == h.index){
+			// 分发消息给MainWorker
+			return MainWorker::getInstance()->dispatchToMain(pPacket);
+		}else{
+			// 分发消息给GlobalHandler
+			return GlobalHandler::getInstance()->dispatchToHandler(pPacket);
+		}
 	}else{
 		return dispatchToEpollWorker(handle, pPacket);
 	}
