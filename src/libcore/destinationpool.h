@@ -22,7 +22,8 @@ class DestinationPool : public RefObject
 {
 public:
 	typedef std::vector<Destination*> ObjectVector;
-	typedef std::deque<Destination::index_type> IndexQueue;
+//	typedef std::deque<Destination::index_type> IndexQueue;
+	typedef std::deque<uint16> IndexQueue;
 protected:
 	DestinationCreateFunction m_createFunction;
 	DestinationDestroyFunction m_destroyFunction;
