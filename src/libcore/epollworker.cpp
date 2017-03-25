@@ -159,7 +159,7 @@ int64 EpollWorker::keepConnectOnline(Accept* pAccept){
 }
 
 uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt){
-	LOG_ERROR("fd=%d ip=%s port=%d", fd, ip, port);
+	LOG_DEBUG("fd=%d ip=%s port=%d", fd, ip, port);
 	// 获取一个连接对象Accept，将对象一并加入到epoll中
 	Accept* pAccept = (Accept*)m_pGroup->createDestination(POOL_TYPE_ACCEPT);
 	if(NULL == pAccept){
@@ -188,7 +188,7 @@ uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedE
 	pAccept->setIsNeedDecrypt(isNeedDecrypt);
 	// 发送消息，通知有连接到来？
 //	m_pConnectObject->onAcceptIn(handle, ip, port);
-	LOG_ERROR("handle=%d fd=%d ip=%s port=%d", handle, fd, ip, port);
+	LOG_DEBUG("handle=%d fd=%d ip=%s port=%d", handle, fd, ip, port);
 	return handle;
 }
 uint32 EpollWorker::openClient(uint32 bindHandle, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt){
@@ -288,7 +288,7 @@ bool EpollWorker::closeClient(uint32 handle){
 	m_pEpoll->objectRemove(pClient);
 	pClient->resetData();
 	m_pGroup->idleDestination(handle);
-	LOG_ERROR("handle=%d", handle);
+	LOG_DEBUG("handle=%d", handle);
 	return true;
 }
 bool EpollWorker::closeHttp(uint32 handle){

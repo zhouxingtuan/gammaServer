@@ -86,6 +86,40 @@ int64 GlobalHandler::activeTimer(uint32 handle, uint32 callbackID){
 	pHandler->release();
 	return timeCount;
 }
+// 创建全局的HandlerPool
+bool GlobalHandler::createPool(uint32 poolType, DestinationCreateFunction create, DestinationDestroyFunction destroy){
+	bool result;
+	lock();
+	result = (NULL != m_pGroup->createPool(poolType, create, destroy));
+	unlock();
+	return result;
+}
+// 创建一个目标Handler
+uint32 GlobalHandler::createDestination(uint32 poolType){
+	Destination* pDes;
+	uint32 handle = 0;
+	lock();
+	pDes = m_pGroup->createDestination(poolType);
+	if(NULL != pDes){
+		handle = pDes;
+	}
+	unlock();
+	return handle;
+}
+bool GlobalHandler::idleDestination(uint32 handle){
+	bool result;
+	lock();
+	result = m_pGroup->idleDestination(handle);
+	unlock();
+	return result;
+}
+bool GlobalHandler::removeDestination(uint32 handle){
+	bool result;
+	lock();
+	result = m_pGroup->removeDestination(handle);
+	unlock();
+	return result;
+}
 void GlobalHandler::initialize(void){
 	if(NULL == m_pGroup){
 		uint32 nodeID = MainWorker::getInstance()->getNodeID();

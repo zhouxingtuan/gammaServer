@@ -109,20 +109,6 @@ void MainWorker::onAcceptHttps(int fd, const char* ip, uint16 port, Listener* pL
 	pTask->release();
 }
 
-bool MainWorker::dispatchToMain(Packet* pPacket){
-	DispatchToMainTask* pTask = new DispatchToMainTask();
-	pTask->retain();
-	pTask->setPacket(pPacket);
-	this->acceptTask(pTask);
-	pTask->release();
-	return true;
-}
-void MainWorker::onReceivePacket(Packet* pPacket, Task* pTask){
-	// todo 这里收到消息，执行消息的处理
-	LOG_DEBUG("main receive a packet");
-
-}
-
 void MainWorker::update(void){
 	LOG_INFO("start nodeID=%d serviceID=%d", m_nodeID, getServiceID());
 	int64 timeout;
@@ -134,7 +120,7 @@ void MainWorker::update(void){
 	LOG_INFO("exit nodeID=%d serviceID=%d", m_nodeID, getServiceID());
 }
 
-void MainWorker::initialize(uint16 nodeID, uint16 epollWorkerNumber, uint16 workerNumber){
+void MainWorker::initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 workerNumber){
 	// 初始化基类数据
 	ActiveWorker::initialize();
 

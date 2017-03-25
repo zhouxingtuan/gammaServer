@@ -28,7 +28,7 @@ class MainWorker : public ActiveWorker
 {
 public:
 	DestinationPool* m_pListenerPool;
-	uint16 m_nodeID;
+	uint32 m_nodeID;
 	char m_key[NET_KEY_LENGTH];					// 密钥
 public:
 	MainWorker(void);
@@ -51,12 +51,9 @@ public:
 	uint32 openHttpsListener(const char* ip, uint16 port);
 	uint32 openSocketListener(const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt);
 
-	bool dispatchToMain(Packet* pPacket);
-	void onReceivePacket(Packet* pPacket, Task* pTask);
-
 	void update(void);
 
-	virtual void initialize(uint16 nodeID, uint16 epollWorkerNumber, uint16 workerNumber);
+	virtual void initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 workerNumber);
 	virtual void destroy(void);
 
 	inline bool setKey(const char* key){
@@ -67,30 +64,8 @@ public:
 		return true;
 	}
 	inline const char* getKey(void) const { return m_key; }
-	inline uint16 getNodeID(void){ return m_nodeID; }
-	inline void setNodeID(uint16 nodeID){ m_nodeID = nodeID; }
-};
-
-class DispatchToMainTask : public Task
-{
-public:
-	Packet* m_pPacket;		// 请求request的packet
-public:
-	DispatchToMainTask(void) : Task(), m_pPacket(NULL) {}
-	virtual ~DispatchToMainTask(void){
-		SAFE_RELEASE(m_pPacket)
-	}
-
-	virtual void doTask(Handler* pHandler){}
-	virtual void doTask(ActiveWorker* pHandler){
-		MainWorker* pWorker = (MainWorker*)pHandler;
-		pWorker->onReceivePacket(m_pPacket, this);
-	}
-	void setPacket(Packet* pPacket){
-		SAFE_RETAIN(pPacket)
-		SAFE_RELEASE(m_pPacket)
-		m_pPacket = pPacket;
-	}
+	inline uint32 getNodeID(void){ return m_nodeID; }
+	inline void setNodeID(uint32 nodeID){ m_nodeID = nodeID; }
 };
 
 class OpenSocketListenerTask : public Task

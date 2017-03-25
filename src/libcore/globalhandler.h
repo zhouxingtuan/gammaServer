@@ -32,6 +32,12 @@ public:
 	bool dispatchToHandler(Packet* pPacket);
 	// 激活一个Handler的Timer
 	int64 activeTimer(uint32 handle, uint32 callbackID);
+	// 创建全局的HandlerPool
+	bool createPool(uint32 poolType, DestinationCreateFunction create, DestinationDestroyFunction destroy);
+	// 创建一个目标Handler
+	uint32 createDestination(uint32 poolType);
+	bool idleDestination(uint32 handle);
+	bool removeDestination(uint32 handle);
 
 	DestinationGroup* getGroup(void) { return m_pGroup; }
 	void initialize(void);

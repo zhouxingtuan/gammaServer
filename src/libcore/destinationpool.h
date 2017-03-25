@@ -31,9 +31,9 @@ protected:
 	uint32 m_useCount;
 	uint32 m_maxHashNumber;
 	uint32 m_slotIndex;
-	uint8 m_nodeID;
-	uint8 m_poolType;
-	uint8 m_serviceID;
+	uint32 m_nodeID;
+	uint32 m_poolType;
+	uint32 m_serviceID;
 public:
 	DestinationPool(void) : RefObject(), m_createFunction(NULL), m_destroyFunction(NULL),
 	 	m_useCount(0), m_maxHashNumber(DEFAULT_MAX_DESTINATION_POOL), m_slotIndex(1),

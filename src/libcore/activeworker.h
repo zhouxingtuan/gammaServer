@@ -29,7 +29,7 @@ public:
 	TaskQueue m_tempQueue;
 	Epoll* m_pEpoll;
 	Timer* m_pTimer;
-	uint16 m_serviceID;
+	uint32 m_serviceID;
 public:
 	ActiveWorker(uint32 serviceID);
 	virtual ~ActiveWorker(void);
@@ -44,7 +44,7 @@ public:
 
 	inline Epoll* getEpoll(void){ return m_pEpoll; }
 	inline Timer* getTimer(void){ return m_pTimer; }
-	inline uint16 getServiceID(void){ return m_serviceID; }
+	inline uint32 getServiceID(void){ return m_serviceID; }
 	inline void setServiceID(uint32 serviceID){ m_serviceID = serviceID; }
 };
 

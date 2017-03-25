@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 	MainWorker::getInstance()->update();
 //MAIN_EXIT:
 //	sleep(3);
+	LOG_INFO("main loop exit ...");
 	MainWorker::destroyInstance();
 
 	return 0;

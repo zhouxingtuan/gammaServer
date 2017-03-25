@@ -23,8 +23,8 @@ public:
 	typedef std::vector<DestinationPool*> PoolVector;
 protected:
 	PoolVector m_pools;		// 对象存储数组
-	uint8 m_nodeID;			// 节点ID
-	uint8 m_serviceID;		// 服务的ID
+	uint32 m_nodeID;		// 节点ID
+	uint32 m_serviceID;		// 服务的ID
 public:
 	DestinationGroup(uint32 nodeID, uint32 serviceID) : RefObject(), m_nodeID(nodeID), m_serviceID(serviceID) {
 		m_pools.resize(DESTINATION_MAX_GROUP, NULL);
