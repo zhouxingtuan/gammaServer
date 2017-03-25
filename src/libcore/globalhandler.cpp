@@ -101,7 +101,7 @@ uint32 GlobalHandler::createDestination(uint32 poolType){
 	lock();
 	pDes = m_pGroup->createDestination(poolType);
 	if(NULL != pDes){
-		handle = pDes;
+		handle = pDes->getHandle();
 	}
 	unlock();
 	return handle;
