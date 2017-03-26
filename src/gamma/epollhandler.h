@@ -13,16 +13,16 @@
 
 NS_HIVE_BEGIN
 
-static void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread);
-static void onReceiveHttp(Http* pHttp);
-static void onRemoveHttp(Http* pHttp);
-static void onHttpReceivePacket(Http* pHttp, Packet* pPacket);
-static void onCommandPing(Accept* pAccept, Packet* pPacket, uint32 command);
-static void onCommandPong(Accept* pAccept, Packet* pPacket, uint32 command);
-static void onCommandRegister(Accept* pAccept, Packet* pPacket, uint32 command);
-static void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command);
-static void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command);
-static void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command);
+void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread);
+void onReceiveHttp(Http* pHttp);
+void onRemoveHttp(Http* pHttp);
+void onHttpReceivePacket(Http* pHttp, Packet* pPacket);
+void onCommandPing(Accept* pAccept, Packet* pPacket, uint32 command);
+void onCommandPong(Accept* pAccept, Packet* pPacket, uint32 command);
+void onCommandRegister(Accept* pAccept, Packet* pPacket, uint32 command);
+void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command);
+void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command);
+void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command);
 
 NS_HIVE_END
 

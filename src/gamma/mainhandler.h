@@ -13,7 +13,7 @@
 
 NS_HIVE_BEGIN
 
-static void parseConfig(const char* fileName);
+void parseConfig(const char* fileName);
 
 class MainHandler : public Handler
 {
