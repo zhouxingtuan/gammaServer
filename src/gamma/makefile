@@ -39,9 +39,9 @@ main.o: main.cpp
 $(OBJS): %.o:%.cpp
 	$(CC) $(DEBUG) -c $< -o $@ $(CFLAGS)
 
-mainhandler.o:core.h mainhandler.cpp mainhandler.h
+mainhandler.o:mainhandler.cpp mainhandler.h
 
-epollhandler.o:core.h epollhandler.cpp epollhandler.h
+epollhandler.o:epollhandler.cpp epollhandler.h
 
 clean:
 	-$(RM) $(BIN)/$(TARGET)
