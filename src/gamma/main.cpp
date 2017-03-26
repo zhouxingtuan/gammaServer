@@ -40,12 +40,11 @@ int main(int argc, char *argv[])
 {
 	// 使用默认的信号处理
 	defaultSignalHandle();
-
+	// 创建单例管理器
 	MainWorker::createInstance();
-	MainWorker::getInstance()->initialize(1, 2, 2);
+	// 初始化配置
+	parseConfig("config.ini");
 	MainWorker::getInstance()->update();
-//MAIN_EXIT:
-//	sleep(3);
 	LOG_INFO("main loop exit ...");
 	MainWorker::destroyInstance();
 
