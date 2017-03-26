@@ -13,7 +13,9 @@ NS_HIVE_BEGIN
 MainWorker::MainWorker(void) : ActiveWorker(0), m_pListenerPool(NULL),
 	m_onAcceptRead(NULL), m_onReceiveHttp(NULL), m_onRemoveHttp(NULL), m_onHttpReceivePacket(NULL),
 	m_nodeID(0) {
-	memset((void*)m_commandArr, sizeof(AcceptCommandFunction)*COMMAND_NUMBER, 0);
+	for(int i=0; i<COMMAND_NUMBER; ++i){
+		m_commandArr[i] = NULL;
+	}
 }
 MainWorker::~MainWorker(void){
 	MainWorker::destroy();
