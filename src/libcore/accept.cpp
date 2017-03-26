@@ -130,9 +130,32 @@ void Accept::resetData(void){
 }
 void Accept::dispatchPacket(Packet* pPacket){
 	// 对收到的消息进行解密处理：从body开始解密；头部已经在判断长度的时候解密
-	if( this->isNeedDecrypt() ){
+	if( this->isNeedDecrypt() && pPacket->getLength() > 8 ){
 		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, MainWorker::getInstance()->getKey());
 	}
+	// 判断cmd执行后续操作
+	switch(pPacket->getHead()->command){
+		case COMMAND_PING:{
+
+			return;
+		}
+		case COMMAND_PONG:{
+
+			return;
+		}
+		case COMMAND_REGISTER:{
+
+			return;
+		}
+		case COMMAND_RESPONSE:{
+
+			return;
+		}
+		default:{
+			break;
+		}
+	}
+	// 这里不执行的命令，发送消息给后面的服务执行
 	GlobalService::getInstance()->dispatchToService(pPacket);
 }
 int Accept::readSocket(void){
@@ -179,7 +202,7 @@ int Accept::readSocket(void){
         	if( this->isNeedDecrypt() ){
         		binary_decrypt(recvBufferPtr, 8, MainWorker::getInstance()->getKey());
         	}
-            packetLength = *(int*)((void*)(recvBufferPtr));
+            packetLength = ((PacketHead*)(recvBufferPtr))->length;
 			if( packetLength < (int)sizeof(PacketHead) || packetLength > getMaxLength() ){
 				LOG_ERROR("head length is invalid packetLength=%d", packetLength);
 				break;	// 这里直接将数据丢弃
@@ -205,8 +228,8 @@ int Accept::readSocket(void){
 int Accept::writeSocket(Packet* pPacket){
 	// 检查是否已经经过加密操作
 	if( pPacket->getBuffer()->checkEncryptFlag() ){
-		// 发送数据前，记录一次数据总长度；确保不会出错
-		pPacket->recordLength();
+//		// 发送数据前，记录一次数据总长度；确保不会出错
+//		pPacket->recordLength();
 		if( this->isNeedEncrypt() ){
 			binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), MainWorker::getInstance()->getKey());
 		}

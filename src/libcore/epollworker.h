@@ -33,6 +33,10 @@ NS_HIVE_BEGIN
 #define POOL_TYPE_HTTPS 4
 
 #define COMMAND_PING 0
+#define COMMAND_PONG 1
+#define COMMAND_REGISTER 2
+#define COMMAND_RESPONSE 3
+
 #define EPOLL_READ_BUFFER_SIZE 8192
 
 class MainWorker;
