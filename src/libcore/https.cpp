@@ -20,10 +20,11 @@ Https::~Https(void){
 }
 
 int Https::readSocket(void){
-	char recvBuffer[8192];
+//	char recvBuffer[8192];
+	char* recvBuffer = getEpollWorker()->getReadBuffer();
 	int nread;
 //	nread = read(this->getSocketFD(), recvBuffer, 8192);
-	nread = SSL_read(m_pSSL, recvBuffer, 8192);
+	nread = SSL_read(m_pSSL, recvBuffer, EPOLL_READ_BUFFER_SIZE);
     if(nread < 0){
         switch(errno){
         case EINTR: return 1; 	// 读数据失败，处理信号中断

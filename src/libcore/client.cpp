@@ -57,7 +57,7 @@ bool Client::epollActive(uint32 events){
 		}
 		if(error){
 			if(error == EINTR || error == EINPROGRESS){
-				LOG_ERROR("connect ing...");
+				LOG_ERROR("handle =%d connect ing...", getHandle());
 				return true;
 			}
 			LOG_ERROR("failed to connect to handle=%d ip=%s port=%d", getHandle(), getIP(), getPort());

@@ -136,7 +136,8 @@ void Accept::dispatchPacket(Packet* pPacket){
 	GlobalService::getInstance()->dispatchToService(pPacket);
 }
 int Accept::readSocket(void){
-	char recvBuffer[8192];
+//	char recvBuffer[8192];
+	char* recvBuffer = getEpollWorker()->getReadBuffer();
     char* recvBufferPtr;
     int nread;
     int packetLength;
@@ -144,7 +145,7 @@ int Accept::readSocket(void){
     Packet* pPacket;
     pPacket = m_tempReadPacket;
     if( pPacket == NULL ){
-        nread = read(this->getSocketFD(), recvBuffer, 8192);
+        nread = read(this->getSocketFD(), recvBuffer, EPOLL_READ_BUFFER_SIZE);
     }else{
         nread = read(this->getSocketFD(), pPacket->getCursorPtr(), pPacket->getLength()-pPacket->getCursor());
     }

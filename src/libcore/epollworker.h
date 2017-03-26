@@ -33,14 +33,34 @@ NS_HIVE_BEGIN
 #define POOL_TYPE_HTTPS 4
 
 #define COMMAND_PING 0
+#define EPOLL_READ_BUFFER_SIZE 8192
 
 class MainWorker;
+class EpollWorker;
+
+class EpollHandlerInterface
+{
+public:
+	EpollWorker* m_pEpollWorker;
+public:
+	EpollHandlerInterface(void){}
+	virtual ~EpollHandlerInterface(void){}
+
+	virtual void onReceivePacket() = 0;
+
+	inline void setEpollWorker(EpollWorker* pWorker){ m_pEpollWorker = pWorker; }
+	inline EpollWorker* getEpollWorker(void){ return m_pEpollWorker; }
+};
+
+typedef EpollHandlerInterface* (*EpollHandlerCreateFunction)(void);
+typedef void (*EpollHandlerDestroyFunction)(EpollHandlerInterface* pHandler);
 
 class EpollWorker : public ActiveWorker, public Thread
 {
 public:
 
 public:
+	char m_pReadBuffer[EPOLL_READ_BUFFER_SIZE];
 	DestinationGroup* m_pGroup;
 	MultiCurl* m_pMultiCurl;
 	Packet* m_pPingPacket;				// 预先生成的ping数据包
@@ -83,6 +103,7 @@ public:
 	bool initHttpsCertificate(const char* publicKey, const char* privateKey);
 	inline http_parser_settings* getSettings(void) { return &m_settings; }
 	inline MultiCurl* getMultiCurl(void){ return m_pMultiCurl; }
+	inline char* getReadBuffer(void){ return m_pReadBuffer; }
 protected:
 	virtual int threadFunction(void);
 
