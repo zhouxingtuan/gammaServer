@@ -65,13 +65,40 @@ void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread){
 		recvBufferPtr += writeLength;
 		if( pPacket->isCursorEnd() ){
 			// 派发消息给对应的消息处理器
-			dispatchPacket(pPacket);
+			pAccept->dispatchPacket(pPacket);
 			pPacket->release();
 			pPacket = NULL;
 		}
 		// 如果消息没有全部接收，那么将会放到临时包中等待下一次读数据操作
 	}while(nread-(recvBufferPtr-recvBuffer) > (int)sizeof(PacketHead));
     pAcept->setTempReadPacket(pPacket);
+}
+void onReceiveHttp(Http* pHttp){
+
+}
+void onRemoveHttp(Http* pHttp){
+
+}
+void onHttpReceivePacket(Http* pHttp, Packet* pPacket){
+
+}
+void onCommandPing(Accept* pAccept, Packet* pPacket, uint32 command){
+
+}
+void onCommandPong(Accept* pAccept, Packet* pPacket, uint32 command){
+
+}
+void onCommandRegister(Accept* pAccept, Packet* pPacket, uint32 command){
+
+}
+void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command){
+
+}
+void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command){
+
+}
+void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command){
+
 }
 
 NS_HIVE_END

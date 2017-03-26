@@ -7,6 +7,8 @@
 //
 
 #include "core.h"
+#include "mainhandler.h"
+#include "epollhandler.h"
 
 //jemalloc
 #define JEMALLOC_NO_DEMANGLE
