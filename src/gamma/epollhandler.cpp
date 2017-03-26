@@ -30,7 +30,7 @@ void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread){
 			// 剩下的消息需要继续解析
 			if(nread == needLength){
 				// 使用完临时数据之后，需要直接清除
-				pAcept->setTempReadPacket(pPacket);
+				pAccept->setTempReadPacket(pPacket);
 				return;
 			}
 			recvBuffer += needLength;
@@ -71,7 +71,7 @@ void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread){
 		}
 		// 如果消息没有全部接收，那么将会放到临时包中等待下一次读数据操作
 	}while(nread-(recvBufferPtr-recvBuffer) > (int)sizeof(PacketHead));
-    pAcept->setTempReadPacket(pPacket);
+    pAccept->setTempReadPacket(pPacket);
 }
 void onReceiveHttp(Http* pHttp){
 
