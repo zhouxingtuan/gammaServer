@@ -101,16 +101,10 @@ public:
 	virtual void epollCheck(void){}
 
 	// from Destination
-	virtual void onReceivePacket(Packet* pPacket, Task* pTask){
-		responseRequest(pPacket->getBody(), pPacket->getBodyLength());
-	}
+	virtual void onReceivePacket(Packet* pPacket, Task* pTask);
 
 	// from TimerObject
 	virtual int64 timerCallback(void);
-
-	virtual void onReceiveRequest(void){} 				// 收到一个请求
-	virtual void onRemoveRequest(void){}				// 移除http的时候调用，用于清理工作
-	virtual void onInitialize(void){}					// 用于初始化操作
 
 	void responseRequest(const char* ptr, uint32 length);	// 返回请求字符串
 

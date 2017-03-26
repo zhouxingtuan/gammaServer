@@ -10,9 +10,10 @@
 
 NS_HIVE_BEGIN
 
-MainWorker::MainWorker(void) : ActiveWorker(0),
-	m_pListenerPool(NULL), m_nodeID(0) {
-
+MainWorker::MainWorker(void) : ActiveWorker(0), m_pListenerPool(NULL),
+	m_onAcceptRead(NULL), m_onReceiveHttp(NULL), m_onRemoveHttp(NULL), m_onHttpReceivePacket(NULL),
+	m_nodeID(0) {
+	memset(m_commandArr, sizeof(AcceptCommandFunction)*COMMAND_NUMBER, NULL);
 }
 MainWorker::~MainWorker(void){
 	MainWorker::destroy();

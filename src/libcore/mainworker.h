@@ -23,11 +23,23 @@
 NS_HIVE_BEGIN
 
 #define NET_KEY_LENGTH 16
+#define COMMAND_NUMBER 256
+
+typedef void (*AcceptReadFunction)(Accept* pAccept, char* recvBuffer, int nread);
+typedef void (*ReceiveHttpFunction)(Http* pHttp);
+typedef void (*RemoveHttpFunction)(Http* pHttp);
+typedef void (*HttpReceivePacketFunction)(Http* pHttp, Packet* pPacket);
+typedef void (*AcceptCommandFunction)(Accept* pAccept, Packet* pPacket, uint32 command);
 
 class MainWorker : public ActiveWorker
 {
 public:
 	DestinationPool* m_pListenerPool;
+	AcceptReadFunction m_onAcceptRead;
+	ReceiveHttpFunction m_onReceiveHttp;
+	RemoveHttpFunction m_onRemoveHttp;
+	HttpReceivePacketFunction m_onHttpReceivePacket;
+	AcceptCommandFunction m_commandArr[COMMAND_NUMBER];
 	uint32 m_nodeID;
 	char m_key[NET_KEY_LENGTH];					// 密钥
 public:
@@ -56,6 +68,20 @@ public:
 	virtual void initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 workerNumber);
 	virtual void destroy(void);
 
+	inline void setAcceptReadFunction(AcceptReadFunction func){ m_onAcceptRead = func; }
+	inline AcceptReadFunction getAcceptReadFunction(void){ return m_onAcceptRead; }
+	inline void setReceiveHttpFunction(ReceiveHttpFunction func){ m_onReceiveHttp = func; }
+	inline ReceiveHttpFunction getReceiveHttpFunction(void){ return m_onReceiveHttp; }
+	inline void setRemoveHttpFunction(RemoveHttpFunction func){ m_onRemoveHttp = func; }
+	inline RemoveHttpFunction getRemoveHttpFunction(void){ return m_onRemoveHttp; }
+	inline void setHttpReceivePacketFunction(HttpReceivePacketFunction func){ m_onHttpReceivePacket = func; }
+	inline HttpReceivePacketFunction getHttpReceivePacketFunction(void){ return m_onHttpReceivePacket; }
+	inline void setAcceptCommandFunction(uint8 command, AcceptCommandFunction func){
+		m_commandArr[command] = func;
+	}
+	inline AcceptCommandFunction getAcceptCommandFunction(uint8 command){
+		return m_commandArr[command];
+	}
 	inline bool setKey(const char* key){
 		if(strlen(key) < NET_KEY_LENGTH){
 			return false;

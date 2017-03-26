@@ -9,6 +9,7 @@
 #include "http.h"
 #include "globalservice.h"
 #include "epollworker.h"
+#include "mainworker.h"
 
 NS_HIVE_BEGIN
 
@@ -136,7 +137,7 @@ void Http::epollIn(void){
 			this->setOffset(0);
 			// 回调处理收到请求
 //			fprintf(stderr, "%s\n", m_pBuffer->data());
-			this->onReceiveRequest();
+			MainWorker::getInstance()->getReceiveHttpFunction()(this);
 			result = 0;
 			break;
 		}
@@ -179,7 +180,7 @@ void Http::epollOut(void){
 void Http::epollRemove(void){
 	LOG_DEBUG("handle=%d", this->getHandle());
 	// 移除回调
-	this->onRemoveRequest();
+	MainWorker::getInstance()->getRemoveHttpFunction()(this);
 	// 清理状态，移除出epoll
 	this->resetData();
 	getEpollWorker()->closeHttp(this->getHandle());
@@ -201,6 +202,9 @@ void Http::checkEpollRemove(void){
 		getEpoll()->objectRemove(this);
 		this->setIsInEpoll(false);
 	}
+}
+void Http::onReceivePacket(Packet* pPacket, Task* pTask){
+	MainWorker::getInstance()->getHttpReceivePacketFunction()(this, pPacket);
 }
 int64 Http::timerCallback(void){
 	this->epollRemove();		// main主线程，在这里检查删除

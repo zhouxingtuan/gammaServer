@@ -76,6 +76,8 @@ public:
 	// from TimerObject
 	virtual int64 timerCallback(void);
 
+	void dispatchPacket(Packet* pPacket, uint8 command);
+
 	bool setTimeout(int64 timeCount, Timer* pTimer, ConnectTimeoutCallback callback);
 	bool sendPacket(Packet* pPacket);
 //	inline int getPingTime(void) const { return m_pingTime; }
@@ -93,8 +95,11 @@ public:
 		}
 	}
 	void resetData(void);
-	void setBindHandle(uint32 handle){ m_bindHandle = handle; }
-	uint32 getBindHandle(void) const { return m_bindHandle; }
+
+	inline void setTempReadPacket(Packet* pPacket){ m_tempReadPacket = pPacket; }
+	inline Packet* getTempReadPacket(void){ return m_tempReadPacket; }
+	inline void setBindHandle(uint32 handle){ m_bindHandle = handle; }
+	inline uint32 getBindHandle(void) const { return m_bindHandle; }
 	inline bool isNeedEncrypt(void) const { return m_isNeedEncrypt; }
 	inline void setIsNeedEncrypt(bool need) { m_isNeedEncrypt = need; }
 	inline bool isNeedDecrypt(void) const { return m_isNeedDecrypt; }
@@ -104,7 +109,6 @@ public:
 protected:
 	int readSocket(void);
 	int writeSocket(Packet* pPacket);
-	void dispatchPacket(Packet* pPacket);
 	void releasePacket(void);
 };//end class Accept
 

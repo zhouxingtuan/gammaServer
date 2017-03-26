@@ -36,28 +36,12 @@ NS_HIVE_BEGIN
 #define COMMAND_PONG 1
 #define COMMAND_REGISTER 2
 #define COMMAND_RESPONSE 3
+#define COMMAND_HIVE_REGISTER 4
+#define COMMAND_HIVE_RESPONSE 5
 
 #define EPOLL_READ_BUFFER_SIZE 8192
 
 class MainWorker;
-class EpollWorker;
-
-class EpollHandlerInterface
-{
-public:
-	EpollWorker* m_pEpollWorker;
-public:
-	EpollHandlerInterface(void){}
-	virtual ~EpollHandlerInterface(void){}
-
-	virtual void onReceivePacket() = 0;
-
-	inline void setEpollWorker(EpollWorker* pWorker){ m_pEpollWorker = pWorker; }
-	inline EpollWorker* getEpollWorker(void){ return m_pEpollWorker; }
-};
-
-typedef EpollHandlerInterface* (*EpollHandlerCreateFunction)(void);
-typedef void (*EpollHandlerDestroyFunction)(EpollHandlerInterface* pHandler);
 
 class EpollWorker : public ActiveWorker, public Thread
 {

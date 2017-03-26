@@ -128,50 +128,29 @@ void Accept::resetData(void){
 	m_isNeedEncrypt = false;
 	m_isNeedDecrypt = false;
 }
-void Accept::dispatchPacket(Packet* pPacket){
+void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 	// 对收到的消息进行解密处理：从body开始解密；头部已经在判断长度的时候解密
 	if( this->isNeedDecrypt() && pPacket->getLength() > 8 ){
 		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, MainWorker::getInstance()->getKey());
 	}
 	// 判断cmd执行后续操作
-	switch(pPacket->getHead()->command){
-		case COMMAND_PING:{
-
-			return;
-		}
-		case COMMAND_PONG:{
-
-			return;
-		}
-		case COMMAND_REGISTER:{
-
-			return;
-		}
-		case COMMAND_RESPONSE:{
-
-			return;
-		}
-		default:{
-			break;
-		}
+	AcceptCommandFunction func = MainWorker::getInstance()->getAcceptCommandFunction(command);
+	if(NULL == func){
+//		LOG_ERROR("can not find handle function for command = %d", command);
+//		return;
+		// 这里不执行的命令，发送消息给后面的服务执行
+		GlobalService::getInstance()->dispatchToService(pPacket);
+		return;
+	}else{
+		func(this, pPacket, command);
 	}
-	// 这里不执行的命令，发送消息给后面的服务执行
-	GlobalService::getInstance()->dispatchToService(pPacket);
+//	// 这里不执行的命令，发送消息给后面的服务执行
+//	GlobalService::getInstance()->dispatchToService(pPacket);
 }
 int Accept::readSocket(void){
-//	char recvBuffer[8192];
 	char* recvBuffer = getEpollWorker()->getReadBuffer();
-    char* recvBufferPtr;
-    int nread;
-    int packetLength;
-    int writeLength;
-    Packet* pPacket;
-    pPacket = m_tempReadPacket;
-    if( pPacket == NULL ){
-        nread = read(this->getSocketFD(), recvBuffer, EPOLL_READ_BUFFER_SIZE);
-    }else{
-        nread = read(this->getSocketFD(), pPacket->getCursorPtr(), pPacket->getLength()-pPacket->getCursor());
-    }
+	int nread;
+	nread = read(this->getSocketFD(), recvBuffer, EPOLL_READ_BUFFER_SIZE);
     if(nread < 0){
         switch(errno){
         case EINTR: return 1; 	// 读数据失败，处理信号中断
@@ -182,48 +161,75 @@ int Accept::readSocket(void){
     }else if(nread == 0){
         return -1;
     }
-    //check stick message
-    if( NULL != pPacket ){
-    	pPacket->moveCursor(nread);
-    	if( pPacket->isCursorEnd() ){
-			// 派发消息给对应的消息处理器
-			dispatchPacket(pPacket);
-    		pPacket->release();		// 对应Packet创建时的retain
-			pPacket = NULL;
-    	}
-    }else{
-		if( nread < (int)sizeof(PacketHead) ){
-			return 0;
-		}
-		//这里读取的信息很可能包含多条信息，这时候需要解析出来；这几条信息因为太短，在发送时被底层socket合并了
-		recvBufferPtr = recvBuffer;
-        do{
-        	// 对头部数据进行解密
-        	if( this->isNeedDecrypt() ){
-        		binary_decrypt(recvBufferPtr, 8, MainWorker::getInstance()->getKey());
-        	}
-            packetLength = ((PacketHead*)(recvBufferPtr))->length;
-			if( packetLength < (int)sizeof(PacketHead) || packetLength > getMaxLength() ){
-				LOG_ERROR("head length is invalid packetLength=%d", packetLength);
-				break;	// 这里直接将数据丢弃
-			}
-            writeLength = std::min( (int)(nread-(recvBufferPtr-recvBuffer)), packetLength );
-			// 创建Packet对象，并将数据写入
-			pPacket = new Packet(packetLength);
-			pPacket->retain();	// 如果数据没有全部收到，那么m_tempReadPacket会保持这个retain状态
-			pPacket->write( recvBufferPtr, writeLength );
-            recvBufferPtr += writeLength;
-            if( pPacket->isCursorEnd() ){
-                // 派发消息给对应的消息处理器
-				dispatchPacket(pPacket);
-                pPacket->release();
-                pPacket = NULL;
-            }
-            // 如果消息没有全部接收，那么将会放到临时包中等待下一次读数据操作
-        }while(nread-(recvBufferPtr-recvBuffer) > (int)sizeof(PacketHead));
-    }
-	m_tempReadPacket = pPacket;
+	MainWorker::getInstance()->getAcceptReadFunction()(this, recvBuffer, nread);
     return 0;
+
+
+////	char recvBuffer[8192];
+//	char* recvBuffer = getEpollWorker()->getReadBuffer();
+//    char* recvBufferPtr;
+//    int nread;
+//    int packetLength;
+//    int writeLength;
+//    Packet* pPacket;
+//    pPacket = m_tempReadPacket;
+//    if( pPacket == NULL ){
+//        nread = read(this->getSocketFD(), recvBuffer, EPOLL_READ_BUFFER_SIZE);
+//    }else{
+//        nread = read(this->getSocketFD(), pPacket->getCursorPtr(), pPacket->getLength()-pPacket->getCursor());
+//    }
+//    if(nread < 0){
+//        switch(errno){
+//        case EINTR: return 1; 	// 读数据失败，处理信号中断
+//        case EAGAIN: return 2;	// 可以下次重新调用
+//        default: return -1;
+//        }
+//        return -1;
+//    }else if(nread == 0){
+//        return -1;
+//    }
+//    //check stick message
+//    if( NULL != pPacket ){
+//    	pPacket->moveCursor(nread);
+//    	if( pPacket->isCursorEnd() ){
+//			// 派发消息给对应的消息处理器
+//			dispatchPacket(pPacket);
+//    		pPacket->release();		// 对应Packet创建时的retain
+//			pPacket = NULL;
+//    	}
+//    }else{
+//		if( nread < (int)sizeof(PacketHead) ){
+//			return 0;
+//		}
+//		//这里读取的信息很可能包含多条信息，这时候需要解析出来；这几条信息因为太短，在发送时被底层socket合并了
+//		recvBufferPtr = recvBuffer;
+//        do{
+//        	// 对头部数据进行解密
+//        	if( this->isNeedDecrypt() ){
+//        		binary_decrypt(recvBufferPtr, 8, MainWorker::getInstance()->getKey());
+//        	}
+//            packetLength = ((PacketHead*)(recvBufferPtr))->length;
+//			if( packetLength < (int)sizeof(PacketHead) || packetLength > getMaxLength() ){
+//				LOG_ERROR("head length is invalid packetLength=%d", packetLength);
+//				break;	// 这里直接将数据丢弃
+//			}
+//            writeLength = std::min( (int)(nread-(recvBufferPtr-recvBuffer)), packetLength );
+//			// 创建Packet对象，并将数据写入
+//			pPacket = new Packet(packetLength);
+//			pPacket->retain();	// 如果数据没有全部收到，那么m_tempReadPacket会保持这个retain状态
+//			pPacket->write( recvBufferPtr, writeLength );
+//            recvBufferPtr += writeLength;
+//            if( pPacket->isCursorEnd() ){
+//                // 派发消息给对应的消息处理器
+//				dispatchPacket(pPacket);
+//                pPacket->release();
+//                pPacket = NULL;
+//            }
+//            // 如果消息没有全部接收，那么将会放到临时包中等待下一次读数据操作
+//        }while(nread-(recvBufferPtr-recvBuffer) > (int)sizeof(PacketHead));
+//    }
+//	m_tempReadPacket = pPacket;
+//    return 0;
 }
 int Accept::writeSocket(Packet* pPacket){
 	// 检查是否已经经过加密操作
