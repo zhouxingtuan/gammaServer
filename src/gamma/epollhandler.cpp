@@ -65,7 +65,7 @@ void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread){
 		recvBufferPtr += writeLength;
 		if( pPacket->isCursorEnd() ){
 			// 派发消息给对应的消息处理器
-			pAccept->dispatchPacket(pPacket);
+			pAccept->dispatchPacket(pPacket, pPacket->getHead()->command);
 			pPacket->release();
 			pPacket = NULL;
 		}
