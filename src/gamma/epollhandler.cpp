@@ -73,6 +73,14 @@ void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread){
 	}while(nread-(recvBufferPtr-recvBuffer) > (int)sizeof(PacketHead));
     pAccept->setTempReadPacket(pPacket);
 }
+void onAcceptDecrypt(Accept* pAccept, Packet* pPacket){
+	if( pPacket->getLength() > 8 ){
+		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, MainWorker::getInstance()->getKey());
+	}
+}
+void onAcceptEncrypt(Accept* pAccept, Packet* pPacket){
+	binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), MainWorker::getInstance()->getKey());
+}
 void onReceiveHttp(Http* pHttp){
 
 }

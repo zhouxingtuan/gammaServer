@@ -26,6 +26,8 @@ NS_HIVE_BEGIN
 #define COMMAND_NUMBER 256
 
 typedef void (*AcceptReadFunction)(Accept* pAccept, char* recvBuffer, int nread);
+typedef void (*AcceptEncryptFunction)(Accept* pAccept, Packet* pPacket);
+typedef void (*AcceptDecryptFunction)(Accept* pAccept, Packet* pPacket);
 typedef void (*ReceiveHttpFunction)(Http* pHttp);
 typedef void (*RemoveHttpFunction)(Http* pHttp);
 typedef void (*HttpReceivePacketFunction)(Http* pHttp, Packet* pPacket);
@@ -36,6 +38,8 @@ class MainWorker : public ActiveWorker
 public:
 	DestinationPool* m_pListenerPool;
 	AcceptReadFunction m_onAcceptRead;
+	AcceptEncryptFunction m_onAcceptEncrypt;
+	AcceptDecryptFunction m_onAcceptDecrypt;
 	ReceiveHttpFunction m_onReceiveHttp;
 	RemoveHttpFunction m_onRemoveHttp;
 	HttpReceivePacketFunction m_onHttpReceivePacket;
@@ -70,6 +74,10 @@ public:
 
 	inline void setAcceptReadFunction(AcceptReadFunction func){ m_onAcceptRead = func; }
 	inline AcceptReadFunction getAcceptReadFunction(void){ return m_onAcceptRead; }
+	inline void setAcceptEncryptFunction(AcceptEncryptFunction func){ m_onAcceptEncrypt = func; }
+	inline AcceptEncryptFunction getAcceptEncryptFunction(void){ return m_onAcceptEncrypt; }
+	inline void setAcceptDecryptFunction(AcceptDecryptFunction func){ m_onAcceptDecrypt = func; }
+	inline AcceptDecryptFunction getAcceptDecryptFunction(void){ return m_onAcceptDecrypt; }
 	inline void setReceiveHttpFunction(ReceiveHttpFunction func){ m_onReceiveHttp = func; }
 	inline ReceiveHttpFunction getReceiveHttpFunction(void){ return m_onReceiveHttp; }
 	inline void setRemoveHttpFunction(RemoveHttpFunction func){ m_onRemoveHttp = func; }

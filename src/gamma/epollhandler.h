@@ -14,6 +14,8 @@
 NS_HIVE_BEGIN
 
 void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread);
+void onAcceptDecrypt(Accept* pAccept, Packet* pPacket);
+void onAcceptEncrypt(Accept* pAccept, Packet* pPacket);
 void onReceiveHttp(Http* pHttp);
 void onRemoveHttp(Http* pHttp);
 void onHttpReceivePacket(Http* pHttp, Packet* pPacket);

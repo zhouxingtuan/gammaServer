@@ -130,8 +130,9 @@ void Accept::resetData(void){
 }
 void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 	// 对收到的消息进行解密处理：从body开始解密；头部已经在判断长度的时候解密
-	if( this->isNeedDecrypt() && pPacket->getLength() > 8 ){
-		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, MainWorker::getInstance()->getKey());
+	if( this->isNeedDecrypt() ){
+		MainWorker::getInstance()->getAcceptDecryptFunction()(this, pPacket);
+//		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, MainWorker::getInstance()->getKey());
 	}
 	// 判断cmd执行后续操作
 	AcceptCommandFunction func = MainWorker::getInstance()->getAcceptCommandFunction(command);
@@ -237,7 +238,8 @@ int Accept::writeSocket(Packet* pPacket){
 //		// 发送数据前，记录一次数据总长度；确保不会出错
 //		pPacket->recordLength();
 		if( this->isNeedEncrypt() ){
-			binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), MainWorker::getInstance()->getKey());
+			MainWorker::getInstance()->getAcceptEncryptFunction()(this, pPacket);
+//			binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), MainWorker::getInstance()->getKey());
 		}
 	}
 
