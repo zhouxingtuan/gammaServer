@@ -62,13 +62,13 @@ public:
 	static void onAcceptHttps(int fd, const char* ip, uint16 port, Listener* pListener);
 
 	bool closeListener(uint32 handle);
-	uint32 openListener(const char* ip, uint16 port, AcceptSocketFunction pFunc, bool isNeedEncrypt, bool isNeedDecrypt);
+	uint32 openListener(const char* ip, uint16 port, AcceptSocketFunction pFunc, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
 	Listener* getListener(uint32 handle){
 		return (Listener*)m_pListenerPool->get(handle);
 	}
 	uint32 openHttpListener(const char* ip, uint16 port);
 	uint32 openHttpsListener(const char* ip, uint16 port);
-	uint32 openSocketListener(const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
+	uint32 openSocketListener(const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex, uint8 acceptIndex);
 
 	void update(void);
 

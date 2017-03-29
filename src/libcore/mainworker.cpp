@@ -81,13 +81,13 @@ uint32 MainWorker::openListener(const char* ip, uint16 port, AcceptSocketFunctio
 	return handle;
 }
 uint32 MainWorker::openHttpListener(const char* ip, uint16 port){
-	return this->openListener(ip, port, MainWorker::onAcceptHttp, false, false);
+	return this->openListener(ip, port, MainWorker::onAcceptHttp, false, false, 0);
 }
 uint32 MainWorker::openHttpsListener(const char* ip, uint16 port){
-	return this->openListener(ip, port, MainWorker::onAcceptHttps, false, false);
+	return this->openListener(ip, port, MainWorker::onAcceptHttps, false, false, 0);
 }
-uint32 MainWorker::openSocketListener(const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt){
-	return this->openListener(ip, port, MainWorker::onAcceptSocket, isNeedEncrypt, isNeedDecrypt);
+uint32 MainWorker::openSocketListener(const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
+	return this->openListener(ip, port, MainWorker::onAcceptSocket, isNeedEncrypt, isNeedDecrypt, acceptIndex);
 }
 
 void MainWorker::onAcceptSocket(int fd, const char* ip, uint16 port, Listener* pListener){
