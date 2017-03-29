@@ -68,7 +68,7 @@ public:
 	}
 	uint32 openHttpListener(const char* ip, uint16 port);
 	uint32 openHttpsListener(const char* ip, uint16 port);
-	uint32 openSocketListener(const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex, uint8 acceptIndex);
+	uint32 openSocketListener(const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
 
 	void update(void);
 
