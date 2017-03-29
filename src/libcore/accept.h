@@ -70,9 +70,7 @@ public:
 	virtual void epollCheck(void);
 
 	// from Destination
-	virtual void onReceivePacket(Packet* pPacket, Task* pTask){
-		sendPacket(pPacket);
-	}
+	virtual void onReceivePacket(Packet* pPacket, Task* pTask);
 
 	// from TimerObject
 	virtual int64 timerCallback(void);

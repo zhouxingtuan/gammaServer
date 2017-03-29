@@ -18,6 +18,7 @@ MainWorker::MainWorker(void) : ActiveWorker(0), m_pListenerPool(NULL),
 	for(int i=0; i<COMMAND_NUMBER; ++i){
 		m_commandArr[i] = NULL;
 		m_acceptReadArr[i] = NULL;
+		m_acceptReceiveArr[i] = NULL;
 	}
 }
 MainWorker::~MainWorker(void){

@@ -73,6 +73,9 @@ void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread){
 	}while(nread-(recvBufferPtr-recvBuffer) > (int)sizeof(PacketHead));
     pAccept->setTempReadPacket(pPacket);
 }
+void onAcceptReceivePacket(Accept* pAccept, Packet* pPacket){
+	pAccept->sendPacket(pPacket);
+}
 void onAcceptDecrypt(Accept* pAccept, Packet* pPacket){
 	if( pPacket->getLength() > 8 ){
 		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, MainWorker::getInstance()->getKey());

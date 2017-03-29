@@ -73,6 +73,14 @@ void Accept::epollCheck(void){
 		getEpoll()->objectChange(this, EPOLLIN | EPOLLOUT);
 	}
 }
+void Accept::onReceivePacket(Packet* pPacket, Task* pTask){
+	AcceptReceivePacketFunction func = MainWorker::getInstance()->getAcceptReceivePacketFunction(this->getAcceptIndex());
+    if(NULL == func){
+		LOG_ERROR("can not find accept receive packet function for index = %d", this->getAcceptIndex());
+    }else{
+    	func(this, pPacket);
+    }
+}
 int64 Accept::timerCallback(void){
 	if(NULL != m_timerCallback){
 		return m_timerCallback(this);
@@ -164,7 +172,7 @@ int Accept::readSocket(void){
     }
     AcceptReadFunction func = MainWorker::getInstance()->getAcceptReadFunction(this->getAcceptIndex());
     if(NULL == func){
-		LOG_ERROR("can not find accept function for index = %d", this->getAcceptIndex());
+		LOG_ERROR("can not find accept read function for index = %d", this->getAcceptIndex());
     }else{
     	func(this, recvBuffer, nread);
     }

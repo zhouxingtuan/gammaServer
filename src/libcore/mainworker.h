@@ -26,6 +26,7 @@ NS_HIVE_BEGIN
 #define COMMAND_NUMBER 256
 
 typedef void (*AcceptReadFunction)(Accept* pAccept, char* recvBuffer, int nread);
+typedef void (*AcceptReceivePacketFunction)(Accept* pAccept, Packet* pPacket);
 typedef void (*AcceptEncryptFunction)(Accept* pAccept, Packet* pPacket);
 typedef void (*AcceptDecryptFunction)(Accept* pAccept, Packet* pPacket);
 typedef void (*ReceiveHttpFunction)(Http* pHttp);
@@ -45,6 +46,7 @@ public:
 	HttpReceivePacketFunction m_onHttpReceivePacket;
 	AcceptCommandFunction m_commandArr[COMMAND_NUMBER];
 	AcceptReadFunction m_acceptReadArr[COMMAND_NUMBER];
+	AcceptReceivePacketFunction m_acceptReceiveArr[COMMAND_NUMBER];
 	uint32 m_nodeID;
 	char m_key[NET_KEY_LENGTH];					// 密钥
 public:
@@ -78,6 +80,12 @@ public:
 	}
 	inline AcceptReadFunction getAcceptReadFunction(uint8 acceptIndex){
 		return m_acceptReadArr[acceptIndex];
+	}
+	inline void setAcceptReceivePacketFunction(uint8 acceptIndex, AcceptReceivePacketFunction func){
+		m_acceptReceiveArr[acceptIndex] = func;
+	}
+	inline AcceptReceivePacketFunction getAcceptReceivePacketFunction(uint8 acceptIndex){
+		return m_acceptReceiveArr[acceptIndex];
 	}
 	inline void setAcceptEncryptFunction(AcceptEncryptFunction func){ m_onAcceptEncrypt = func; }
 	inline AcceptEncryptFunction getAcceptEncryptFunction(void){ return m_onAcceptEncrypt; }
