@@ -12,7 +12,7 @@
 NS_HIVE_BEGIN
 
 Listener::Listener(void) : EpollConnectObject(), Destination(),
-	m_acceptSocketFunction(NULL), m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_listenType(0) {
+	m_acceptSocketFunction(NULL), m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_acceptIndex(0) {
 
 }
 Listener::~Listener(void){
@@ -54,6 +54,7 @@ void Listener::resetData(void){
 	closeSocket();
 	m_isNeedEncrypt = false;
 	m_isNeedDecrypt = false;
+	m_acceptIndex = 0;
 }
 bool Listener::openSocket(void){
     int opt = 0;

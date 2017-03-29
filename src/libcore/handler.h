@@ -57,10 +57,10 @@ public:
 	virtual void onCloseListener(uint32 callbackID, uint32 listenerHandle, CloseListenerTask* pTask) = 0;
 	virtual void onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask) = 0;
 
-	void openClient(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt);
+	void openClient(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
 	void openHttpListener(uint32 callbackID, const char* ip, uint16 port);
 	void openHttpsListener(uint32 callbackID, const char* ip, uint16 port);
-	void openSocketListener(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt);
+	void openSocketListener(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
 	void closeListener(uint32 callbackID, uint32 listenerHandle);
 	void closeConnect(uint32 callbackID, uint32 connectHandle);
 	void bindAccept(uint32 acceptHandle, uint32 bindHandle);

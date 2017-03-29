@@ -17,7 +17,7 @@ NS_HIVE_BEGIN
 Accept::Accept(void) : EpollConnectObject(), Destination(), TimerObject(),
  	m_timerCallback(NULL), m_pEpollWorker(NULL), m_tempReadPacket(NULL), m_bindHandle(0),
  	m_connectionState(CS_DISCONNECT), m_isOnline(0),
-	m_isNeedEncrypt(false), m_isNeedDecrypt(false) {
+	m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_acceptIndex(0) {
 
 }
 Accept::~Accept(void){
@@ -162,7 +162,12 @@ int Accept::readSocket(void){
     }else if(nread == 0){
         return -1;
     }
-	MainWorker::getInstance()->getAcceptReadFunction()(this, recvBuffer, nread);
+    AcceptReadFunction func = MainWorker::getInstance()->getAcceptReadFunction(this->getAcceptIndex());
+    if(NULL == func){
+		LOG_ERROR("can not find accept function for index = %d", this->getAcceptIndex());
+    }else{
+    	func(this, recvBuffer, nread);
+    }
     return 0;
 
 

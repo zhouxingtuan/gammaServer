@@ -64,8 +64,8 @@ public:
 
 	bool dispatchToConnect(uint32 handle, Packet* pPacket);
 
-	uint32 openAccept(int fd, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt);
-	uint32 openClient(uint32 bindHandle, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt);
+	uint32 openAccept(int fd, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
+	uint32 openClient(uint32 bindHandle, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
 	uint32 openHttp(int fd, const char* ip, uint16 port);
 	uint32 openHttps(int fd, const char* ip, uint16 port);
 	void receiveClient(Client* pClient);
@@ -133,6 +133,7 @@ public:
     uint16 m_port;
     bool m_isNeedEncrypt;
     bool m_isNeedDecrypt;
+    uint8 m_acceptIndex;
 public:
 	OpenAcceptTask(void) : Task() {}
 	virtual ~OpenAcceptTask(void){}
@@ -140,7 +141,7 @@ public:
 	virtual void doTask(Handler* pHandler){}
 	virtual void doTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
-		pWorker->openAccept(m_fd, m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt);
+		pWorker->openAccept(m_fd, m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt, m_acceptIndex);
 	}
 	inline void setSocket(const char* ip, uint16 port){
 		strcpy(m_ip, ip);
@@ -176,6 +177,7 @@ public:
     uint16 m_port;
     bool m_isNeedEncrypt;
     bool m_isNeedDecrypt;
+    uint8 m_acceptIndex;
 public:
 	OpenClientTask(void) : Task() {}
 	virtual ~OpenClientTask(void){}
@@ -185,7 +187,7 @@ public:
 	}
 	virtual void doTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
-		uint32 handle = pWorker->openClient(m_bindHandle, m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt);
+		uint32 handle = pWorker->openClient(m_bindHandle, m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt, m_acceptIndex);
 		uint32 bindHandle = m_bindHandle;
 		this->m_bindHandle = handle;
 		GlobalHandler::getInstance()->dispatchTask(bindHandle, this);

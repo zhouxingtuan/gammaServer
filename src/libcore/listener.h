@@ -54,13 +54,13 @@ public:
 	inline void setIsNeedEncrypt(bool need) { m_isNeedEncrypt = need; }
 	inline bool isNeedDecrypt(void) const { return m_isNeedDecrypt; }
 	inline void setIsNeedDecrypt(bool need) { m_isNeedDecrypt = need; }
-	inline uint8 getListenType(void) const { return m_listenType; }
-	inline void setListenType(uint8 type) { m_listenType = type; }
+	inline uint8 getAcceptIndex(void) const { return m_acceptIndex; }
+	inline void setAcceptIndex(uint8 index){ m_acceptIndex = index; }
 protected:
 	AcceptSocketFunction m_acceptSocketFunction;
 	bool m_isNeedEncrypt;			// 是否需要解密
 	bool m_isNeedDecrypt;			// 是否需要加密
-	uint8 m_listenType;				// 监听的类型
+	uint8 m_acceptIndex;			// 使用的数据处理函数
 };
 
 NS_HIVE_END

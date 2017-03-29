@@ -11,11 +11,13 @@
 NS_HIVE_BEGIN
 
 MainWorker::MainWorker(void) : ActiveWorker(0), m_pListenerPool(NULL),
-	m_onAcceptRead(NULL), m_onAcceptEncrypt(NULL), m_onAcceptDecrypt(NULL),
+//	m_onAcceptRead(NULL),
+	m_onAcceptEncrypt(NULL), m_onAcceptDecrypt(NULL),
 	m_onReceiveHttp(NULL), m_onRemoveHttp(NULL), m_onHttpReceivePacket(NULL),
 	m_nodeID(0) {
 	for(int i=0; i<COMMAND_NUMBER; ++i){
 		m_commandArr[i] = NULL;
+		m_acceptReadArr[i] = NULL;
 	}
 }
 MainWorker::~MainWorker(void){
@@ -49,7 +51,7 @@ bool MainWorker::closeListener(uint32 handle){
 	LOG_DEBUG("OK handle=%d", handle);
 	return true;
 }
-uint32 MainWorker::openListener(const char* ip, uint16 port, AcceptSocketFunction pFunc, bool isNeedEncrypt, bool isNeedDecrypt){
+uint32 MainWorker::openListener(const char* ip, uint16 port, AcceptSocketFunction pFunc, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
 	LOG_DEBUG("try to open Listener ip=%s port=%d", ip, port);
 	Listener* pListener = (Listener*)m_pListenerPool->create();
 	if(NULL == pListener){
@@ -60,6 +62,7 @@ uint32 MainWorker::openListener(const char* ip, uint16 port, AcceptSocketFunctio
 	pListener->setEpoll(m_pEpoll);
 	pListener->setSocket(ip, port);
 	pListener->setAcceptSocketFunction(pFunc);
+	pListener->setAcceptIndex(acceptIndex);
 	if( !pListener->openSocket() ){
 		closeListener(handle);
 		LOG_ERROR("Listener openSocket failed");
@@ -93,6 +96,7 @@ void MainWorker::onAcceptSocket(int fd, const char* ip, uint16 port, Listener* p
 	pTask->setSocket(ip, port);
 	pTask->m_isNeedEncrypt = pListener->isNeedEncrypt();
 	pTask->m_isNeedDecrypt = pListener->isNeedDecrypt();
+	pTask->m_acceptIndex = pListener->getAcceptIndex();
 	GlobalService::getInstance()->dispatchTaskEqualToEpollWorker(pTask);
 	pTask->release();
 }

@@ -37,13 +37,14 @@ class MainWorker : public ActiveWorker
 {
 public:
 	DestinationPool* m_pListenerPool;
-	AcceptReadFunction m_onAcceptRead;
+//	AcceptReadFunction m_onAcceptRead;
 	AcceptEncryptFunction m_onAcceptEncrypt;
 	AcceptDecryptFunction m_onAcceptDecrypt;
 	ReceiveHttpFunction m_onReceiveHttp;
 	RemoveHttpFunction m_onRemoveHttp;
 	HttpReceivePacketFunction m_onHttpReceivePacket;
 	AcceptCommandFunction m_commandArr[COMMAND_NUMBER];
+	AcceptReadFunction m_acceptReadArr[COMMAND_NUMBER];
 	uint32 m_nodeID;
 	char m_key[NET_KEY_LENGTH];					// 密钥
 public:
@@ -65,15 +66,19 @@ public:
 	}
 	uint32 openHttpListener(const char* ip, uint16 port);
 	uint32 openHttpsListener(const char* ip, uint16 port);
-	uint32 openSocketListener(const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt);
+	uint32 openSocketListener(const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
 
 	void update(void);
 
 	virtual void initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 workerNumber);
 	virtual void destroy(void);
 
-	inline void setAcceptReadFunction(AcceptReadFunction func){ m_onAcceptRead = func; }
-	inline AcceptReadFunction getAcceptReadFunction(void){ return m_onAcceptRead; }
+	inline void setAcceptReadFunction(uint8 acceptIndex, AcceptReadFunction func){
+		m_acceptReadArr[acceptIndex] = func;
+	}
+	inline AcceptReadFunction getAcceptReadFunction(uint8 acceptIndex){
+		return m_acceptReadArr[acceptIndex];
+	}
 	inline void setAcceptEncryptFunction(AcceptEncryptFunction func){ m_onAcceptEncrypt = func; }
 	inline AcceptEncryptFunction getAcceptEncryptFunction(void){ return m_onAcceptEncrypt; }
 	inline void setAcceptDecryptFunction(AcceptDecryptFunction func){ m_onAcceptDecrypt = func; }
@@ -111,6 +116,7 @@ public:
     uint16 m_port;
     bool m_isNeedEncrypt;
     bool m_isNeedDecrypt;
+    uint8 m_acceptIndex;
 public:
 	OpenSocketListenerTask(void) : Task() {}
 	virtual ~OpenSocketListenerTask(void){}
@@ -120,7 +126,7 @@ public:
 	}
 	virtual void doTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
-		uint32 handle = pWorker->openSocketListener(m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt);
+		uint32 handle = pWorker->openSocketListener(m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt, m_acceptIndex);
 		// 返回创建的结果
 		uint32 bindHandle = m_bindHandle;
 		m_bindHandle = handle;

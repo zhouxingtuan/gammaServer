@@ -158,7 +158,7 @@ int64 EpollWorker::keepConnectOnline(Accept* pAccept){
 	return CONNECT_KEEP_ONLINE_TIME;
 }
 
-uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt){
+uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
 	LOG_DEBUG("fd=%d ip=%s port=%d", fd, ip, port);
 	// 获取一个连接对象Accept，将对象一并加入到epoll中
 	Accept* pAccept = (Accept*)m_pGroup->createDestination(POOL_TYPE_ACCEPT);
@@ -172,6 +172,7 @@ uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedE
 	pAccept->setEpoll(m_pEpoll);
 	pAccept->setSocketFD( fd );
 	pAccept->setSocket( ip, port );
+	pAccept->setAcceptIndex(acceptIndex);
 	if(fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0)|O_NONBLOCK) == -1){
 		pAccept->closeSocket();
 		closeAccept(handle);
@@ -191,7 +192,7 @@ uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedE
 	LOG_DEBUG("handle=%d fd=%d ip=%s port=%d", handle, fd, ip, port);
 	return handle;
 }
-uint32 EpollWorker::openClient(uint32 bindHandle, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt){
+uint32 EpollWorker::openClient(uint32 bindHandle, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
 	Client* pClient = (Client*)m_pGroup->createDestination(POOL_TYPE_CLIENT);
 	if(NULL == pClient){
 		LOG_ERROR("create client NULL == pClient");
@@ -201,6 +202,7 @@ uint32 EpollWorker::openClient(uint32 bindHandle, const char* ip, uint16 port, b
 	pClient->setEpollWorker(this);
 	pClient->setEpoll(m_pEpoll);
 	pClient->setSocket(ip, port);
+	pClient->setAcceptIndex(acceptIndex);
 	pClient->setConnectionState(CS_CONNECT_START);
 	if( !pClient->connectServer() ){
 		LOG_ERROR("Client::connectServer failed");

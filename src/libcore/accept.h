@@ -48,6 +48,7 @@ protected:
 	bool m_isOnline;
 	bool m_isNeedEncrypt;			// 是否需要解密
 	bool m_isNeedDecrypt;			// 是否需要加密
+	uint8 m_acceptIndex;			// 解析接收数据的方法下标
 public:
 	explicit Accept(void);
 	virtual ~Accept(void);
@@ -104,6 +105,8 @@ public:
 	inline void setIsNeedEncrypt(bool need) { m_isNeedEncrypt = need; }
 	inline bool isNeedDecrypt(void) const { return m_isNeedDecrypt; }
 	inline void setIsNeedDecrypt(bool need) { m_isNeedDecrypt = need; }
+	inline uint8 getAcceptIndex(void) const { return m_acceptIndex; }
+	inline void setAcceptIndex(uint8 index){ m_acceptIndex = index; }
 	inline void setEpollWorker(EpollWorker* pEpollWorker){ m_pEpollWorker = pEpollWorker; }
 	inline EpollWorker* getEpollWorker(void){ return m_pEpollWorker; }
 protected:

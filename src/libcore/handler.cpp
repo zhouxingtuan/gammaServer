@@ -22,7 +22,7 @@ Handler::~Handler(void){
 	Handler::destroy();
 }
 
-void Handler::openClient(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt){
+void Handler::openClient(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
 	OpenClientTask* pTask = new OpenClientTask();
 	pTask->retain();
 	pTask->m_callbackID = callbackID;
@@ -30,6 +30,7 @@ void Handler::openClient(uint32 callbackID, const char* ip, uint16 port, bool is
 	pTask->setSocket(ip, port);
 	pTask->m_isNeedEncrypt = isNeedEncrypt;
 	pTask->m_isNeedDecrypt = isNeedDecrypt;
+	pTask->m_acceptIndex = acceptIndex;
 	GlobalService::getInstance()->dispatchTaskEqualToEpollWorker(pTask);
 	pTask->release();
 }
@@ -68,7 +69,7 @@ void Handler::openHttpsListener(uint32 callbackID, const char* ip, uint16 port){
 	MainWorker::getInstance()->acceptTask(pTask);
 	pTask->release();
 }
-void Handler::openSocketListener(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt){
+void Handler::openSocketListener(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
 	OpenSocketListenerTask* pTask = new OpenSocketListenerTask();
 	pTask->retain();
 	pTask->m_callbackID = callbackID;
@@ -76,6 +77,7 @@ void Handler::openSocketListener(uint32 callbackID, const char* ip, uint16 port,
 	pTask->setSocket(ip, port);
 	pTask->m_isNeedEncrypt = isNeedEncrypt;
 	pTask->m_isNeedDecrypt = isNeedDecrypt;
+	pTask->m_acceptIndex = acceptIndex;
 	MainWorker::getInstance()->acceptTask(pTask);
 	pTask->release();
 }
