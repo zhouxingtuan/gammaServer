@@ -24,12 +24,12 @@ public:
 	}
 	virtual void notifyConnectServerSuccess(Client* pClient){
 		fprintf(stderr, "Client called notifyConnectServerSuccess\n");
-		Packet* p = new Packet(8);
-		int a = 123;
-		p->write(&a, sizeof(int));
-		p->retain();
-		pClient->receivePacket(p);
-		p->release();
+//		Packet* p = new Packet(8);
+//		int a = 123;
+//		p->write(&a, sizeof(int));
+//		p->retain();
+//		pClient->receivePacket(p);
+//		p->release();
 	}
 	virtual void notifyConnectOut(Client* pClient){
 		fprintf(stderr, "Client called notifyConnectOut\n");
