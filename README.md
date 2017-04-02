@@ -6,6 +6,9 @@ A server framework with multi threads. Base on epoll and provides socket,http,ht
 2) git clone https://github.com/jemalloc/jemalloc.git third/jemalloc/ , and build jemalloc
 3) goto src/gamma and build
 
+# client connection
+codes was in the client directory. main.cpp shows the way to use the client.
+
 # developing plans
 1) complete and test framework ing...
 2) add C++ module (waiting)
