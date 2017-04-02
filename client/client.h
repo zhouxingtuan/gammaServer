@@ -267,11 +267,11 @@ public:
 	virtual void removeSocket(void);
 	virtual void setNotifyInterface(ClientInterface* pInterface){ m_pInterface = pInterface; }
 	virtual inline void setSocket(const char* ip, unsigned short port){
-		strcpy(m_socket.ip, ip);
-		m_socket.port = port;
+		strcpy(m_ip, ip);
+		m_port = port;
 	}
-	virtual inline void setSocketFD(int fd){ m_socket.fd = fd; }
-	virtual inline int getSocketFD(void) const { return m_socket.fd; }
+	virtual inline void setSocketFD(int fd){ m_fd = fd; }
+	virtual inline int getSocketFD(void) const { return m_fd; }
 protected:
 	virtual bool connectServer(void);
 	virtual bool trySelectSocket(void);
