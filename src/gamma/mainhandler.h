@@ -55,7 +55,7 @@ public:
 
 	virtual void doTask(Handler* pHandler){
 		MainHandler* pMain = (MainHandler*)pHandler;
-		pHandler->onInitialize();
+		pMain->onInitialize();
 	}
 	virtual void doTask(ActiveWorker* pHandler){}
 };
