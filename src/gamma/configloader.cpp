@@ -47,6 +47,7 @@ void loadConfig(const char* fileName){
 	const std::string& 	https_private 		= config["https_private"];
 
 	// init the core
+	GlobalSetting::createInstance();
 	GlobalSetting::getInstance()->setKey(netkey.c_str());
 	GlobalSetting::getInstance()->setPassword(password);
 	GlobalSetting::getInstance()->setPublicKey(https_public);
