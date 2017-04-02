@@ -41,7 +41,7 @@ void MainHandler::onCloseListener(uint32 callbackID, uint32 listenerHandle, Clos
 	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
 }
 void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask){
-	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
+	LOG_DEBUG("callbackID=%d connectHandle=%d", callbackID, connectHandle);
 }
 int64 MainHandler::onTimerUpdate(uint32 callbackID){
 	LOG_DEBUG("callbackID=%d", callbackID);
