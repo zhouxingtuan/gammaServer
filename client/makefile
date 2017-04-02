@@ -12,7 +12,7 @@ CFLAGS = -O2 -Wall -pthread -lrt $(INCLUDES) -lstdc++ -std=c++11 $(HIVENET_STATI
 
 CC = gcc
 RM = rm -f
-BIN = ./
+BIN = .
 TARGET = client
 
 $(TARGET): client.o main.o
