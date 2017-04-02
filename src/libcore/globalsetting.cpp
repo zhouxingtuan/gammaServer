@@ -20,7 +20,7 @@ GlobalSetting::GlobalSetting(void) : RefObject(),
 		m_acceptReadArr[i] = NULL;
 		m_acceptReceiveArr[i] = NULL;
 	}
-	memset(m_key, sizeof(m_key), 0);
+	memset(m_key, 0, sizeof(m_key));
 }
 GlobalSetting::~GlobalSetting(void){
 	GlobalSetting::destroy();

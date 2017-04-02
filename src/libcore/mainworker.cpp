@@ -129,7 +129,7 @@ void MainWorker::initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 work
 	if(NULL == m_pListenerPool){
 		m_pListenerPool = new DestinationPool();
 		m_pListenerPool->retain();
-		m_pListenerPool->registerFunction(getNodeID(), getServiceID(), 0, Listener::createObject, Listener::releaseObject);
+		m_pListenerPool->registerFunction(nodeID, getServiceID(), 0, Listener::createObject, Listener::releaseObject);
 	}
 	TimerManager::createInstance()->setTimer(m_pTimer);
 	GlobalHandler::createInstance()->initialize();
