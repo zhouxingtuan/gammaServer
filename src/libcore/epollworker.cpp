@@ -84,6 +84,11 @@ void EpollWorker::initialize(void){
 	}else{
 		LOG_INFO("SSL_CTX_new OK");
 	}
+	const std::string& publicKey = GlobalSetting::getInstance()->getPublicKey();
+	const std::string& privateKey = GlobalSetting::getInstance()->getPrivateKey();
+	if( !initHttpsCertificate(publicKey.c_str(), privateKey.c_str()) ){
+		LOG_ERROR("eoll init https key error service=%d", getServiceID());
+	}
 }
 void EpollWorker::destroy(void){
 	SAFE_RELEASE(m_pGroup)

@@ -40,6 +40,8 @@ public:
 	char m_key[NET_KEY_LENGTH];					// 密钥
 	uint32 m_nodeID;							// 节点的ID
 	std::string m_password;						// 服务间连接验证密码
+	std::string m_publicKey;					// 公共密钥
+	std::string m_privateKey;					// 私钥
 public:
 	GlobalSetting(void);
 	virtual ~GlobalSetting(void);
@@ -89,6 +91,10 @@ public:
 	inline const char* getKey(void) const { return m_key; }
 	inline void setPassword(const std::string& pwd){ m_password = pwd; }
 	inline const std::string& getPassword(void) const { return m_password; }
+	inline void setPublicKey(const std::string& key){ m_publicKey = key; }
+	inline const std::string& getPublicKey(void) const { return m_publicKey; }
+	inline void setPrivateKey(const std::string& key){ m_privateKey = key; }
+	inline const std::string& getPrivateKey(void) const { return m_privateKey; }
 	inline uint32 getNodeID(void){ return m_nodeID; }
 	inline void setNodeID(uint32 nodeID){ m_nodeID = nodeID; }
 public:

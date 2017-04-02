@@ -47,9 +47,10 @@ void loadConfig(const char* fileName){
 	const std::string& 	https_private 		= config["https_private"];
 
 	// init the core
-	MainWorker::getInstance()->initialize((uint32)node_id, (uint32)epoll_number, (uint32)worker_number);
 	GlobalSetting::getInstance()->setKey(netkey.c_str());
 	GlobalSetting::getInstance()->setPassword(password);
+	GlobalSetting::getInstance()->setPublicKey(https_public);
+	GlobalSetting::getInstance()->setPrivateKey(https_private);
 	GlobalSetting::getInstance()->setAcceptReadFunction(0, onAcceptRead);
 	GlobalSetting::getInstance()->setAcceptReceivePacketFunction(0, onAcceptReceivePacket);
 	GlobalSetting::getInstance()->setAcceptDecryptFunction(onAcceptDecrypt);
@@ -63,9 +64,7 @@ void loadConfig(const char* fileName){
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_RESPONSE, onCommandResponse);
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_HIVE_REGISTER, onCommandHiveRegister);
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_HIVE_RESPONSE, onCommandHiveResponse);
-
-	// init the epoll worker https file
-	GlobalService::getInstance()->initializeCertificate(https_public.c_str(), https_private.c_str());
+	MainWorker::getInstance()->initialize((uint32)node_id, (uint32)epoll_number, (uint32)worker_number);
 
 	// create main handler
 	GlobalHandler::getInstance()->createPool(HANDLER_TYPE_MAIN, MainHandler::createObject, MainHandler::releaseObject);
