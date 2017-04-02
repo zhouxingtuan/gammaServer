@@ -66,7 +66,7 @@ void loadConfig(const char* fileName){
 	// create main handler
 	GlobalHandler::getInstance()->createPool(HANDLER_TYPE_MAIN, MainHandler::createObject, MainHandler::releaseObject);
 	uint32 mainHandle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN);
-	MainHandler* pMain = GlobalHandler::getInstance()->getDestination(mainHandle);
+	MainHandler* pMain = GlobalHandler::getInstance()->getDestination<MainHandler>(mainHandle);
 
 	// record main init data
 
