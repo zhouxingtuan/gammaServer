@@ -7,7 +7,8 @@ A server framework with multi threads. Base on epoll and provides socket,http,ht
 3) goto src/gamma and build
 
 # client connection
-codes was in the client directory. main.cpp shows the way to use the client.
+codes was in the client directory. main.cpp shows the way to use the client. 
+depends on pthread, Support Linux/Mac/IOS/Android.
 
 # developing plans
 1) complete and test framework ing...
