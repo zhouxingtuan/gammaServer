@@ -36,7 +36,7 @@
 #include "multicurl.h"
 #include "epollworker.h"
 #include "handler.h"
-#include "globalfunction.h"
+#include "globalhandler.h"
 #include "globalsetting.h"
 #include "globalservice.h"
 #include "worker.h"
