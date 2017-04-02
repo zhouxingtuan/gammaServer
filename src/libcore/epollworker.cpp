@@ -7,7 +7,7 @@
 //
 
 #include "epollworker.h"
-#include "mainworker.h"
+#include "globalsetting.h"
 
 NS_HIVE_BEGIN
 
@@ -45,7 +45,7 @@ void EpollWorker::initialize(void){
 		m_pPingPacket->writeEnd();
 	}
 	if(NULL == m_pGroup){
-		uint32 nodeID = MainWorker::getInstance()->getNodeID();
+		uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
 		m_pGroup = new DestinationGroup(nodeID, getServiceID());
 		m_pGroup->retain();
 		m_pGroup->createPool(POOL_TYPE_ACCEPT, Accept::createObject, Accept::releaseObject);

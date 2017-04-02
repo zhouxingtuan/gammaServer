@@ -7,7 +7,7 @@
 //
 
 #include "globalservice.h"
-#include "mainworker.h"
+#include "globalsetting.h"
 
 NS_HIVE_BEGIN
 
@@ -88,7 +88,7 @@ bool GlobalService::dispatchTask(uint32 handle, Task* pTask){
 	}
 }
 bool GlobalService::sendToNode(uint32 nodeID, Packet* pPacket){
-	if(0 == nodeID || MainWorker::getInstance()->getNodeID() == nodeID){
+	if(0 == nodeID || GlobalSetting::getInstance()->getNodeID() == nodeID){
 		return sendToService(pPacket->getHead()->destination.handle, pPacket);
 	}
 	// 发送消息给其它网络节点

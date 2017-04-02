@@ -7,7 +7,7 @@
 //
 
 #include "globalhandler.h"
-#include "mainworker.h"
+#include "globalsetting.h"
 
 NS_HIVE_BEGIN
 
@@ -122,7 +122,7 @@ bool GlobalHandler::removeDestination(uint32 handle){
 }
 void GlobalHandler::initialize(void){
 	if(NULL == m_pGroup){
-		uint32 nodeID = MainWorker::getInstance()->getNodeID();
+		uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
 		m_pGroup = new DestinationGroup(nodeID, 0);
 		m_pGroup->retain();
 	}
