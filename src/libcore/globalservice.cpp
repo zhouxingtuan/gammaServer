@@ -130,6 +130,13 @@ bool GlobalService::dispatchToEpollWorker(uint32 handle, Packet* pPacket){
 	pWorker->release();
 	return result;
 }
+void GlobalService::initializeCertificate(const char* publicKey, const char* privateKey){
+	for( auto pWorker : m_epollWorkers ){
+		if( !pWorker->initHttpsCertificate(publicKey, privateKey) ){
+			LOG_ERROR("certificate error epoll=%d", pWorker->getServiceID());
+		}
+	}
+}
 void GlobalService::initialize(uint16 epollWorkerNumber){
 	if(epollWorkerNumber > MAX_EPOLL_WORKER_NUMBER){
 		LOG_ERROR("epoll worker only support=%d reset from=%d", MAX_EPOLL_WORKER_NUMBER, epollWorkerNumber);

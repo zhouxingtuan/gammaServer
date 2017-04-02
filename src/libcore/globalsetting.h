@@ -38,8 +38,8 @@ public:
 	AcceptReadFunction m_acceptReadArr[COMMAND_NUMBER];
 	AcceptReceivePacketFunction m_acceptReceiveArr[COMMAND_NUMBER];
 	char m_key[NET_KEY_LENGTH];					// 密钥
-	uint32 m_nodeID;
-
+	uint32 m_nodeID;							// 节点的ID
+	std::string m_password;						// 服务间连接验证密码
 public:
 	GlobalSetting(void);
 	virtual ~GlobalSetting(void);
@@ -87,6 +87,8 @@ public:
 		return true;
 	}
 	inline const char* getKey(void) const { return m_key; }
+	inline void setPassword(const std::string& pwd){ m_password = pwd; }
+	inline const std::string& getPassword(void) const { return m_password; }
 	inline uint32 getNodeID(void){ return m_nodeID; }
 	inline void setNodeID(uint32 nodeID){ m_nodeID = nodeID; }
 public:

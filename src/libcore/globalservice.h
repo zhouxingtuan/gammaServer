@@ -51,6 +51,8 @@ public:
 	bool dispatchToService(Packet* pPacket);
 	bool dispatchToEpollWorker(uint32 handle, Packet* pPacket);
 
+	void initializeCertificate(const char* publicKey, const char* privateKey);
+
 	uint32 getNodeConnect(uint32 nodeID){
 		uint32 handle = 0;
 		lock();
