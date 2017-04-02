@@ -48,7 +48,7 @@ public:
 	Handler(void);
 	virtual ~Handler(void);
 
-	virtual void onCurlResponse(Buffer* pBuffer, uint32 callbackID, bool isRequestOK) = 0;			// Handler 处理消息
+	virtual void onCurlResponse(Buffer* pBuffer, uint32 callbackID, bool isRequestOK) = 0;
 	virtual void onOpenClientOK(uint32 clientHandle, OpenClientOKTask* pTask) = 0;
 	virtual void onOpenClient(uint32 callbackID, uint32 clientHandle, OpenClientTask* pTask) = 0;
 	virtual void onOpenSocketListener(uint32 callbackID, uint32 listenerHandle, OpenSocketListenerTask* pTask) = 0;

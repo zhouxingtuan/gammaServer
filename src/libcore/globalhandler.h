@@ -39,6 +39,10 @@ public:
 	bool idleDestination(uint32 handle);
 	bool removeDestination(uint32 handle);
 
+	template<class _OBJECT_>
+	_OBJECT_* getDestination(uint32 handle){
+		return (_OBJECT_*)m_pGroup->getDestination(handle);
+	}
 	DestinationGroup* getGroup(void) { return m_pGroup; }
 	void initialize(void);
 	void destroy(void);

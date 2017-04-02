@@ -13,6 +13,8 @@
 
 NS_HIVE_BEGIN
 
+// these functions will be called from EpollWorker, work in different threads
+
 void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread);
 void onAcceptReceivePacket(Accept* pAccept, Packet* pPacket);
 void onAcceptDecrypt(Accept* pAccept, Packet* pPacket);

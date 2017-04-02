@@ -92,6 +92,7 @@ public:
 	inline http_parser_settings* getSettings(void) { return &m_settings; }
 	inline MultiCurl* getMultiCurl(void){ return m_pMultiCurl; }
 	inline char* getReadBuffer(void){ return m_pReadBuffer; }
+	inline Packet* getPingPacket(void){ return m_pPingPacket; }
 protected:
 	virtual int threadFunction(void);
 

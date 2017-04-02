@@ -10,8 +10,42 @@
 
 NS_HIVE_BEGIN
 
-void parseConfig(const char* fileName){
-	MainWorker::getInstance()->initialize(1, 2, 2);
+MainHandler::MainHandler(void) : Handler() {
+
+}
+MainHandler::~MainHandler(void){
+
+}
+void MainHandler::onReceivePacket(Packet* pPacket, Task* pTask){
+	LOG_DEBUG("packet length=%d", pPacket->getLength());
+}
+void MainHandler::onCurlResponse(Buffer* pBuffer, uint32 callbackID, bool isRequestOK){
+	LOG_DEBUG("buffer length=%d callbackID=%d isRequestOK=%d", pBuffer->size(), callbackID, isRequestOK);
+}
+void MainHandler::onOpenClientOK(uint32 clientHandle, OpenClientOKTask* pTask){
+	LOG_DEBUG("clientHandle=%d", clientHandle);
+}
+void MainHandler::onOpenClient(uint32 callbackID, uint32 clientHandle, OpenClientTask* pTask){
+	LOG_DEBUG("callbackID=%d clientHandle=%d", callbackID, clientHandle);
+}
+void MainHandler::onOpenSocketListener(uint32 callbackID, uint32 listenerHandle, OpenSocketListenerTask* pTask){
+	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
+}
+void MainHandler::onOpenHttpListener(uint32 callbackID, uint32 listenerHandle, OpenHttpListenerTask* pTask){
+	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
+}
+void MainHandler::onOpenHttpsListener(uint32 callbackID, uint32 listenerHandle, OpenHttpsListenerTask* pTask){
+	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
+}
+void MainHandler::onCloseListener(uint32 callbackID, uint32 listenerHandle, CloseListenerTask* pTask){
+	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
+}
+void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask){
+	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
+}
+
+void MainHandler::onInitialize(void){
+	LOG_DEBUG("main handler start...");
 
 }
 

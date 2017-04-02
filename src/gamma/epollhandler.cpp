@@ -74,41 +74,52 @@ void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread){
     pAccept->setTempReadPacket(pPacket);
 }
 void onAcceptReceivePacket(Accept* pAccept, Packet* pPacket){
+	LOG_DEBUG("handle=%d packet length=%d", pAccept->getHandle(), pPacket->getLength());
 	pAccept->sendPacket(pPacket);
 }
 void onAcceptDecrypt(Accept* pAccept, Packet* pPacket){
+	LOG_DEBUG("handle=%d packet length=%d", pAccept->getHandle(), pPacket->getLength());
 	if( pPacket->getLength() > 8 ){
 		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, GlobalSetting::getInstance()->getKey());
 	}
 }
 void onAcceptEncrypt(Accept* pAccept, Packet* pPacket){
+	LOG_DEBUG("handle=%d packet length=%d", pAccept->getHandle(), pPacket->getLength());
 	binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), GlobalSetting::getInstance()->getKey());
 }
 void onReceiveHttp(Http* pHttp){
-
+	LOG_DEBUG("handle=%d", pHttp->getLength());
 }
 void onRemoveHttp(Http* pHttp){
-
+	LOG_DEBUG("handle=%d", pHttp->getLength());
 }
 void onHttpReceivePacket(Http* pHttp, Packet* pPacket){
-
+	LOG_DEBUG("handle=%d packet length=%d", pHttp->getHandle(), pPacket->getLength());
+	// here will skip the packet head
+	pHttp->responseRequest(pPacket->getBody(), pPacket->getBodyLength());
 }
 void onCommandPing(Accept* pAccept, Packet* pPacket, uint32 command){
+	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 
 }
 void onCommandPong(Accept* pAccept, Packet* pPacket, uint32 command){
+	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 
 }
 void onCommandRegister(Accept* pAccept, Packet* pPacket, uint32 command){
+	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 
 }
 void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command){
+	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 
 }
 void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command){
+	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 
 }
 void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command){
+	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 
 }
 

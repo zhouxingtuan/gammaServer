@@ -7,6 +7,7 @@
 //
 
 #include "core.h"
+#include "configloader.h"
 #include "mainhandler.h"
 #include "epollhandler.h"
 
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
 	// 创建单例管理器
 	MainWorker::createInstance();
 	// 初始化配置
-	parseConfig("config.ini");
+	loadConfig("config.ini");
 	MainWorker::getInstance()->update();
 	LOG_INFO("main loop exit ...");
 	MainWorker::destroyInstance();
