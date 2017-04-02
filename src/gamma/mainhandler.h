@@ -42,6 +42,7 @@ public:
 	virtual void onOpenHttpsListener(uint32 callbackID, uint32 listenerHandle, OpenHttpsListenerTask* pTask);
 	virtual void onCloseListener(uint32 callbackID, uint32 listenerHandle, CloseListenerTask* pTask);
 	virtual void onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask);
+	virtual int64 onTimerUpdate(uint32 callbackID);
 
 	void onInitialize(void);
 };
