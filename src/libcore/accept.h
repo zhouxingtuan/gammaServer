@@ -79,8 +79,7 @@ public:
 
 	bool setTimeout(int64 timeCount, Timer* pTimer, ConnectTimeoutCallback callback);
 	bool sendPacket(Packet* pPacket);
-//	inline int getPingTime(void) const { return m_pingTime; }
-//	inline void setPingTime(int t) { m_pingTime = t; }
+	bool sendPacket(const char* ptr, int length);
 	inline bool isOnline(void) const { return m_isOnline; }
 	inline void setOnline(bool online) { m_isOnline = online; }
 	inline void setConnectionState(unsigned char state) { m_connectionState = state; }
@@ -110,6 +109,7 @@ public:
 protected:
 	int readSocket(void);
 	int writeSocket(Packet* pPacket);
+	int writeSocket(const char* ptr, int length, int* writeLength);
 	void releasePacket(void);
 };//end class Accept
 

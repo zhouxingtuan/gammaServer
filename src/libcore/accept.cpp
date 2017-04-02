@@ -11,6 +11,7 @@
 #include "globalservice.h"
 #include "epollworker.h"
 #include "mainworker.h"
+#include "globalsetting.h"
 
 NS_HIVE_BEGIN
 
@@ -74,7 +75,7 @@ void Accept::epollCheck(void){
 	}
 }
 void Accept::onReceivePacket(Packet* pPacket, Task* pTask){
-	AcceptReceivePacketFunction func = MainWorker::getInstance()->getAcceptReceivePacketFunction(this->getAcceptIndex());
+	AcceptReceivePacketFunction func = GlobalSetting::getInstance()->getAcceptReceivePacketFunction(this->getAcceptIndex());
     if(NULL == func){
 		LOG_ERROR("can not find accept receive packet function for index = %d", this->getAcceptIndex());
     }else{
@@ -125,6 +126,45 @@ bool Accept::sendPacket(Packet* pPacket){
 
 	return true;
 }
+bool Accept::sendPacket(const char* ptr, int length){
+	if( !m_packetQueue.empty() ){
+		Packet* pPacket = new Packet(length);
+		pPacket->write(ptr, length);
+		pPacket->resetCursor();		// 后面的写操作需要重置
+		pPacket->retain();			// 进入队列前引用
+		// 已经在epoll中等待out事件
+		m_packetQueue.push_back(pPacket);
+	}else{
+		// 先执行写操作，如果出现重试，那么再将Packet入队
+		int writeLength = 0;
+		int result = writeSocket(ptr, length, &writeLength);
+		if( result < 0 ){
+			epollRemove();
+		}else{
+			// result == 0 成功写 || result > 0 需要重新尝试写
+			if(length == writeLength){
+				// write success end, do nothing
+			}else{
+				int leftLength;
+				if(result == 0){
+					leftLength = length - writeLength;
+				}else{
+					leftLength = length;
+				}
+				Packet* pPacket = new Packet(leftLength);
+				pPacket->write(ptr + writeLength, leftLength);
+				pPacket->resetCursor();		// 后面的写操作需要重置
+				pPacket->retain();			// 进入队列前引用
+				// 没有写完的消息进入队列
+				m_packetQueue.push_front(pPacket);
+				// 进入epoll等待
+				getEpoll()->objectChange(this, EPOLLIN | EPOLLOUT);
+			}
+		}
+	}
+
+	return true;
+}
 void Accept::resetData(void){
 	setConnectionState(CS_DISCONNECT);
 //	setPingTime(0);
@@ -139,22 +179,17 @@ void Accept::resetData(void){
 void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 	// 对收到的消息进行解密处理：从body开始解密；头部已经在判断长度的时候解密
 	if( this->isNeedDecrypt() ){
-		MainWorker::getInstance()->getAcceptDecryptFunction()(this, pPacket);
-//		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, MainWorker::getInstance()->getKey());
+		GlobalSetting::getInstance()->getAcceptDecryptFunction()(this, pPacket);
 	}
 	// 判断cmd执行后续操作
-	AcceptCommandFunction func = MainWorker::getInstance()->getAcceptCommandFunction(command);
+	AcceptCommandFunction func = GlobalSetting::getInstance()->getAcceptCommandFunction(command);
 	if(NULL == func){
-//		LOG_ERROR("can not find handle function for command = %d", command);
-//		return;
 		// 这里不执行的命令，发送消息给后面的服务执行
 		GlobalService::getInstance()->dispatchToService(pPacket);
 		return;
 	}else{
 		func(this, pPacket, command);
 	}
-//	// 这里不执行的命令，发送消息给后面的服务执行
-//	GlobalService::getInstance()->dispatchToService(pPacket);
 }
 int Accept::readSocket(void){
 	char* recvBuffer = getEpollWorker()->getReadBuffer();
@@ -170,92 +205,21 @@ int Accept::readSocket(void){
     }else if(nread == 0){
         return -1;
     }
-    AcceptReadFunction func = MainWorker::getInstance()->getAcceptReadFunction(this->getAcceptIndex());
+    AcceptReadFunction func = GlobalSetting::getInstance()->getAcceptReadFunction(this->getAcceptIndex());
     if(NULL == func){
 		LOG_ERROR("can not find accept read function for index = %d", this->getAcceptIndex());
     }else{
     	func(this, recvBuffer, nread);
     }
     return 0;
-
-
-////	char recvBuffer[8192];
-//	char* recvBuffer = getEpollWorker()->getReadBuffer();
-//    char* recvBufferPtr;
-//    int nread;
-//    int packetLength;
-//    int writeLength;
-//    Packet* pPacket;
-//    pPacket = m_tempReadPacket;
-//    if( pPacket == NULL ){
-//        nread = read(this->getSocketFD(), recvBuffer, EPOLL_READ_BUFFER_SIZE);
-//    }else{
-//        nread = read(this->getSocketFD(), pPacket->getCursorPtr(), pPacket->getLength()-pPacket->getCursor());
-//    }
-//    if(nread < 0){
-//        switch(errno){
-//        case EINTR: return 1; 	// 读数据失败，处理信号中断
-//        case EAGAIN: return 2;	// 可以下次重新调用
-//        default: return -1;
-//        }
-//        return -1;
-//    }else if(nread == 0){
-//        return -1;
-//    }
-//    //check stick message
-//    if( NULL != pPacket ){
-//    	pPacket->moveCursor(nread);
-//    	if( pPacket->isCursorEnd() ){
-//			// 派发消息给对应的消息处理器
-//			dispatchPacket(pPacket);
-//    		pPacket->release();		// 对应Packet创建时的retain
-//			pPacket = NULL;
-//    	}
-//    }else{
-//		if( nread < (int)sizeof(PacketHead) ){
-//			return 0;
-//		}
-//		//这里读取的信息很可能包含多条信息，这时候需要解析出来；这几条信息因为太短，在发送时被底层socket合并了
-//		recvBufferPtr = recvBuffer;
-//        do{
-//        	// 对头部数据进行解密
-//        	if( this->isNeedDecrypt() ){
-//        		binary_decrypt(recvBufferPtr, 8, MainWorker::getInstance()->getKey());
-//        	}
-//            packetLength = ((PacketHead*)(recvBufferPtr))->length;
-//			if( packetLength < (int)sizeof(PacketHead) || packetLength > getMaxLength() ){
-//				LOG_ERROR("head length is invalid packetLength=%d", packetLength);
-//				break;	// 这里直接将数据丢弃
-//			}
-//            writeLength = std::min( (int)(nread-(recvBufferPtr-recvBuffer)), packetLength );
-//			// 创建Packet对象，并将数据写入
-//			pPacket = new Packet(packetLength);
-//			pPacket->retain();	// 如果数据没有全部收到，那么m_tempReadPacket会保持这个retain状态
-//			pPacket->write( recvBufferPtr, writeLength );
-//            recvBufferPtr += writeLength;
-//            if( pPacket->isCursorEnd() ){
-//                // 派发消息给对应的消息处理器
-//				dispatchPacket(pPacket);
-//                pPacket->release();
-//                pPacket = NULL;
-//            }
-//            // 如果消息没有全部接收，那么将会放到临时包中等待下一次读数据操作
-//        }while(nread-(recvBufferPtr-recvBuffer) > (int)sizeof(PacketHead));
-//    }
-//	m_tempReadPacket = pPacket;
-//    return 0;
 }
 int Accept::writeSocket(Packet* pPacket){
 	// 检查是否已经经过加密操作
 	if( pPacket->getBuffer()->checkEncryptFlag() ){
-//		// 发送数据前，记录一次数据总长度；确保不会出错
-//		pPacket->recordLength();
 		if( this->isNeedEncrypt() ){
-			MainWorker::getInstance()->getAcceptEncryptFunction()(this, pPacket);
-//			binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), MainWorker::getInstance()->getKey());
+			GlobalSetting::getInstance()->getAcceptEncryptFunction()(this, pPacket);
 		}
 	}
-
     int nwrite;
     nwrite = write(this->getSocketFD(), pPacket->getCursorPtr(), pPacket->getLength()-pPacket->getCursor());
     if(nwrite < 0){
@@ -269,6 +233,23 @@ int Accept::writeSocket(Packet* pPacket){
         return -1;
     }
     pPacket->moveCursor( nwrite );// used
+    return 0;
+}
+int Accept::writeSocket(const char* ptr, int length, int* writeLength){
+
+    int nwrite;
+    nwrite = write(this->getSocketFD(), ptr, length);
+    if(nwrite < 0){
+        switch(errno){
+        case EINTR: return 1; // 写数据失败，处理信号中断
+        case EAGAIN:    // 可以下次重新调用
+//            fprintf(stderr, "write EAGAIN capture\n");
+            return 2;
+        default: return -1;
+        }
+        return -1;
+    }
+    *writeLength = nwrite;
     return 0;
 }
 

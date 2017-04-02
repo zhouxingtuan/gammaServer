@@ -18,7 +18,7 @@ DEBUG= -g -ggdb
 OBJS = common.o util.o systemsignal.o token.o log.o buffer.o destination.o packet.o destinationpool.o destinationgroup.o\
 		object.o objectpool.o objecthashpool.o timer.o task.o epoll.o active.o activeworker.o \
 		accept.o client.o http.o https.o listener.o timerhandle.o handler.o multicurl.o \
-		globalhandler.o epollworker.o globalservice.o worker.o handlerqueue.o mainworker.o
+		globalhandler.o globalfunction.o epollworker.o globalservice.o worker.o handlerqueue.o mainworker.o
 
 
 COBJS = http_parser.o
@@ -95,6 +95,8 @@ globalhandler.o:handler.o destinationgroup.o globalhandler.cpp globalhandler.h
 epollworker.o:activeworker.o accept.o client.o http.o https.o multicurl.o epollworker.cpp epollworker.h
 
 globalservice.o:globalhandler.o epollworker.o globalservice.cpp globalservice.h
+
+globalfunction.o:accept.o http.o globalfunction.cpp globalfunction.h
 
 worker.o:handler.o worker.cpp worker.h
 

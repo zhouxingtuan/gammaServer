@@ -10,16 +10,8 @@
 
 NS_HIVE_BEGIN
 
-MainWorker::MainWorker(void) : ActiveWorker(0), m_pListenerPool(NULL),
-//	m_onAcceptRead(NULL),
-	m_onAcceptEncrypt(NULL), m_onAcceptDecrypt(NULL),
-	m_onReceiveHttp(NULL), m_onRemoveHttp(NULL), m_onHttpReceivePacket(NULL),
-	m_nodeID(0) {
-	for(int i=0; i<COMMAND_NUMBER; ++i){
-		m_commandArr[i] = NULL;
-		m_acceptReadArr[i] = NULL;
-		m_acceptReceiveArr[i] = NULL;
-	}
+MainWorker::MainWorker(void) : ActiveWorker(0), m_pListenerPool(NULL) {
+
 }
 MainWorker::~MainWorker(void){
 	MainWorker::destroy();
@@ -119,21 +111,21 @@ void MainWorker::onAcceptHttps(int fd, const char* ip, uint16 port, Listener* pL
 }
 
 void MainWorker::update(void){
-	LOG_INFO("start nodeID=%d serviceID=%d", m_nodeID, getServiceID());
+	LOG_INFO("start main serviceID=%d", getServiceID());
 	int64 timeout;
 	while(1){
 		timeout = m_pTimer->getWaitTimeout();
 		m_pEpoll->update(timeout);
 		m_pTimer->update();
 	}
-	LOG_INFO("exit nodeID=%d serviceID=%d", m_nodeID, getServiceID());
+	LOG_INFO("exit main serviceID=%d", getServiceID());
 }
 
 void MainWorker::initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 workerNumber){
 	// 初始化基类数据
 	ActiveWorker::initialize();
 
-	m_nodeID = nodeID;
+	GlobalSetting::createInstance()->initialize(nodeID);
 	if(NULL == m_pListenerPool){
 		m_pListenerPool = new DestinationPool();
 		m_pListenerPool->retain();

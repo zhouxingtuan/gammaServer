@@ -50,7 +50,7 @@ void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread){
 	do{
 		// 对头部数据进行解密
 		if( pAccept->isNeedDecrypt() ){
-			binary_decrypt(recvBufferPtr, 8, MainWorker::getInstance()->getKey());
+			binary_decrypt(recvBufferPtr, 8, GlobalSetting::getInstance()->getKey());
 		}
 		packetLength = ((PacketHead*)(recvBufferPtr))->length;
 		if( packetLength < (int)sizeof(PacketHead) || packetLength > pAccept->getMaxLength() ){
@@ -78,11 +78,11 @@ void onAcceptReceivePacket(Accept* pAccept, Packet* pPacket){
 }
 void onAcceptDecrypt(Accept* pAccept, Packet* pPacket){
 	if( pPacket->getLength() > 8 ){
-		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, MainWorker::getInstance()->getKey());
+		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, GlobalSetting::getInstance()->getKey());
 	}
 }
 void onAcceptEncrypt(Accept* pAccept, Packet* pPacket){
-	binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), MainWorker::getInstance()->getKey());
+	binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), GlobalSetting::getInstance()->getKey());
 }
 void onReceiveHttp(Http* pHttp){
 

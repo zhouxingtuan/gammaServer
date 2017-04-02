@@ -137,7 +137,7 @@ void Http::epollIn(void){
 			this->setOffset(0);
 			// 回调处理收到请求
 //			fprintf(stderr, "%s\n", m_pBuffer->data());
-			MainWorker::getInstance()->getReceiveHttpFunction()(this);
+			GlobalSetting::getInstance()->getReceiveHttpFunction()(this);
 			result = 0;
 			break;
 		}
@@ -180,7 +180,7 @@ void Http::epollOut(void){
 void Http::epollRemove(void){
 	LOG_DEBUG("handle=%d", this->getHandle());
 	// 移除回调
-	MainWorker::getInstance()->getRemoveHttpFunction()(this);
+	GlobalSetting::getInstance()->getRemoveHttpFunction()(this);
 	// 清理状态，移除出epoll
 	this->resetData();
 	getEpollWorker()->closeHttp(this->getHandle());
@@ -204,7 +204,7 @@ void Http::checkEpollRemove(void){
 	}
 }
 void Http::onReceivePacket(Packet* pPacket, Task* pTask){
-	MainWorker::getInstance()->getHttpReceivePacketFunction()(this, pPacket);
+	GlobalSetting::getInstance()->getHttpReceivePacketFunction()(this, pPacket);
 }
 int64 Http::timerCallback(void){
 	this->epollRemove();		// main主线程，在这里检查删除
