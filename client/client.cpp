@@ -257,7 +257,7 @@ bool Client::readSocket(void){
 		//这里读取的信息很可能包含多条信息，这时候需要解析出来；这几条信息因为太短，在发送时被底层socket合并了
 		recvBufferPtr = recvBuffer;
         do{
-            packetLength = *(int*)((void*)(recvBufferPtr));
+            packetLength = ((PacketHead*)(recvBufferPtr))->length;
 			if( packetLength < PACKET_HEAD_LENGTH ){
 				break;	// 这里直接将数据丢弃
 			}
