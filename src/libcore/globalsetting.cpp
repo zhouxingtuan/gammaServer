@@ -56,7 +56,7 @@ void GlobalSetting::destroy(void){
 		m_acceptReadArr[i] = NULL;
 		m_acceptReceiveArr[i] = NULL;
 	}
-	memset(m_key, sizeof(m_key), 0);
+	memset(m_key, 0, NET_KEY_LENGTH);
 }
 
 NS_HIVE_END
