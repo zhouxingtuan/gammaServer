@@ -38,13 +38,20 @@ pthread_t Thread::staticThread(ThreadCallback start_rtn, void *arg){
 	return pThread;
 }
 /*--------------------------------------------------------------------*/
-Packet::Packet(int bufferSize) : RefObject(),m_pBuffer(NULL),m_cursor(0),m_rwState(PACKET_READ_WRITE) {
+Buffer::Buffer(int length) : RefObject(), CharVector(length, 0) {
+	this->clear();
+}
+Buffer::~Buffer(void){
+
+}
+/*--------------------------------------------------------------------*/
+Packet::Packet(int bufferSize) : RefObject(),m_pBuffer(NULL),m_cursor(0) {
 	assert(bufferSize > 0 && "Packet new bufferSize should be > 0");
 	m_pBuffer = new Buffer();	// 是否处理分配内存失败？
 	m_pBuffer->retain();
 	m_pBuffer->reserve(bufferSize);
 }
-Packet::Packet(Buffer* pBuffer) : RefObject(),m_pBuffer(pBuffer),m_cursor(0),m_rwState(PACKET_READ_WRITE) {
+Packet::Packet(Buffer* pBuffer) : RefObject(),m_pBuffer(pBuffer),m_cursor(0) {
 	assert(pBuffer != NULL && "Packet new pBuffer should not be NULL");
 	pBuffer->retain();
 }

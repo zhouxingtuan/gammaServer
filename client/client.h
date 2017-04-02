@@ -132,12 +132,12 @@ typedef std::vector<char> CharVector;
 class Buffer : public RefObject, public CharVector
 {
 public:
-	Buffer(void) : RefObject(), CharVector(){}
-	virtual ~Buffer(void){}
+	explicit Buffer(int length);
+	virtual ~Buffer(void);
 
 	inline int write(const void* ptr, int length, int offset){
-		int needSize = offset + length;
-		if( (int)this->size() < needSize ){
+		size_t needSize = offset + length;
+		if( this->size() < needSize ){
 			this->resize(needSize, 0);
 		}
 		char* writeTo = (char*)(this->data()) + offset;
@@ -153,8 +153,10 @@ public:
 		memcpy(ptr, readFrom, length);
 		return length;
 	}
-protected:
-
+	template<typename T>
+	inline T to(int offset) const {
+		return *((T*)(this->data()+offset));
+	}
 };// end class Buffer
 /*--------------------------------------------------------------------*/
 // 服务间传递消息的头部数据结构
@@ -173,17 +175,21 @@ public:
     explicit Packet(Buffer* pBuffer);
     virtual ~Packet(void);
 
-	inline PacketHead* getHead(void){ return (PacketHead*)(getDataPtr()); }	// 该指针在write调用后可能会变化
-	inline char* getBody(void){ return getOffsetPtr(sizeof(PacketHead)); }
-	inline int getBodyLength(void) const { return (getLength() - sizeof(PacketHead)); }
+	inline void setCursorToEnd(void){ m_cursor = getLength(); }
 	inline void setCursor(int cur){ m_cursor = cur; }
 	inline void moveCursor(int length){ m_cursor += length; }
 	inline int getCursor(void) const { return m_cursor; }
 	inline void resetCursor(void){ m_cursor = 0; }
 	inline Buffer* getBuffer(void){ return m_pBuffer; }
+	inline PacketHead* getHead(void){ return (PacketHead*)(getDataPtr()); }	// 该指针在write调用后可能会变化
+	inline char* getOffsetPtr(int offset){ return m_pBuffer->data() + offset; }
 	inline char* getCursorPtr(void){ return m_pBuffer->data() + m_cursor; }
+	inline char* getDataPtr(void){ return m_pBuffer->data(); }
 	inline int getLength(void) const { return (int)m_pBuffer->size(); }
 	inline bool isCursorEnd(void) const { return getCursor() >= getLength(); }
+	inline char* getBody(void){ return getOffsetPtr(sizeof(PacketHead)); }
+	inline int getBodyLength(void) const { return (getLength() - sizeof(PacketHead)); }
+
 	inline int write(const void* ptr, int length){
 		int n = m_pBuffer->write(ptr, length, getCursor());
 		if( n > 0 ){
