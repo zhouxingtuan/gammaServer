@@ -88,10 +88,10 @@ void onAcceptEncrypt(Accept* pAccept, Packet* pPacket){
 	binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), GlobalSetting::getInstance()->getKey());
 }
 void onReceiveHttp(Http* pHttp){
-	LOG_DEBUG("handle=%d", pHttp->getLength());
+	LOG_DEBUG("handle=%d", pHttp->getHandle());
 }
 void onRemoveHttp(Http* pHttp){
-	LOG_DEBUG("handle=%d", pHttp->getLength());
+	LOG_DEBUG("handle=%d", pHttp->getHandle());
 }
 void onHttpReceivePacket(Http* pHttp, Packet* pPacket){
 	LOG_DEBUG("handle=%d packet length=%d", pHttp->getHandle(), pPacket->getLength());
