@@ -10,7 +10,7 @@
 
 NS_HIVE_BEGIN
 
-GlobalSetting::GlobalSetting(void) : RefObject()
+GlobalSetting::GlobalSetting(void) : RefObject(),
 	m_onAcceptEncrypt(NULL), m_onAcceptDecrypt(NULL),
 	m_onReceiveHttp(NULL), m_onRemoveHttp(NULL), m_onHttpReceivePacket(NULL),
 	m_nodeID(0)
