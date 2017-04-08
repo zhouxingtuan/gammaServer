@@ -9,6 +9,7 @@
 #include "configloader.h"
 #include "epollhandler.h"
 #include "mainhandler.h"
+#include "handlercreator.h"
 
 NS_HIVE_BEGIN
 
