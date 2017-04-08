@@ -29,23 +29,23 @@ protected:
 	DestinationDestroyFunction m_destroyFunction;
 	ObjectVector m_objects;
 	ObjectVector m_idleObjects;
-	IndexQueue m_idleSlot;
-//	uint32 m_useCount;
+//	IndexQueue m_idleSlot;
+	uint32 m_useCount;
+	Destination::index_type m_slotIndex;
 	uint32 m_maxHashNumber;
-//	uint32 m_slotIndex;
 	uint32 m_nodeID;
 	uint32 m_poolType;
 	uint32 m_serviceID;
 public:
 	DestinationPool(void) : RefObject(), m_createFunction(NULL), m_destroyFunction(NULL),
-//	 	m_useCount(0),
+	 	m_useCount(0),
+	 	m_slotIndex(1),
 	 	m_maxHashNumber(DEFAULT_MAX_DESTINATION_POOL),
-//	 	m_slotIndex(1),
 	 	m_nodeID(0), m_poolType(0), m_serviceID(0) {
 		m_objects.resize(65536, NULL);	// 下标为0的值不使用
-		for(uint32 i=1; i<65536; ++i){
-			m_idleSlot.push_back(i);
-		}
+//		for(uint32 i=1; i<65536; ++i){
+//			m_idleSlot.push_back(i);
+//		}
 	}
 	virtual ~DestinationPool(void){
 		clear();
@@ -58,25 +58,25 @@ public:
 		m_destroyFunction = destroy;
 	}
 	inline Destination::index_type getNextSlot(void){
-//		uint32 index = moveSlot();
-//		while(NULL != m_objects[index]){
-//			index = moveSlot();
-//		};
-//		return index;
-		if(m_idleSlot.empty()){
-			return 0;
-		}
-		Destination::index_type index = m_idleSlot.front();
-		m_idleSlot.pop_front();
+		Destination::index_type index = moveSlot();
+		while(NULL != m_objects[index]){
+			index = moveSlot();
+		};
 		return index;
-	}
-//	inline uint32 moveSlot(void){
-//		if(m_slotIndex > 65535){
-//			m_slotIndex = 2;
-//			return 1;
+//		if(m_idleSlot.empty()){
+//			return 0;
 //		}
-//		return m_slotIndex++;
-//	}
+//		Destination::index_type index = m_idleSlot.front();
+//		m_idleSlot.pop_front();
+//		return index;
+	}
+	inline Destination::index_type moveSlot(void){
+		if(m_slotIndex > 65535){
+			m_slotIndex = 2;
+			return 1;
+		}
+		return m_slotIndex++;
+	}
 	Destination* getIdleObject(void){
 		Destination* pObj;
 		if(!m_idleObjects.empty()){
@@ -89,9 +89,9 @@ public:
 	}
 	// 当超出最大缓存数值的时候，会返回NULL
 	Destination* create(void){
-//		if(m_useCount >= m_maxHashNumber){
-//			return NULL;
-//		}
+		if(m_useCount >= m_maxHashNumber){
+			return NULL;
+		}
 		Destination::index_type index = getNextSlot();
 		if(index == 0){
 			return NULL;
@@ -102,7 +102,7 @@ public:
 		pObj->setNode(m_nodeID);
 		pObj->setIndex(index);
 		m_objects[index] = pObj;
-//		++m_useCount;
+		++m_useCount;
 		return pObj;
 	}
 	Destination* get(Destination::handle_type handle){
@@ -129,8 +129,8 @@ public:
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){
 			m_objects[index] = NULL;
-			m_idleSlot.push_back(index);
-//			--m_useCount;
+//			m_idleSlot.push_back(index);
+			--m_useCount;
 			m_idleObjects.push_back(pObj);
 			return true;
 		}
@@ -148,8 +148,8 @@ public:
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){
 			m_objects[index] = NULL;
-			m_idleSlot.push_back(index);
-//			--m_useCount;
+//			m_idleSlot.push_back(index);
+			--m_useCount;
 			m_destroyFunction(pObj);
 			return true;
 		}
@@ -169,12 +169,16 @@ public:
 		}
 		m_idleObjects.clear();
 		m_objects.resize(65536, NULL);	// 下标为0的值不使用
-		m_idleSlot.clear();
-		for(uint32 i=1; i<65536; ++i){
-			m_idleSlot.push_back(i);
-		}
+		m_useCount = 0;
+		m_slotIndex = 1;
+
+//		m_idleSlot.clear();
+//		for(uint32 i=1; i<65536; ++i){
+//			m_idleSlot.push_back(i);
+//		}
 	}
-	uint32 size(void) const { return (uint32)(65535 - m_idleSlot.size()); }
+//	uint32 size(void) const { return (uint32)(65535 - m_idleSlot.size()); }
+	uint32 size(void) const { return (uint32)(65535 - m_useCount); }
 	uint32 getMaxHashNumber(void) const { return m_maxHashNumber; }
 	void setMaxHashNumber(uint32 number) {
 		if(number > 65535){
