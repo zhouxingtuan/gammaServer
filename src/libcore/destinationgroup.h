@@ -47,12 +47,12 @@ public:
 		}
 		return pPool->get(handle);
 	}
-	Destination* createDestination(uint32 poolType){
+	Destination* createDestination(uint32 poolType, Destination::index_type index){
 		DestinationPool* pPool = getPool(poolType);
 		if(NULL == pPool){
 			return NULL;
 		}
-		return pPool->create();
+		return pPool->create(index);
 	}
 	bool idleDestination(uint32 handle){
 		DestinationHandle h(handle);

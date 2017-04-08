@@ -13,7 +13,7 @@
 
 NS_HIVE_BEGIN
 
-typedef Destination* (*DestinationCreateFunction)(void);
+typedef Destination* (*DestinationCreateFunction)(Destination::index_type index);
 typedef void (*DestinationDestroyFunction)(Destination* pDes);
 
 #define DEFAULT_MAX_DESTINATION_POOL 65535
@@ -22,14 +22,11 @@ class DestinationPool : public RefObject
 {
 public:
 	typedef std::vector<Destination*> ObjectVector;
-//	typedef std::deque<Destination::index_type> IndexQueue;
-	typedef std::deque<uint16> IndexQueue;
 protected:
 	DestinationCreateFunction m_createFunction;
 	DestinationDestroyFunction m_destroyFunction;
 	ObjectVector m_objects;
 	ObjectVector m_idleObjects;
-//	IndexQueue m_idleSlot;
 	uint32 m_useCount;
 	Destination::index_type m_slotIndex;
 	uint32 m_maxHashNumber;
@@ -41,11 +38,9 @@ public:
 	 	m_useCount(0),
 	 	m_slotIndex(1),
 	 	m_maxHashNumber(DEFAULT_MAX_DESTINATION_POOL),
-	 	m_nodeID(0), m_poolType(0), m_serviceID(0) {
+	 	m_nodeID(0), m_poolType(0), m_serviceID(0)
+	{
 		m_objects.resize(65536, NULL);	// 下标为0的值不使用
-//		for(uint32 i=1; i<65536; ++i){
-//			m_idleSlot.push_back(i);
-//		}
 	}
 	virtual ~DestinationPool(void){
 		clear();
@@ -63,12 +58,6 @@ public:
 			index = moveSlot();
 		};
 		return index;
-//		if(m_idleSlot.empty()){
-//			return 0;
-//		}
-//		Destination::index_type index = m_idleSlot.front();
-//		m_idleSlot.pop_front();
-//		return index;
 	}
 	inline Destination::index_type moveSlot(void){
 		if(m_slotIndex > 65535){
@@ -83,26 +72,35 @@ public:
 			pObj = m_idleObjects.back();
 			m_idleObjects.pop_back();
 		}else{
-			pObj = m_createFunction();
+			pObj = m_createFunction(0);
 		}
 		return pObj;
 	}
 	// 当超出最大缓存数值的时候，会返回NULL
-	Destination* create(void){
-		if(m_useCount >= m_maxHashNumber){
+	Destination* create(Destination::index_type index){
+		if(m_useCount >= m_maxHashNumber || index >= m_maxHashNumber){
 			return NULL;
 		}
-		Destination::index_type index = getNextSlot();
+		Destination* pObj;
 		if(index == 0){
-			return NULL;
+			index = getNextSlot();
+			pObj = getIdleObject();
+		}else{
+			pObj = m_createFunction(index);
 		}
-		Destination* pObj = getIdleObject();
 		pObj->setService(m_serviceID);
 		pObj->setType(m_poolType);
 		pObj->setNode(m_nodeID);
 		pObj->setIndex(index);
-		m_objects[index] = pObj;
-		++m_useCount;
+		// 释放掉老的对象
+		Destination* pOldObj = m_objects[index];
+		if(NULL != pOldObj){
+			m_objects[index] = pObj;
+			m_destroyFunction(pOldObj);
+		}else{
+			m_objects[index] = pObj;
+			++m_useCount;
+		}
 		return pObj;
 	}
 	Destination* get(Destination::handle_type handle){
@@ -129,7 +127,6 @@ public:
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){
 			m_objects[index] = NULL;
-//			m_idleSlot.push_back(index);
 			--m_useCount;
 			m_idleObjects.push_back(pObj);
 			return true;
@@ -148,7 +145,6 @@ public:
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){
 			m_objects[index] = NULL;
-//			m_idleSlot.push_back(index);
 			--m_useCount;
 			m_destroyFunction(pObj);
 			return true;
@@ -171,13 +167,7 @@ public:
 		m_objects.resize(65536, NULL);	// 下标为0的值不使用
 		m_useCount = 0;
 		m_slotIndex = 1;
-
-//		m_idleSlot.clear();
-//		for(uint32 i=1; i<65536; ++i){
-//			m_idleSlot.push_back(i);
-//		}
 	}
-//	uint32 size(void) const { return (uint32)(65535 - m_idleSlot.size()); }
 	uint32 size(void) const { return (uint32)(65535 - m_useCount); }
 	uint32 getMaxHashNumber(void) const { return m_maxHashNumber; }
 	void setMaxHashNumber(uint32 number) {

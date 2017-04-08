@@ -53,7 +53,7 @@ public:
 	explicit Accept(void);
 	virtual ~Accept(void);
 
-	static Destination* createObject(void){
+	static Destination* createObject(Destination::index_type index){
 		return new Accept();
 	}
 	static void releaseObject(Destination* pObj){

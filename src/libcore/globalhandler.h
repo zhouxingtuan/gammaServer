@@ -35,7 +35,7 @@ public:
 	// 创建全局的HandlerPool
 	bool createPool(uint32 poolType, DestinationCreateFunction create, DestinationDestroyFunction destroy);
 	// 创建一个目标Handler
-	uint32 createDestination(uint32 poolType);
+	uint32 createDestination(uint32 poolType, Destination::index_type index);
 	bool idleDestination(uint32 handle);
 	bool removeDestination(uint32 handle);
 

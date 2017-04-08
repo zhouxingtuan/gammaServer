@@ -71,7 +71,7 @@ public:
 	Http(void);
 	virtual ~Http(void);
 
-	static Destination* createObject(void){
+	static Destination* createObject(Destination::index_type index){
 		return new Http();
 	}
 	static void releaseObject(Destination* pObj){

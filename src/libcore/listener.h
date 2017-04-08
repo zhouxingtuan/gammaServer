@@ -27,7 +27,7 @@ public:
 	Listener(void);
 	virtual ~Listener(void);
 
-	static Destination* createObject(void){
+	static Destination* createObject(Destination::index_type index){
 		return new Listener();
 	}
 	static void releaseObject(Destination* pObj){

@@ -14,21 +14,13 @@
 NS_HIVE_BEGIN
 
 #define HANDLER_TYPE_MAIN 0
+#define MAIN_HANDLER_INDEX 1
 
 class MainHandler : public Handler
 {
 public:
 	MainHandler(void);
 	virtual ~MainHandler(void);
-
-	static Destination* createObject(void){
-		return new MainHandler();
-	}
-	static void releaseObject(Destination* pObj){
-		if(NULL != pObj){
-			delete pObj;
-		}
-	}
 
 	// from Destination
 	virtual void onReceivePacket(Packet* pPacket, Task* pTask);

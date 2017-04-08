@@ -22,7 +22,7 @@ public:
 	Https(void);
 	virtual ~Https(void);
 
-	static Destination* createObject(void){
+	static Destination* createObject(Destination::index_type index){
 		return new Https();
 	}
 	static void releaseObject(Destination* pObj){

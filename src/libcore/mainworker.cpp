@@ -46,7 +46,7 @@ bool MainWorker::closeListener(uint32 handle){
 }
 uint32 MainWorker::openListener(const char* ip, uint16 port, AcceptSocketFunction pFunc, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
 	LOG_DEBUG("try to open Listener ip=%s port=%d", ip, port);
-	Listener* pListener = (Listener*)m_pListenerPool->create();
+	Listener* pListener = (Listener*)m_pListenerPool->create(0);
 	if(NULL == pListener){
 		LOG_ERROR("NULL == pListener");
 		return 0;

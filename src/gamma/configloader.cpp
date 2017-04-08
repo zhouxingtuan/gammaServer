@@ -68,8 +68,8 @@ void loadConfig(const char* fileName){
 	MainWorker::getInstance()->initialize((uint32)node_id, (uint32)epoll_number, (uint32)worker_number);
 
 	// create main handler
-	GlobalHandler::getInstance()->createPool(HANDLER_TYPE_MAIN, MainHandler::createObject, MainHandler::releaseObject);
-	uint32 mainHandle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN);
+	GlobalHandler::getInstance()->createPool(HANDLER_TYPE_MAIN, HandlerCreatorCreateObject, HandlerCreatorReleaseObject);
+	uint32 mainHandle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN, MAIN_HANDLER_INDEX);
 	MainHandler* pMain = GlobalHandler::getInstance()->getDestination<MainHandler>(mainHandle);
 
 	// record main init data

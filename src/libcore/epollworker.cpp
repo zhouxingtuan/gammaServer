@@ -166,7 +166,7 @@ int64 EpollWorker::keepConnectOnline(Accept* pAccept){
 uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
 	LOG_DEBUG("fd=%d ip=%s port=%d", fd, ip, port);
 	// 获取一个连接对象Accept，将对象一并加入到epoll中
-	Accept* pAccept = (Accept*)m_pGroup->createDestination(POOL_TYPE_ACCEPT);
+	Accept* pAccept = (Accept*)m_pGroup->createDestination(POOL_TYPE_ACCEPT, 0);
 	if(NULL == pAccept){
 		close(fd);
 		LOG_ERROR("create accept NULL == pAccept");
@@ -198,7 +198,7 @@ uint32 EpollWorker::openAccept(int fd, const char* ip, uint16 port, bool isNeedE
 	return handle;
 }
 uint32 EpollWorker::openClient(uint32 bindHandle, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
-	Client* pClient = (Client*)m_pGroup->createDestination(POOL_TYPE_CLIENT);
+	Client* pClient = (Client*)m_pGroup->createDestination(POOL_TYPE_CLIENT, 0);
 	if(NULL == pClient){
 		LOG_ERROR("create client NULL == pClient");
 		return 0;
@@ -235,7 +235,7 @@ void EpollWorker::receiveClient(Client* pClient){
 	pTask->release();
 }
 uint32 EpollWorker::openHttp(int fd, const char* ip, uint16 port){
-	Http* pHttp = (Http*)m_pGroup->createDestination(POOL_TYPE_HTTP);
+	Http* pHttp = (Http*)m_pGroup->createDestination(POOL_TYPE_HTTP, 0);
 	if(NULL == pHttp){
 		LOG_ERROR("create http NULL == pHttp");
 		return 0;
@@ -253,7 +253,7 @@ uint32 EpollWorker::openHttp(int fd, const char* ip, uint16 port){
 	return handle;
 }
 uint32 EpollWorker::openHttps(int fd, const char* ip, uint16 port){
-	Https* pHttps = (Https*)m_pGroup->createDestination(POOL_TYPE_HTTPS);
+	Https* pHttps = (Https*)m_pGroup->createDestination(POOL_TYPE_HTTPS, 0);
 	if(NULL == pHttps){
 		LOG_ERROR("create https NULL == pHttps");
 		return 0;
