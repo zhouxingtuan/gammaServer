@@ -15,11 +15,11 @@ NS_HIVE_BEGIN
 
 #define DEFAULT_MAX_DESTINATION_POOL 65535
 template<class _OBJECT_>
-typedef _OBJECT_* (*_OBJECT_##CreateFunction)(_OBJECT_::index_type index);
-typedef void (*_OBJECT_##DestroyFunction)(_OBJECT_* pDes);
 class DestinationPool : public RefObject
 {
 public:
+	typedef _OBJECT_* (*_OBJECT_##CreateFunction)(_OBJECT_::index_type index);
+	typedef void (*_OBJECT_##DestroyFunction)(_OBJECT_* pDes);
 	typedef std::vector<_OBJECT_*> ObjectVector;
 protected:
 	_OBJECT_##CreateFunction m_createFunction;
