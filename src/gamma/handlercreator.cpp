@@ -10,7 +10,7 @@
 
 NS_HIVE_BEGIN
 
-Destination* HandlerCreatorCreateObject(Destination::index_type index){
+Handler* HandlerCreatorCreateObject(Handler::index_type index){
 	switch(index){
 		case MAIN_HANDLER_INDEX:{
 			return new MainHandler();
@@ -25,7 +25,7 @@ Destination* HandlerCreatorCreateObject(Destination::index_type index){
 	return new MainHandler();
 }
 
-void HandlerCreatorReleaseObject(Destination* pObj){
+void HandlerCreatorReleaseObject(Handler* pObj){
 	if(NULL != pObj){
 		delete pObj;
 	}

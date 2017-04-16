@@ -14,10 +14,11 @@
 
 NS_HIVE_BEGIN
 
+typedef DestinationGroup<Handler> HandlerDestinationGroup;
+
 class GlobalHandler : public RefObject, public Sync
 {
 public:
-	typedef DestinationGroup<Handler> HandlerDestinationGroup;
 	HandlerDestinationGroup* m_pGroup;
 public:
 	GlobalHandler(void);
@@ -34,7 +35,7 @@ public:
 	// 激活一个Handler的Timer
 	int64 activeTimer(uint32 handle, uint32 callbackID);
 	// 创建全局的HandlerPool
-	bool createPool(uint32 poolType, DestinationCreateFunction create, DestinationDestroyFunction destroy);
+	bool createPool(uint32 poolType, CreateFunctionHandler create, DestroyFunctionHandler destroy);
 	// 创建一个目标Handler
 	uint32 createDestination(uint32 poolType, Destination::index_type index);
 	bool idleDestination(uint32 handle);

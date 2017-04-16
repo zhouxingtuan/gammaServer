@@ -87,7 +87,7 @@ int64 GlobalHandler::activeTimer(uint32 handle, uint32 callbackID){
 	return timeCount;
 }
 // 创建全局的HandlerPool
-bool GlobalHandler::createPool(uint32 poolType, DestinationCreateFunction create, DestinationDestroyFunction destroy){
+bool GlobalHandler::createPool(uint32 poolType, CreateFunctionHandler create, DestroyFunctionHandler destroy){
 	bool result;
 	lock();
 	result = (NULL != m_pGroup->createPool(poolType, create, destroy));

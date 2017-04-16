@@ -13,9 +13,9 @@
 
 NS_HIVE_BEGIN
 
-Destination* HandlerCreatorCreateObject(Destination::index_type index);
+Handler* HandlerCreatorCreateObject(Handler::index_type index);
 
-void HandlerCreatorReleaseObject(Destination* pObj);
+void HandlerCreatorReleaseObject(Handler* pObj);
 
 NS_HIVE_END
 
