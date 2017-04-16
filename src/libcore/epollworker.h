@@ -87,6 +87,7 @@ public:
 	_OBJECT_* getDestination(uint32 handle){
 		Destination* pDes = m_pGroup->getDestination(handle);
 		if(NULL == pDes){
+			LOG_DEBUG("can not find handle=%d", handle);
 			return NULL;
 		}
 		return dynamic_cast<_OBJECT_*>(pDes);
