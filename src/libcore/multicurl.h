@@ -194,7 +194,7 @@ protected:
 		if( this->getRequestCount() >= MAX_REQUEST_PERFORM ){
 			return NULL;
 		}
-		EasyCurl* pEasyCurl = m_pEasyCurlPool->create();
+		EasyCurl* pEasyCurl = m_pEasyCurlPool->create(0);
 		pEasyCurl->setMultiCurl(this);
 		pEasyCurl->setEpoll(getEpoll());
 		return pEasyCurl;
