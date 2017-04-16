@@ -61,9 +61,9 @@ int64 MainHandler::onTimerUpdate(uint32 callbackID){
 void MainHandler::onInitialize(void){
 	LOG_DEBUG("main handler start...");
 	openInnerListener();
-	openSocketListener();
-	openHttpListener();
-	openHttpsListener();
+	openMainSocketListener();
+	openMainHttpListener();
+	openMainHttpsListener();
 	checkNodeConnect();
 }
 void MainHandler::checkNodeConnect(void){
@@ -86,14 +86,14 @@ void MainHandler::openInnerListener(void){
 	this->openSocketListener(0, m_innerIP.c_str(), m_innerPort,
 		m_innerEncrypt, m_innerDecrypt, 0);
 }
-void MainHandler::openSocketListener(void){
+void MainHandler::openMainSocketListener(void){
 	this->openSocketListener(0, m_socketIP.c_str(), m_socketPort,
 		m_socketEncrypt, m_socketDecrypt, 0);
 }
-void MainHandler::openHttpListener(void){
+void MainHandler::openMainHttpListener(void){
 	this->openHttpListener(0, m_httpIP.c_str(), m_httpPort);
 }
-void MainHandler::openHttpsListener(void){
+void MainHandler::openMainHttpsListener(void){
 	this->openHttpsListener(0, m_httpsIP.c_str(), m_httpsPort);
 }
 

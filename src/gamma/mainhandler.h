@@ -72,9 +72,9 @@ public:
 protected:
 	void checkNodeConnect(void);
 	void openInnerListener(void);
-	void openSocketListener(void);
-	void openHttpListener(void);
-	void openHttpsListener(void);
+	void openMainSocketListener(void);
+	void openMainHttpListener(void);
+	void openMainHttpsListener(void);
 };
 
 class StartMainHandlerTask : public Task
