@@ -85,7 +85,7 @@ void defaultSignalHandle(SignalCallback coreCb, SignalCallback exitCb, SignalCal
 		coreCb = dumpCore;
 	}
 	// 指针错误信号监听
-	SIGNAL_EXIT(SIGSEGV, coreCb);
+//	SIGNAL_EXIT(SIGSEGV, coreCb);
 	// 监听并打印信号或处理
 	SIGNAL_EXIT(SIGILL, exitCb);
 	SIGNAL_EXIT(SIGTRAP, exitCb);
