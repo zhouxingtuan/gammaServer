@@ -19,6 +19,8 @@ NS_HIVE_BEGIN
 class MainHandler : public Handler
 {
 public:
+	typedef std::map<uint32, uint32> HandleToNodeMap;
+public:
 	// discovery node information
 	uint32 m_destID;
 	std::string m_destIP;
@@ -46,6 +48,8 @@ public:
 	std::string m_httpsIP;
 	uint16 m_httpsPort;
 
+	// connectHandle->nodeID
+	HandleToNodeMap m_handleToNode;
 public:
 	MainHandler(void);
 	virtual ~MainHandler(void);
