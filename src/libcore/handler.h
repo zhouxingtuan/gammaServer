@@ -100,7 +100,7 @@ public:
 		LOG_DEBUG("--ReceivePacketTask::doTask");
     	pHandler->onReceivePacket(m_pPacket, this);
 	}
-	virtual void doTask(ActiveWorker* pHandler){}
+	virtual void doWorkerTask(ActiveWorker* pHandler){}
 	void setPacket(Packet* pPacket){
 		SAFE_RETAIN(pPacket)
 		SAFE_RELEASE(m_pPacket)
@@ -120,7 +120,7 @@ public:
 	virtual void doTask(Handler* pHandler){
 		pHandler->onTimerUpdate(m_callbackID);
 	}
-	virtual void doTask(ActiveWorker* pHandler){}
+	virtual void doWorkerTask(ActiveWorker* pHandler){}
 
 	inline uint32 getCallbackID(void) const { return m_callbackID; }
 	inline void setCallbackID(uint32 id){ m_callbackID = id; }

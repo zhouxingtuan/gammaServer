@@ -366,12 +366,12 @@ void MultiCurl::destroy(void){
 	curl_global_cleanup();
 }
 
-void CurlResponseTask::doTask(ActiveWorker* pHandler){
+void CurlResponseTask::doWorkerTask(ActiveWorker* pHandler){
 	EpollWorker* pWorker = (EpollWorker*)pHandler;
 	pWorker->onCurlResponse(m_pResponse, m_callbackID, m_isRequestOK);
 }
 
-void CurlRequestTask::doTask(ActiveWorker* pHandler){
+void CurlRequestTask::doWorkerTask(ActiveWorker* pHandler){
 	EpollWorker* pWorker = (EpollWorker*)pHandler;
 	if (!pWorker->getMultiCurl()->acceptRequest(m_pRequest)){
 		LOG_ERROR("acceptRequest Failed");

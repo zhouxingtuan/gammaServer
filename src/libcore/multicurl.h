@@ -244,7 +244,7 @@ public:
 	virtual void doTask(Handler* pHandler){
 		pHandler->onCurlResponse(m_pResponse, m_callbackID, m_isRequestOK);
 	}
-	virtual void doTask(ActiveWorker* pHandler);
+	virtual void doWorkerTask(ActiveWorker* pHandler);
 
 	inline void setResponseData(Buffer* pData){
 		SAFE_RETAIN(pData);
@@ -267,7 +267,7 @@ public:
 
 	// from Task
 	virtual void doTask(Handler* pHandler){}
-	virtual void doTask(ActiveWorker* pHandler);
+	virtual void doWorkerTask(ActiveWorker* pHandler);
 
 	inline void setRequestData(RequestData* pRequest){
 		SAFE_RETAIN(pRequest);

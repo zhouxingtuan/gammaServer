@@ -87,7 +87,7 @@ public:
 		MainHandler* pMain = (MainHandler*)pHandler;
 		pMain->onInitialize();
 	}
-	virtual void doTask(ActiveWorker* pHandler){}
+	virtual void doWorkerTask(ActiveWorker* pHandler){}
 };
 
 NS_HIVE_END

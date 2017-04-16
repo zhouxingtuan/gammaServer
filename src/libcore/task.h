@@ -23,7 +23,7 @@ public:
 	virtual ~Task(void){}
 
 	virtual void doTask(Handler* pHandler) = 0;
-	virtual void doTask(ActiveWorker* pHandler) = 0;
+	virtual void doWorkerTask(ActiveWorker* pHandler) = 0;
 };
 
 NS_HIVE_END

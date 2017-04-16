@@ -102,7 +102,7 @@ public:
 
 	// from Task
 	virtual void doTask(Handler* pHandler);
-	virtual void doTask(ActiveWorker* pHandler){}
+	virtual void doWorkerTask(ActiveWorker* pHandler){}
 
 	uint32 getTimerHandle(void) const { return m_timerHandle; }
 	void setTimerHandle(uint32 handle){ m_timerHandle = handle; }
@@ -126,7 +126,7 @@ public:
 
 	// from Task
 	virtual void doTask(Handler* pHandler);
-	virtual void doTask(ActiveWorker* pHandler){}
+	virtual void doWorkerTask(ActiveWorker* pHandler){}
 
 	uint32 getTimerHandle(void) const { return m_timerHandle; }
 	void setTimerHandle(uint32 handle){ m_timerHandle = handle; }
@@ -142,7 +142,7 @@ public:
 
 	// from Task
 	virtual void doTask(Handler* pHandler);
-	virtual void doTask(ActiveWorker* pHandler){}
+	virtual void doWorkerTask(ActiveWorker* pHandler){}
 
 	uint32 getTimerHandle(void) const { return m_timerHandle; }
 	void setTimerHandle(uint32 handle){ m_timerHandle = handle; }

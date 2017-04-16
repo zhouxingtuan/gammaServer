@@ -26,7 +26,7 @@ void ActiveWorker::onActive(uint64 value){
 	this->unlock();
 	if(m_tempQueue.size() > 0){
 		for(auto pTask : m_tempQueue){
-			pTask->doTask(this); 	// 执行任务
+			pTask->doWorkerTask(this); 	// 执行任务
 			pTask->release();
 		}
 		m_tempQueue.clear();

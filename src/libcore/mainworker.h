@@ -74,7 +74,7 @@ public:
 	virtual void doTask(Handler* pHandler){
 		pHandler->onOpenSocketListener(m_callbackID, m_bindHandle, this);
 	}
-	virtual void doTask(ActiveWorker* pHandler){
+	virtual void doWorkerTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
 		uint32 handle = pWorker->openSocketListener(m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt, m_acceptIndex);
 		// 返回创建的结果
@@ -102,7 +102,7 @@ public:
 	virtual void doTask(Handler* pHandler){
 		pHandler->onOpenHttpListener(m_callbackID, m_bindHandle, this);
 	}
-	virtual void doTask(ActiveWorker* pHandler){
+	virtual void doWorkerTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
 		uint32 handle = pWorker->openHttpListener(m_ip, m_port);
 		// 返回创建的结果
@@ -130,7 +130,7 @@ public:
 	virtual void doTask(Handler* pHandler){
 		pHandler->onOpenHttpsListener(m_callbackID, m_bindHandle, this);
 	}
-	virtual void doTask(ActiveWorker* pHandler){
+	virtual void doWorkerTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
 		uint32 handle = pWorker->openHttpsListener(m_ip, m_port);
 		// 返回创建的结果
@@ -157,7 +157,7 @@ public:
 	virtual void doTask(Handler* pHandler){
 		pHandler->onCloseListener(m_callbackID, m_bindHandle, this);
 	}
-	virtual void doTask(ActiveWorker* pHandler){
+	virtual void doWorkerTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
 		if( !pWorker->closeListener(m_listenerHandle) ){
 			LOG_ERROR("Listener not found handle=%d", m_listenerHandle);
