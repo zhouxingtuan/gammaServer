@@ -49,7 +49,8 @@ public:
 
 public:
 	char m_pReadBuffer[EPOLL_READ_BUFFER_SIZE];
-	DestinationGroup* m_pGroup;
+	typedef DestinationGroup<EpollObject> EpollObjectDestinationGroup;
+	EpollObjectDestinationGroup* m_pGroup;
 	MultiCurl* m_pMultiCurl;
 	Packet* m_pPingPacket;				// 预先生成的ping数据包
 	SSL_CTX* m_pSSLCTX;
@@ -90,9 +91,9 @@ public:
 			LOG_DEBUG("can not find handle=%d", handle);
 			return NULL;
 		}
-		return dynamic_cast<_OBJECT_*>(pDes);
+		return static_cast<_OBJECT_*>(pDes);
 	}
-	inline DestinationGroup* getGroup(void) { return m_pGroup; }
+	inline EpollObjectDestinationGroup* getGroup(void) { return m_pGroup; }
 	bool initHttpsCertificate(const char* publicKey, const char* privateKey);
 	inline http_parser_settings* getSettings(void) { return &m_settings; }
 	inline MultiCurl* getMultiCurl(void){ return m_pMultiCurl; }

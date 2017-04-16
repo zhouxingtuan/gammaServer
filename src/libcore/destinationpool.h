@@ -13,22 +13,21 @@
 
 NS_HIVE_BEGIN
 
-typedef Destination* (*DestinationCreateFunction)(Destination::index_type index);
-typedef void (*DestinationDestroyFunction)(Destination* pDes);
-
 #define DEFAULT_MAX_DESTINATION_POOL 65535
-
+template<class _OBJECT_>
+typedef _OBJECT_* (*_OBJECT_##CreateFunction)(_OBJECT_::index_type index);
+typedef void (*_OBJECT_##DestroyFunction)(_OBJECT_* pDes);
 class DestinationPool : public RefObject
 {
 public:
-	typedef std::vector<Destination*> ObjectVector;
+	typedef std::vector<_OBJECT_*> ObjectVector;
 protected:
-	DestinationCreateFunction m_createFunction;
-	DestinationDestroyFunction m_destroyFunction;
+	_OBJECT_##CreateFunction m_createFunction;
+	_OBJECT_##DestroyFunction m_destroyFunction;
 	ObjectVector m_objects;
 	ObjectVector m_idleObjects;
 	uint32 m_useCount;
-	Destination::index_type m_slotIndex;
+	_OBJECT_::index_type m_slotIndex;
 	uint32 m_maxHashNumber;
 	uint32 m_nodeID;
 	uint32 m_poolType;
@@ -45,29 +44,30 @@ public:
 	virtual ~DestinationPool(void){
 		clear();
 	}
-	void registerFunction(uint32 nodeID, uint32 serviceID, uint32 poolType, DestinationCreateFunction create, DestinationDestroyFunction destroy){
+	void registerFunction(uint32 nodeID, uint32 serviceID, uint32 poolType,
+		_OBJECT_##CreateFunction create, _OBJECT_##DestroyFunction destroy){
 		m_nodeID = nodeID;
 		m_serviceID = serviceID;
 		m_poolType = poolType;
 		m_createFunction = create;
 		m_destroyFunction = destroy;
 	}
-	inline Destination::index_type getNextSlot(void){
-		Destination::index_type index = moveSlot();
+	inline _OBJECT_::index_type getNextSlot(void){
+		_OBJECT_::index_type index = moveSlot();
 		while(NULL != m_objects[index]){
 			index = moveSlot();
 		};
 		return index;
 	}
-	inline Destination::index_type moveSlot(void){
+	inline _OBJECT_::index_type moveSlot(void){
 		if(m_slotIndex > 65535){
 			m_slotIndex = 2;
 			return 1;
 		}
 		return m_slotIndex++;
 	}
-	Destination* getIdleObject(void){
-		Destination* pObj;
+	_OBJECT_* getIdleObject(void){
+		_OBJECT_* pObj;
 		if(!m_idleObjects.empty()){
 			pObj = m_idleObjects.back();
 			m_idleObjects.pop_back();
@@ -77,11 +77,11 @@ public:
 		return pObj;
 	}
 	// 当超出最大缓存数值的时候，会返回NULL
-	Destination* create(Destination::index_type index){
+	_OBJECT_* create(_OBJECT_::index_type index){
 		if(m_useCount >= m_maxHashNumber || index >= m_maxHashNumber){
 			return NULL;
 		}
-		Destination* pObj;
+		_OBJECT_* pObj;
 		if(index == 0){
 			index = getNextSlot();
 			pObj = getIdleObject();
@@ -93,7 +93,7 @@ public:
 		pObj->setNode(m_nodeID);
 		pObj->setIndex(index);
 		// 释放掉老的对象
-		Destination* pOldObj = m_objects[index];
+		_OBJECT_* pOldObj = m_objects[index];
 		if(NULL != pOldObj){
 			m_objects[index] = pObj;
 			m_destroyFunction(pOldObj);
@@ -103,11 +103,11 @@ public:
 		}
 		return pObj;
 	}
-	Destination* get(Destination::handle_type handle){
-		Destination* pObj = NULL;
+	_OBJECT_* get(_OBJECT_::handle_type handle){
+		_OBJECT_* pObj = NULL;
 		struct DestinationHandle h(handle);
-		Destination::index_type index = h.getIndex();
-		if( index < (Destination::index_type)m_objects.size() ){
+		_OBJECT_::index_type index = h.getIndex();
+		if( index < (_OBJECT_::index_type)m_objects.size() ){
 			pObj = m_objects[index];
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){
@@ -115,14 +115,14 @@ public:
 		}
 		return NULL;
 	}
-	bool idle(Destination* pObj){
+	bool idle(_OBJECT_* pObj){
 		return idle(pObj->getHandle());
 	}
-	bool idle(Destination::handle_type handle){
-		Destination* pObj = NULL;
+	bool idle(_OBJECT_::handle_type handle){
+		_OBJECT_* pObj = NULL;
 		struct DestinationHandle h(handle);
-		Destination::index_type index = h.getIndex();
-		if( index < (Destination::index_type)m_objects.size() ){
+		_OBJECT_::index_type index = h.getIndex();
+		if( index < (_OBJECT_::index_type)m_objects.size() ){
 			pObj = m_objects[index];
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){
@@ -133,14 +133,14 @@ public:
 		}
 		return false;
 	}
-	bool remove(Destination* pObj){
+	bool remove(_OBJECT_* pObj){
 		return remove(pObj->getHandle());
 	}
-	bool remove(Destination::handle_type handle){
-		Destination* pObj = NULL;
+	bool remove(_OBJECT_::handle_type handle){
+		_OBJECT_* pObj = NULL;
 		struct DestinationHandle h(handle);
-		Destination::index_type index = h.getIndex();
-		if( index < (Destination::index_type)m_objects.size() ){
+		_OBJECT_::index_type index = h.getIndex();
+		if( index < (_OBJECT_::index_type)m_objects.size() ){
 			pObj = m_objects[index];
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){

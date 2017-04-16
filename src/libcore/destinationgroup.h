@@ -17,10 +17,12 @@ NS_HIVE_BEGIN
 
 #define DESTINATION_MAX_GROUP 8
 
+template<class _OBJECT_>
 class DestinationGroup : public RefObject
 {
 public:
-	typedef std::vector<DestinationPool*> PoolVector;
+	typedef DestinationPool<_OBJECT_> ObjectDestinationPool;
+	typedef std::vector<ObjectDestinationPool*> PoolVector;
 protected:
 	PoolVector m_pools;		// 对象存储数组
 	uint32 m_nodeID;		// 节点ID
@@ -32,23 +34,23 @@ public:
 	virtual ~DestinationGroup(void){ clear(); }
 
 	bool dispatchPacket(uint32 handle, Packet* pPacket, Task* pTask){
-		Destination* pDes = getDestination(handle);
+		_OBJECT_* pDes = getDestination(handle);
 		if(NULL == pDes){
 			return false;
 		}
 		pDes->onReceivePacket(pPacket, pTask);
 		return true;
 	}
-	Destination* getDestination(uint32 handle){
+	_OBJECT_* getDestination(uint32 handle){
 		DestinationHandle h(handle);
-		DestinationPool* pPool = getPool(h.getType());
+		ObjectDestinationPool* pPool = getPool(h.getType());
 		if(NULL == pPool){
 			return NULL;
 		}
 		return pPool->get(handle);
 	}
-	Destination* createDestination(uint32 poolType, Destination::index_type index){
-		DestinationPool* pPool = getPool(poolType);
+	_OBJECT_* createDestination(uint32 poolType, _OBJECT_::index_type index){
+		ObjectDestinationPool* pPool = getPool(poolType);
 		if(NULL == pPool){
 			return NULL;
 		}
@@ -56,7 +58,7 @@ public:
 	}
 	bool idleDestination(uint32 handle){
 		DestinationHandle h(handle);
-		DestinationPool* pPool = getPool(h.getType());
+		ObjectDestinationPool* pPool = getPool(h.getType());
 		if(NULL == pPool){
 			return false;
 		}
@@ -64,25 +66,25 @@ public:
 	}
 	bool removeDestination(uint32 handle){
 		DestinationHandle h(handle);
-		DestinationPool* pPool = getPool(h.getType());
+		ObjectDestinationPool* pPool = getPool(h.getType());
 		if(NULL == pPool){
 			return false;
 		}
 		return pPool->remove(handle);
 	}
-	DestinationPool* getPool(uint32 poolType){
+	ObjectDestinationPool* getPool(uint32 poolType){
 		if(poolType >= (uint32)m_pools.size()){
 			return NULL;
 		}
 		return m_pools[poolType];
 	}
-	DestinationPool* createPool(uint32 poolType, DestinationCreateFunction create, DestinationDestroyFunction destroy){
+	ObjectDestinationPool* createPool(uint32 poolType, DestinationCreateFunction create, DestinationDestroyFunction destroy){
 		if(poolType >= (uint32)m_pools.size()){
 			return NULL;
 		}
-		DestinationPool* pPool = m_pools[poolType];
+		ObjectDestinationPool* pPool = m_pools[poolType];
 		if(NULL == pPool){
-			pPool = new DestinationPool();
+			pPool = new ObjectDestinationPool();
 			pPool->registerFunction(m_nodeID, m_serviceID, poolType, create, destroy);
 			m_pools[poolType] = pPool;
 		}

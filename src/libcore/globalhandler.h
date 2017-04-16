@@ -17,7 +17,8 @@ NS_HIVE_BEGIN
 class GlobalHandler : public RefObject, public Sync
 {
 public:
-	DestinationGroup* m_pGroup;
+	typedef DestinationGroup<Handler> HandlerDestinationGroup;
+	HandlerDestinationGroup* m_pGroup;
 public:
 	GlobalHandler(void);
 	virtual ~GlobalHandler(void);
@@ -46,9 +47,9 @@ public:
 			LOG_DEBUG("can not find handle=%d", handle);
 			return NULL;
 		}
-		return dynamic_cast<_OBJECT_*>(pDes);
+		return static_cast<_OBJECT_*>(pDes);
 	}
-	DestinationGroup* getGroup(void) { return m_pGroup; }
+	HandlerDestinationGroup* getGroup(void) { return m_pGroup; }
 	void initialize(void);
 	void destroy(void);
 

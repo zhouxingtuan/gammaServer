@@ -10,6 +10,7 @@
 #define __hive__epoll__
 
 #include "common.h"
+#include "destination.h"
 
 NS_HIVE_BEGIN
 
@@ -26,16 +27,19 @@ typedef struct SocketInformation{
 class Epoll;
 class ActiveWorker;
 
-class EpollObject
+class EpollObject : public Destination
 {
 protected:
-	Epoll* m_pEpoll;
 	int m_fd;
+	Epoll* m_pEpoll;
 public:
-	EpollObject(void) : m_pEpoll(NULL), m_fd(0) {
+	EpollObject(void) : Destination(), m_fd(0), m_pEpoll(NULL) {
 
 	}
 	virtual ~EpollObject(void){}
+
+	// from Destination
+	virtual void onReceivePacket(Packet* pPacket, Task* pTask){}
 
 	// 对象被epoll激活时调用的函数，用于Listener
 	virtual bool epollActive(uint32 events) = 0;

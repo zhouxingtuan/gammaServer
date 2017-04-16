@@ -15,7 +15,7 @@
 
 NS_HIVE_BEGIN
 
-Accept::Accept(void) : Destination(), EpollConnectObject(), TimerObject(),
+Accept::Accept(void) : EpollConnectObject(), TimerObject(),
  	m_timerCallback(NULL), m_pEpollWorker(NULL), m_tempReadPacket(NULL), m_bindHandle(0),
  	m_connectionState(CS_DISCONNECT), m_isOnline(0),
 	m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_acceptIndex(0) {

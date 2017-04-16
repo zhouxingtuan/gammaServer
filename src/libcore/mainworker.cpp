@@ -127,7 +127,7 @@ void MainWorker::initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 work
 
 	GlobalSetting::createInstance()->initialize(nodeID);
 	if(NULL == m_pListenerPool){
-		m_pListenerPool = new DestinationPool();
+		m_pListenerPool = new ListenerDestinationPool();
 		m_pListenerPool->retain();
 		m_pListenerPool->registerFunction(nodeID, getServiceID(), 0, Listener::createObject, Listener::releaseObject);
 	}

@@ -10,6 +10,7 @@
 #include "epollworker.h"
 #include "globalservice.h"
 #include "globalhandler.h"
+#include "globalsetting.h"
 
 NS_HIVE_BEGIN
 
@@ -346,6 +347,8 @@ void MultiCurl::initialize(void){
 	if(NULL == m_pEasyCurlPool){
 		m_pEasyCurlPool = new EasyCurlPool();
 		m_pEasyCurlPool->retain();
+		uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
+		m_pEasyCurlPool->registerFunction(nodeID, 0, 0, EasyCurl::createObject, EasyCurl::releaseObject);
 	}
 	if(NULL != m_pMulti){
 		return;

@@ -20,10 +20,10 @@ public:
 	Client(void);
 	virtual ~Client(void);
 
-	static Destination* createObject(Destination::index_type index){
+	static EpollObject* createObject(EpollObject::index_type index){
 		return new Client();
 	}
-	static void releaseObject(Destination* pObj){
+	static void releaseObject(EpollObject* pObj){
 		if(NULL != pObj){
 			delete pObj;
 		}

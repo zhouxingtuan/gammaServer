@@ -48,6 +48,9 @@ public:
 	Handler(void);
 	virtual ~Handler(void);
 
+	// from Destination
+	virtual void onReceivePacket(Packet* pPacket, Task* pTask){};			// 处理消息，Destination已经定义
+
 	virtual void onCurlResponse(Buffer* pBuffer, uint32 callbackID, bool isRequestOK) = 0;
 	virtual void onOpenClientOK(uint32 clientHandle, OpenClientOKTask* pTask) = 0;
 	virtual void onOpenClient(uint32 callbackID, uint32 clientHandle, OpenClientTask* pTask) = 0;
@@ -66,8 +69,6 @@ public:
 	void bindAccept(uint32 acceptHandle, uint32 bindHandle);
 	void sendCurlRequest(RequestData* pRequest);
 
-	// from Destination
-	virtual void onReceivePacket(Packet* pPacket, Task* pTask){};			// 处理消息，Destination已经定义
 	virtual bool receivePacket(Packet* pPacket);							// 收到一个Packet
     virtual void acceptTask(Task* pTask); 									// Task 调用接收任务
     virtual void acceptTaskFront(Task* pTask);								// 任务放在最前面

@@ -46,14 +46,13 @@ bool GlobalHandler::dispatchTask(uint32 handle, Task* pTask){
 		LOG_ERROR("Handler not found=%d", handle);
 		return false;
 	}
-	// 生成Task并且派发消息
 	LOG_DEBUG("pHandler=0x%x", pHandler);
 	pHandler->acceptTask(pTask);
 	pHandler->release();
 	return true;
 }
 bool GlobalHandler::dispatchToHandler(Packet* pPacket){
-	// 查找Handler对象，将这个消息生成一个Task，派发给Handler去执行
+	// 查找Handler对象，派发给Handler去执行
 	Handler* pHandler;
 	PacketHead* pHead = pPacket->getHead();
 	uint32 handle = pHead->destination.handle;
@@ -67,7 +66,6 @@ bool GlobalHandler::dispatchToHandler(Packet* pPacket){
 		LOG_ERROR("Handler not found=%d", handle);
 		return false;
 	}
-	// 生成Task并且派发消息
 	bool result = pHandler->receivePacket(pPacket);
 	pHandler->release();
 	return result;
@@ -125,7 +123,7 @@ bool GlobalHandler::removeDestination(uint32 handle){
 void GlobalHandler::initialize(void){
 	if(NULL == m_pGroup){
 		uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
-		m_pGroup = new DestinationGroup(nodeID, 0);
+		m_pGroup = new HandlerDestinationGroup(nodeID, 0);
 		m_pGroup->retain();
 	}
 }

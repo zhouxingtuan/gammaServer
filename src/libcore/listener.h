@@ -21,16 +21,16 @@ class Listener;
 
 typedef void (*AcceptSocketFunction)(int fd, const char* ip, uint16 port, Listener* pListener);
 
-class Listener : public Destination, public EpollConnectObject
+class Listener : public EpollConnectObject
 {
 public:
 	Listener(void);
 	virtual ~Listener(void);
 
-	static Destination* createObject(Destination::index_type index){
+	static Listener* createObject(Listener::index_type index){
 		return new Listener();
 	}
-	static void releaseObject(Destination* pObj){
+	static void releaseObject(Listener* pObj){
 		if(NULL != pObj){
 			delete pObj;
 		}

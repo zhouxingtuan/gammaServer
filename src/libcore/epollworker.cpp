@@ -46,7 +46,7 @@ void EpollWorker::initialize(void){
 	}
 	if(NULL == m_pGroup){
 		uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
-		m_pGroup = new DestinationGroup(nodeID, getServiceID());
+		m_pGroup = new EpollObjectDestinationGroup(nodeID, getServiceID());
 		m_pGroup->retain();
 		m_pGroup->createPool(POOL_TYPE_ACCEPT, Accept::createObject, Accept::releaseObject);
 		m_pGroup->createPool(POOL_TYPE_CLIENT, Client::createObject, Client::releaseObject);

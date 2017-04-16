@@ -13,7 +13,7 @@
 
 NS_HIVE_BEGIN
 
-Http::Http(void) : Destination(), EpollConnectObject(), TimerObject(), m_pEpollWorker(NULL), m_pBuffer(NULL),
+Http::Http(void) : EpollConnectObject(), TimerObject(), m_pEpollWorker(NULL), m_pBuffer(NULL),
 	m_httpState(HTTP_STATE_IDLE), m_parseState(HTTP_PARSE_INIT), m_isInEpoll(false), m_offset(0){
 
 }

@@ -62,7 +62,7 @@ typedef struct HttpHeaderRecorder{
 
 class EpollWorker;
 
-class Http : public Destination, public EpollConnectObject, public TimerObject
+class Http : public EpollConnectObject, public TimerObject
 {
 public:
 	friend class HttpManager;
@@ -71,10 +71,10 @@ public:
 	Http(void);
 	virtual ~Http(void);
 
-	static Destination* createObject(Destination::index_type index){
+	static EpollObject* createObject(EpollObject::index_type index){
 		return new Http();
 	}
-	static void releaseObject(Destination* pObj){
+	static void releaseObject(EpollObject* pObj){
 		if(NULL != pObj){
 			delete pObj;
 		}

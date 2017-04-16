@@ -34,7 +34,7 @@ class EpollWorker;
 
 typedef int64 (*ConnectTimeoutCallback)(Accept* pAccept);
 
-class Accept : public Destination, public EpollConnectObject, public TimerObject
+class Accept : public EpollConnectObject, public TimerObject
 {
 public:
 	typedef std::deque<Packet*> PacketQueue;
@@ -53,10 +53,10 @@ public:
 	explicit Accept(void);
 	virtual ~Accept(void);
 
-	static Destination* createObject(Destination::index_type index){
+	static EpollObject* createObject(EpollObject::index_type index){
 		return new Accept();
 	}
-	static void releaseObject(Destination* pObj){
+	static void releaseObject(EpollObject* pObj){
 		if(NULL != pObj){
 			delete pObj;
 		}

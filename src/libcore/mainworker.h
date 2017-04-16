@@ -28,7 +28,8 @@ NS_HIVE_BEGIN
 class MainWorker : public ActiveWorker
 {
 public:
-	DestinationPool* m_pListenerPool;
+	typedef DestinationPool<Listener> ListenerDestinationPool;
+	ListenerDestinationPool* m_pListenerPool;
 public:
 	MainWorker(void);
 	virtual ~MainWorker(void);

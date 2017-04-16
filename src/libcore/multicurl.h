@@ -61,7 +61,7 @@ public:
 	uint32 m_callbackID;
 };
 
-class EasyCurl : public EpollObject, public Object080816, public TimerObject, public RefObject
+class EasyCurl : public EpollObject, public TimerObject, public RefObject
 {
 public:
 	friend class MultiCurl;
@@ -69,7 +69,7 @@ public:
 	EasyCurl(void);
 	virtual ~EasyCurl(void);
 
-	static EasyCurl* createObject(void){
+	static EasyCurl* createObject(EasyCurl::index_type index){
 		EasyCurl* pEasyCurl = new EasyCurl();
 		pEasyCurl->retain();
 		return pEasyCurl;
@@ -127,7 +127,7 @@ protected:
 	char m_pError[CURL_ERROR_SIZE];	// 错误信息
 };
 
-typedef ObjectPool<EasyCurl> EasyCurlPool;
+typedef DestinationPool<EasyCurl> EasyCurlPool;
 
 class MultiCurl : public RefObject, public TimerObject
 {
