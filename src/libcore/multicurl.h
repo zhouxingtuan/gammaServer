@@ -18,6 +18,7 @@
 #include "util.h"
 #include "timer.h"
 #include "handler.h"
+#include "destinationpool.h"
 
 NS_HIVE_BEGIN
 
