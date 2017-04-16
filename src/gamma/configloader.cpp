@@ -19,6 +19,7 @@ void parseIPAndPort(const std::string& ip_port_str, std::string& ip, uint16& por
 	for(auto &kv : ip_port_map){
 		ip = kv.first;
 		port = atoi(kv.second.c_str());
+		LOG_DEBUG("ip=%s port=%d", ip.c_str(), port);
 		return;
 	}
 }

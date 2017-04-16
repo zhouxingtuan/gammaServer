@@ -83,17 +83,21 @@ void MainHandler::checkNodeConnect(void){
 	}
 }
 void MainHandler::openInnerListener(void){
+	LOG_DEBUG("ip=%s port=%d", m_innerIP.c_str(), m_innerPort);
 	this->openSocketListener(0, m_innerIP.c_str(), m_innerPort,
 		m_innerEncrypt, m_innerDecrypt, 0);
 }
 void MainHandler::openMainSocketListener(void){
+	LOG_DEBUG("ip=%s port=%d", m_socketIP.c_str(), m_socketPort);
 	this->openSocketListener(0, m_socketIP.c_str(), m_socketPort,
 		m_socketEncrypt, m_socketDecrypt, 0);
 }
 void MainHandler::openMainHttpListener(void){
+	LOG_DEBUG("ip=%s port=%d", m_httpIP.c_str(), m_httpPort);
 	this->openHttpListener(0, m_httpIP.c_str(), m_httpPort);
 }
 void MainHandler::openMainHttpsListener(void){
+	LOG_DEBUG("ip=%s port=%d", m_httpsIP.c_str(), m_httpsPort);
 	this->openHttpsListener(0, m_httpsIP.c_str(), m_httpsPort);
 }
 
