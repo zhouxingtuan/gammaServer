@@ -32,6 +32,9 @@ size_t EasyCurl::writeCallback(void *ptr, size_t size, size_t nmemb, void *data)
 	pEasyCurl->appendResponse((char*)ptr, totalWrite);
 	return totalWrite;
 }
+bool EasyCurl::epollActive(uint32 events){
+	return false;
+}
 void EasyCurl::epollIn(void){
 	getMultiCurl()->onCurlEpollIn(this);
 }
@@ -45,6 +48,9 @@ void EasyCurl::epollRemove(void){
 		getEpoll()->objectRemove(this);
 		m_fd = 0;
 	}
+}
+void EasyCurl::epollCheck(void){
+
 }
 int64 EasyCurl::timerCallback(void){
 	LOG_DEBUG("remove easy curl");

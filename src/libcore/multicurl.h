@@ -82,11 +82,11 @@ public:
 	static size_t writeCallback(void *ptr, size_t size, size_t nmemb, void *data);
 
 	// from EpollObject
-	virtual bool epollActive(uint32 events){ return false; }
+	virtual bool epollActive(uint32 events);
 	virtual void epollIn(void);
 	virtual void epollOut(void);
 	virtual void epollRemove(void);
-	virtual void epollCheck(void){}
+	virtual void epollCheck(void);
 
 	// from TimerObject
 	virtual int64 timerCallback(void);

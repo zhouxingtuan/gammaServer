@@ -43,7 +43,7 @@ bool Listener::epollActive(uint32 events){
 	return true;
 }
 void Listener::epollIn(void){
-	
+
 }
 void Listener::epollOut(void){
 

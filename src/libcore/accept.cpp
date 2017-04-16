@@ -25,6 +25,9 @@ Accept::~Accept(void){
 	releasePacket();
 	SAFE_RELEASE(m_tempReadPacket)
 }
+bool Accept::epollActive(uint32 events){
+	return false;
+}
 void Accept::epollIn(void){
 	int result;
 	do{
