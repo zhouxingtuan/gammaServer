@@ -85,7 +85,7 @@ public:
 
 	template<class _OBJECT_>
 	_OBJECT_* getDestination(uint32 handle){
-		return (_OBJECT_*)m_pGroup->getDestination(handle);
+		return (_OBJECT_*)(m_pGroup->getDestination(handle));
 	}
 	inline DestinationGroup* getGroup(void) { return m_pGroup; }
 	bool initHttpsCertificate(const char* publicKey, const char* privateKey);
