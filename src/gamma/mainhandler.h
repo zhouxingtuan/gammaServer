@@ -83,11 +83,11 @@ public:
 	StartMainHandlerTask(void) : Task(){}
 	virtual ~StartMainHandlerTask(void){}
 
-	virtual void doTask(Handler* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){
 		MainHandler* pMain = (MainHandler*)pHandler;
 		pMain->onInitialize();
 	}
-	virtual void doWorkerTask(ActiveWorker* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){}
 };
 
 NS_HIVE_END

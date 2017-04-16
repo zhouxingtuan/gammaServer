@@ -72,10 +72,10 @@ public:
 	OpenSocketListenerTask(void) : Task() {}
 	virtual ~OpenSocketListenerTask(void){}
 
-	virtual void doTask(Handler* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){
 		pHandler->onOpenSocketListener(m_callbackID, m_bindHandle, this);
 	}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
 		uint32 handle = pWorker->openSocketListener(m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt, m_acceptIndex);
 		// 返回创建的结果
@@ -100,10 +100,10 @@ public:
 	OpenHttpListenerTask(void) : Task() {}
 	virtual ~OpenHttpListenerTask(void){}
 
-	virtual void doTask(Handler* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){
 		pHandler->onOpenHttpListener(m_callbackID, m_bindHandle, this);
 	}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
 		uint32 handle = pWorker->openHttpListener(m_ip, m_port);
 		// 返回创建的结果
@@ -128,10 +128,10 @@ public:
 	OpenHttpsListenerTask(void) : Task() {}
 	virtual ~OpenHttpsListenerTask(void){}
 
-	virtual void doTask(Handler* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){
 		pHandler->onOpenHttpsListener(m_callbackID, m_bindHandle, this);
 	}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
 		uint32 handle = pWorker->openHttpsListener(m_ip, m_port);
 		// 返回创建的结果
@@ -155,10 +155,10 @@ public:
 	CloseListenerTask(void) : Task() {}
 	virtual ~CloseListenerTask(void){}
 
-	virtual void doTask(Handler* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){
 		pHandler->onCloseListener(m_callbackID, m_bindHandle, this);
 	}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		MainWorker* pWorker = (MainWorker*)pHandler;
 		if( !pWorker->closeListener(m_listenerHandle) ){
 			LOG_ERROR("Listener not found handle=%d", m_listenerHandle);

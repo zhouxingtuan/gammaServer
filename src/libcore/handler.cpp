@@ -184,7 +184,7 @@ void Handler::doTask(void){
 	}
 	this->unlock();
 	if( NULL != pTask ){
-		pTask->doTask(this); 	// 执行任务，因为已经保证handler被worker独占，所以可以不在临界区内
+		pTask->doHandlerTask(this); 	// 执行任务，因为已经保证handler被worker独占，所以可以不在临界区内
 		pTask->release();
 	}
 }

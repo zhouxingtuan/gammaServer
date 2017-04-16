@@ -22,8 +22,8 @@ public:
 	Task(void) : RefObject() {}
 	virtual ~Task(void){}
 
-	virtual void doTask(Handler* pHandler) = 0;
-	virtual void doWorkerTask(ActiveWorker* pHandler) = 0;
+	virtual void doHandlerTask(Handler* pHandler) = 0;
+	virtual void doActiveTask(ActiveWorker* pHandler) = 0;
 };
 
 NS_HIVE_END

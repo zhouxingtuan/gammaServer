@@ -101,8 +101,8 @@ public:
 	virtual ~StartTimerTask(void);
 
 	// from Task
-	virtual void doTask(Handler* pHandler);
-	virtual void doWorkerTask(ActiveWorker* pHandler){}
+	virtual void doHandlerTask(Handler* pHandler);
+	virtual void doActiveTask(ActiveWorker* pHandler){}
 
 	uint32 getTimerHandle(void) const { return m_timerHandle; }
 	void setTimerHandle(uint32 handle){ m_timerHandle = handle; }
@@ -125,8 +125,8 @@ public:
 	virtual ~RemoveTimerTask(void){}
 
 	// from Task
-	virtual void doTask(Handler* pHandler);
-	virtual void doWorkerTask(ActiveWorker* pHandler){}
+	virtual void doHandlerTask(Handler* pHandler);
+	virtual void doActiveTask(ActiveWorker* pHandler){}
 
 	uint32 getTimerHandle(void) const { return m_timerHandle; }
 	void setTimerHandle(uint32 handle){ m_timerHandle = handle; }
@@ -141,8 +141,8 @@ public:
 	virtual ~ChangeTimerTask(void){}
 
 	// from Task
-	virtual void doTask(Handler* pHandler);
-	virtual void doWorkerTask(ActiveWorker* pHandler){}
+	virtual void doHandlerTask(Handler* pHandler);
+	virtual void doActiveTask(ActiveWorker* pHandler){}
 
 	uint32 getTimerHandle(void) const { return m_timerHandle; }
 	void setTimerHandle(uint32 handle){ m_timerHandle = handle; }

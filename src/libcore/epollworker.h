@@ -114,8 +114,8 @@ public:
 		SAFE_RELEASE(m_pPacket)
 	}
 
-	virtual void doTask(Handler* pHandler){}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
 		pWorker->getGroup()->dispatchPacket(m_handle, m_pPacket, this);
 	}
@@ -142,8 +142,8 @@ public:
 	OpenAcceptTask(void) : Task() {}
 	virtual ~OpenAcceptTask(void){}
 
-	virtual void doTask(Handler* pHandler){}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
 		pWorker->openAccept(m_fd, m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt, m_acceptIndex);
 	}
@@ -162,8 +162,8 @@ public:
 	BindAcceptHandleTask(void) : Task() {}
 	virtual ~BindAcceptHandleTask(void){}
 
-	virtual void doTask(Handler* pHandler){}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
 		Accept* pAccept = pWorker->getDestination<Accept>(m_acceptHandle);
 		if(NULL != pAccept){
@@ -186,10 +186,10 @@ public:
 	OpenClientTask(void) : Task() {}
 	virtual ~OpenClientTask(void){}
 
-	virtual void doTask(Handler* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){
 		pHandler->onOpenClient(m_callbackID, m_bindHandle, this);
 	}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
 		uint32 handle = pWorker->openClient(m_bindHandle, m_ip, m_port, m_isNeedEncrypt, m_isNeedDecrypt, m_acceptIndex);
 		uint32 bindHandle = m_bindHandle;
@@ -208,10 +208,10 @@ public:
 public:
 	OpenClientOKTask(void) : Task() {}
 	virtual ~OpenClientOKTask(void){}
-	virtual void doTask(Handler* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){
 		pHandler->onOpenClientOK(clientHandle, this);
 	}
-	virtual void doWorkerTask(ActiveWorker* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){}
 };
 class CloseConnectTask : public Task
 {
@@ -222,10 +222,10 @@ public:
 public:
 	CloseConnectTask(void) : Task(), m_callbackID(0), m_bindHandle(0), m_connectHandle(0) {}
 	virtual ~CloseConnectTask(void){}
-	virtual void doTask(Handler* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){
 		pHandler->onCloseConnect(m_callbackID, m_connectHandle, this);
 	}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
 		if( !pWorker->closeConnect(m_connectHandle) ){
 			LOG_ERROR("CloseConnectTask Connect not found handle=%d", m_connectHandle);
@@ -244,8 +244,8 @@ public:
 	OpenHttpTask(void) : Task() {}
 	virtual ~OpenHttpTask(void){}
 
-	virtual void doTask(Handler* pHandler){}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
 		pWorker->openHttp(m_fd, m_ip, m_port);
 	}
@@ -264,8 +264,8 @@ public:
 	OpenHttpsTask(void) : Task() {}
 	virtual ~OpenHttpsTask(void){}
 
-	virtual void doTask(Handler* pHandler){}
-	virtual void doWorkerTask(ActiveWorker* pHandler){
+	virtual void doHandlerTask(Handler* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){
 		EpollWorker* pWorker = (EpollWorker*)pHandler;
 		pWorker->openHttps(m_fd, m_ip, m_port);
 	}

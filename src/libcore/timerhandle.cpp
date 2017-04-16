@@ -135,7 +135,7 @@ int64 TimerManager::getTimerLeft(uint32 handle){
 StartTimerTask::~StartTimerTask(void){
 
 }
-void StartTimerTask::doTask(Handler* pHandler){
+void StartTimerTask::doHandlerTask(Handler* pHandler){
 	TimerHandle* pHandle = TimerManager::getInstance()->getTimerHandle(m_timerHandle);
 	if(NULL != pHandle){
 		pHandle->setCallbackID(m_callbackID);
@@ -146,11 +146,11 @@ void StartTimerTask::doTask(Handler* pHandler){
 	}
 }
 
-void RemoveTimerTask::doTask(Handler* pHandler){
+void RemoveTimerTask::doHandlerTask(Handler* pHandler){
 	TimerManager::getInstance()->removeTimer(m_timerHandle);
 }
 
-void ChangeTimerTask::doTask(Handler* pHandler){
+void ChangeTimerTask::doHandlerTask(Handler* pHandler){
 	TimerManager::getInstance()->changeTimer(m_timerHandle, m_timeCount);
 }
 
