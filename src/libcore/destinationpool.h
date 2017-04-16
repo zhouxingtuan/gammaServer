@@ -103,7 +103,7 @@ public:
 		}
 		return pObj;
 	}
-	_OBJECT_* get(_OBJECT_::handle_type handle){
+	_OBJECT_* get(uint32 handle){
 		_OBJECT_* pObj = NULL;
 		struct DestinationHandle h(handle);
 		uint32 index = h.getIndex();
@@ -118,7 +118,7 @@ public:
 	bool idle(_OBJECT_* pObj){
 		return idle(pObj->getHandle());
 	}
-	bool idle(_OBJECT_::handle_type handle){
+	bool idle(uint32 handle){
 		_OBJECT_* pObj = NULL;
 		struct DestinationHandle h(handle);
 		uint32 index = h.getIndex();
@@ -136,7 +136,7 @@ public:
 	bool remove(_OBJECT_* pObj){
 		return remove(pObj->getHandle());
 	}
-	bool remove(_OBJECT_::handle_type handle){
+	bool remove(uint32 handle){
 		_OBJECT_* pObj = NULL;
 		struct DestinationHandle h(handle);
 		uint32 index = h.getIndex();
