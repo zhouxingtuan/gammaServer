@@ -22,6 +22,18 @@ bool Active::epollActive(uint32 events){
 	getEpoll()->objectChange(this, EPOLLIN);
 	return true;
 }
+void Active::epollIn(void){
+
+}
+void Active::epollOut(void){
+
+}
+void Active::epollRemove(void){
+
+}
+void Active::epollCheck(void){
+
+}
 int Active::readEvent(void){
     uint64 value;
     int nread;

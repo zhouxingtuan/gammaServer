@@ -23,10 +23,10 @@ public:
 
 	// from EpollObject
 	virtual bool epollActive(uint32 events);
-	virtual void epollIn(void){}
-	virtual void epollOut(void){}
-	virtual void epollRemove(void){}
-	virtual void epollCheck(void){}
+	virtual void epollIn(void);
+	virtual void epollOut(void);
+	virtual void epollRemove(void);
+	virtual void epollCheck(void);
 
 	virtual void onActive(uint64 value) = 0;
 
