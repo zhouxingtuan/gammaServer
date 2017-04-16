@@ -22,6 +22,8 @@ class DestinationGroup : public RefObject
 {
 public:
 	typedef DestinationPool<_OBJECT_> ObjectDestinationPool;
+	typedef typename ObjectDestinationPool::CreateFunction CreateFunction;
+	typedef typename ObjectDestinationPool::DestroyFunction DestroyFunction;
 	typedef std::vector<ObjectDestinationPool*> PoolVector;
 protected:
 	PoolVector m_pools;		// 对象存储数组

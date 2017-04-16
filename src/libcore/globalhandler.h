@@ -36,8 +36,8 @@ public:
 	int64 activeTimer(uint32 handle, uint32 callbackID);
 	// 创建全局的HandlerPool
 	bool createPool(uint32 poolType,
-		typename HandlerDestinationGroup::CreateFunction create,
-		typename HandlerDestinationGroup::DestroyFunction destroy);
+		HandlerDestinationGroup::CreateFunction create,
+		HandlerDestinationGroup::DestroyFunction destroy);
 	// 创建一个目标Handler
 	uint32 createDestination(uint32 poolType, uint32 index);
 	bool idleDestination(uint32 handle);
