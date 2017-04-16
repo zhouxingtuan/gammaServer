@@ -34,7 +34,7 @@ class EpollWorker;
 
 typedef int64 (*ConnectTimeoutCallback)(Accept* pAccept);
 
-class Accept : public EpollConnectObject, public Destination, public TimerObject
+class Accept : public Destination, public EpollConnectObject, public TimerObject
 {
 public:
 	typedef std::deque<Packet*> PacketQueue;

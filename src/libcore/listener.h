@@ -21,7 +21,7 @@ class Listener;
 
 typedef void (*AcceptSocketFunction)(int fd, const char* ip, uint16 port, Listener* pListener);
 
-class Listener : public EpollConnectObject, public Destination
+class Listener : public Destination, public EpollConnectObject
 {
 public:
 	Listener(void);

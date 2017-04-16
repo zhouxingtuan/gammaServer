@@ -11,7 +11,7 @@
 
 NS_HIVE_BEGIN
 
-Listener::Listener(void) : EpollConnectObject(), Destination(),
+Listener::Listener(void) : Destination(), EpollConnectObject(),
 	m_acceptSocketFunction(NULL), m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_acceptIndex(0) {
 
 }
