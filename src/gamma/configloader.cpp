@@ -13,6 +13,16 @@
 
 NS_HIVE_BEGIN
 
+void parseIPAndPort(const std::string& ip_port_str, std::string& ip, uint16& port){
+	Token::TokenMap ip_port_map;
+	Token::split(ip_port_str, ":", ip_port_map);
+	for(auto &kv : ip_port_map){
+		ip = kv.first;
+		port = atoi(kv.second.c_str());
+		return;
+	}
+}
+
 void loadConfig(const char* fileName){
 	Token::TokenMap config;
 	Token::readConfig("config.ini", config);
@@ -74,6 +84,22 @@ void loadConfig(const char* fileName){
 	MainHandler* pMain = GlobalHandler::getInstance()->getDestination<MainHandler>(mainHandle);
 
 	// record main init data
+	pMain->m_destID = des_id;
+	parseIPAndPort(des_addr, pMain->m_destIP, pMain->m_destPort);
+	pMain->m_destEncrypt = (des_encrypt > 0);
+	pMain->m_destDecrypt = (des_decrypt > 0);
+
+	parseIPAndPort(inner_addr, pMain->m_innerIP, pMain->m_innerPort);
+	pMain->m_innerEncrypt = (inner_encrypt > 0);
+	pMain->m_innerDecrypt = (inner_decrypt > 0);
+
+	parseIPAndPort(socket_addr, pMain->m_socketIP, pMain->m_socketPort);
+	pMain->m_socketEncrypt = (socket_encrypt > 0);
+	pMain->m_socketDecrypt = (socket_decrypt > 0);
+
+	parseIPAndPort(http_addr, pMain->m_httpIP, pMain->m_httpPort);
+
+	parseIPAndPort(https_addr, pMain->m_httpsIP, pMain->m_httpsPort);
 
 	// kick start main handler
 	StartMainHandlerTask* pTask = new StartMainHandlerTask();

@@ -19,6 +19,34 @@ NS_HIVE_BEGIN
 class MainHandler : public Handler
 {
 public:
+	// discovery node information
+	uint32 m_destID;
+	std::string m_destIP;
+	uint16 m_destPort;
+	bool m_destEncrypt;
+	bool m_destDecrypt;
+
+	// inner address
+	std::string m_innerIP;
+	uint16 m_innerPort;
+	bool m_innerEncrypt;
+	bool m_innerDecrypt;
+
+	// outer address
+	std::string m_socketIP;
+	uint16 m_socketPort;
+	bool m_socketEncrypt;
+	bool m_socketDecrypt;
+
+	// http address
+	std::string m_httpIP;
+	uint16 m_httpPort;
+
+	// https address
+	std::string m_httpsIP;
+	uint16 m_httpsPort;
+
+public:
 	MainHandler(void);
 	virtual ~MainHandler(void);
 
@@ -37,6 +65,12 @@ public:
 	virtual int64 onTimerUpdate(uint32 callbackID);
 
 	void onInitialize(void);
+protected:
+	void checkNodeConnect(void);
+	void openInnerListener(void);
+	void openSocketListener(void);
+	void openHttpListener(void);
+	void openHttpsListener(void);
 };
 
 class StartMainHandlerTask : public Task
