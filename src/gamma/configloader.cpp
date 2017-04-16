@@ -41,7 +41,7 @@ void loadConfig(const char* fileName){
 	const std::string& 	password 			= config["password"];
 
 	// # inner ip and port to connect between node
-	const std::string& 	inner_addr 			= config["netkey"];
+	const std::string& 	inner_addr 			= config["inner_addr"];
 	int 				inner_encrypt 		= atoi(config["inner_encrypt"].c_str());
 	int 				inner_decrypt 		= atoi(config["inner_decrypt"].c_str());
 
