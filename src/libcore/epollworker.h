@@ -85,7 +85,11 @@ public:
 
 	template<class _OBJECT_>
 	_OBJECT_* getDestination(uint32 handle){
-		return static_cast<_OBJECT_*>((void*)(m_pGroup->getDestination(handle)));
+		Destination* pDes = m_pGroup->getDestination(handle);
+		if(NULL == pDes){
+			return NULL;
+		}
+		return static_cast<_OBJECT_*>(pDes->this);
 	}
 	inline DestinationGroup* getGroup(void) { return m_pGroup; }
 	bool initHttpsCertificate(const char* publicKey, const char* privateKey);
