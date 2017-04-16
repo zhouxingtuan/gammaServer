@@ -279,6 +279,7 @@ uint32 EpollWorker::openHttps(int fd, const char* ip, uint16 port){
 bool EpollWorker::closeAccept(uint32 handle){
 	Accept* pAccept = this->getDestination<Accept>(handle);
 	if(NULL == pAccept){
+		LOG_ERROR("can not find Accept handle=%d", handle);
 		return false;
 	}
 	m_pEpoll->objectRemove(pAccept);
@@ -290,6 +291,7 @@ bool EpollWorker::closeAccept(uint32 handle){
 bool EpollWorker::closeClient(uint32 handle){
 	Client* pClient = this->getDestination<Client>(handle);
 	if(NULL == pClient){
+		LOG_ERROR("can not find Client handle=%d", handle);
 		return false;
 	}
 	m_pEpoll->objectRemove(pClient);
@@ -301,6 +303,7 @@ bool EpollWorker::closeClient(uint32 handle){
 bool EpollWorker::closeHttp(uint32 handle){
 	Http* pHttp = this->getDestination<Http>(handle);
 	if(NULL == pHttp){
+		LOG_ERROR("can not find Http handle=%d", handle);
 		return false;
 	}
 	pHttp->checkEpollRemove();
@@ -336,6 +339,7 @@ bool EpollWorker::closeConnect(uint32 handle){
 void EpollWorker::notifyCloseConnect(Accept* pAccept){
 	uint32 bindHandle = pAccept->getBindHandle();
 	if(bindHandle == 0){
+		LOG_DEBUG("can not find bindHandle %d", bindHandle);
 		return;
 	}
 	CloseConnectTask* pTask = new CloseConnectTask();
