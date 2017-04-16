@@ -48,6 +48,7 @@ bool GlobalHandler::dispatchTask(uint32 handle, Task* pTask){
 		return false;
 	}
 	// 生成Task并且派发消息
+	LOG_DEBUG("pHandler=0x%x", pHandler);
 	pHandler->acceptTask(pTask);
 	pHandler->release();
 	return true;

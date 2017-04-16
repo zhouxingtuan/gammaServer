@@ -83,6 +83,7 @@ void loadConfig(const char* fileName){
 	GlobalHandler::getInstance()->createPool(HANDLER_TYPE_MAIN, HandlerCreatorCreateObject, HandlerCreatorReleaseObject);
 	uint32 mainHandle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN, MAIN_HANDLER_INDEX);
 	MainHandler* pMain = GlobalHandler::getInstance()->getDestination<MainHandler>(mainHandle);
+	LOG_DEBUG("pMain=0x%x", pMain);
 
 	// record main init data
 	pMain->m_destID = des_id;
