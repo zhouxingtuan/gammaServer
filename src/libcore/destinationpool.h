@@ -18,12 +18,12 @@ template<class _OBJECT_>
 class DestinationPool : public RefObject
 {
 public:
-	typedef _OBJECT_* (*(CreateFunction##_OBJECT_))(uint32 index);
-	typedef void (*(DestroyFunction##_OBJECT_))(_OBJECT_* pDes);
+	typedef _OBJECT_* (*CreateFunction)(uint32 index);
+	typedef void (*DestroyFunction)(_OBJECT_* pDes);
 	typedef std::vector<_OBJECT_*> ObjectVector;
 protected:
-	CreateFunction##_OBJECT_ m_createFunction;
-	DestroyFunction##_OBJECT_ m_destroyFunction;
+	CreateFunction m_createFunction;
+	DestroyFunction m_destroyFunction;
 	ObjectVector m_objects;
 	ObjectVector m_idleObjects;
 	uint32 m_useCount;
@@ -45,7 +45,7 @@ public:
 		clear();
 	}
 	void registerFunction(uint32 nodeID, uint32 serviceID, uint32 poolType,
-		CreateFunction##_OBJECT_ create, DestroyFunction##_OBJECT_ destroy){
+		CreateFunction create, DestroyFunction destroy){
 		m_nodeID = nodeID;
 		m_serviceID = serviceID;
 		m_poolType = poolType;

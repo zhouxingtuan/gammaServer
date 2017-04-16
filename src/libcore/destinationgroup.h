@@ -78,7 +78,9 @@ public:
 		}
 		return m_pools[poolType];
 	}
-	ObjectDestinationPool* createPool(uint32 poolType, CreateFunction##_OBJECT_ create, DestroyFunction##_OBJECT_ destroy){
+	ObjectDestinationPool* createPool(uint32 poolType,
+		ObjectDestinationPool::CreateFunction create,
+		ObjectDestinationPool::DestroyFunction destroy){
 		if(poolType >= (uint32)m_pools.size()){
 			return NULL;
 		}

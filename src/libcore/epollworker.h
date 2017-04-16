@@ -43,13 +43,17 @@ NS_HIVE_BEGIN
 
 class MainWorker;
 
+typedef DestinationGroup<EpollObject> EpollObjectDestinationGroup;
+typedef EpollObjectDestinationGroup::CreateFunction CreateFunctionEpollObject;
+typedef EpollObjectDestinationGroup::DestroyFunction DestroyFunctionEpollObject;
+
 class EpollWorker : public ActiveWorker, public Thread
 {
 public:
 
 public:
 	char m_pReadBuffer[EPOLL_READ_BUFFER_SIZE];
-	typedef DestinationGroup<EpollObject> EpollObjectDestinationGroup;
+
 	EpollObjectDestinationGroup* m_pGroup;
 	MultiCurl* m_pMultiCurl;
 	Packet* m_pPingPacket;				// 预先生成的ping数据包
