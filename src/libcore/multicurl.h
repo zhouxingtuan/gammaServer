@@ -69,7 +69,7 @@ public:
 	EasyCurl(void);
 	virtual ~EasyCurl(void);
 
-	static EasyCurl* createObject(EasyCurl::index_type index){
+	static EasyCurl* createObject(uint32 index){
 		EasyCurl* pEasyCurl = new EasyCurl();
 		pEasyCurl->retain();
 		return pEasyCurl;

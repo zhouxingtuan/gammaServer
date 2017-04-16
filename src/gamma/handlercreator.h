@@ -13,7 +13,7 @@
 
 NS_HIVE_BEGIN
 
-Handler* HandlerCreatorCreateObject(Handler::index_type index);
+Handler* HandlerCreatorCreateObject(uint32 index);
 
 void HandlerCreatorReleaseObject(Handler* pObj);
 

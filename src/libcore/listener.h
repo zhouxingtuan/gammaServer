@@ -27,7 +27,7 @@ public:
 	Listener(void);
 	virtual ~Listener(void);
 
-	static Listener* createObject(Listener::index_type index){
+	static Listener* createObject(uint32 index){
 		return new Listener();
 	}
 	static void releaseObject(Listener* pObj){

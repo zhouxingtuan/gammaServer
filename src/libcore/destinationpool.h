@@ -15,11 +15,11 @@ NS_HIVE_BEGIN
 
 #define DEFAULT_MAX_DESTINATION_POOL 65535
 template<class _OBJECT_>
-typedef _OBJECT_* (*(CreateFunction##_OBJECT_))(_OBJECT_::index_type index);
-typedef void (*(DestroyFunction##_OBJECT_))(_OBJECT_* pDes);
 class DestinationPool : public RefObject
 {
 public:
+	typedef _OBJECT_* (*(CreateFunction##_OBJECT_))(uint32 index);
+	typedef void (*(DestroyFunction##_OBJECT_))(_OBJECT_* pDes);
 	typedef std::vector<_OBJECT_*> ObjectVector;
 protected:
 	CreateFunction##_OBJECT_ m_createFunction;
@@ -27,7 +27,7 @@ protected:
 	ObjectVector m_objects;
 	ObjectVector m_idleObjects;
 	uint32 m_useCount;
-	_OBJECT_::index_type m_slotIndex;
+	uint32 m_slotIndex;
 	uint32 m_maxHashNumber;
 	uint32 m_nodeID;
 	uint32 m_poolType;
@@ -52,14 +52,14 @@ public:
 		m_createFunction = create;
 		m_destroyFunction = destroy;
 	}
-	inline _OBJECT_::index_type getNextSlot(void){
-		_OBJECT_::index_type index = moveSlot();
+	inline uint32 getNextSlot(void){
+		uint32 index = moveSlot();
 		while(NULL != m_objects[index]){
 			index = moveSlot();
 		};
 		return index;
 	}
-	inline _OBJECT_::index_type moveSlot(void){
+	inline uint32 moveSlot(void){
 		if(m_slotIndex > 65535){
 			m_slotIndex = 2;
 			return 1;
@@ -77,7 +77,7 @@ public:
 		return pObj;
 	}
 	// 当超出最大缓存数值的时候，会返回NULL
-	_OBJECT_* create(_OBJECT_::index_type index){
+	_OBJECT_* create(uint32 index){
 		if(m_useCount >= m_maxHashNumber || index >= m_maxHashNumber){
 			return NULL;
 		}
@@ -106,8 +106,8 @@ public:
 	_OBJECT_* get(_OBJECT_::handle_type handle){
 		_OBJECT_* pObj = NULL;
 		struct DestinationHandle h(handle);
-		_OBJECT_::index_type index = h.getIndex();
-		if( index < (_OBJECT_::index_type)m_objects.size() ){
+		uint32 index = h.getIndex();
+		if( index < (uint32)m_objects.size() ){
 			pObj = m_objects[index];
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){
@@ -121,8 +121,8 @@ public:
 	bool idle(_OBJECT_::handle_type handle){
 		_OBJECT_* pObj = NULL;
 		struct DestinationHandle h(handle);
-		_OBJECT_::index_type index = h.getIndex();
-		if( index < (_OBJECT_::index_type)m_objects.size() ){
+		uint32 index = h.getIndex();
+		if( index < (uint32)m_objects.size() ){
 			pObj = m_objects[index];
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){
@@ -139,8 +139,8 @@ public:
 	bool remove(_OBJECT_::handle_type handle){
 		_OBJECT_* pObj = NULL;
 		struct DestinationHandle h(handle);
-		_OBJECT_::index_type index = h.getIndex();
-		if( index < (_OBJECT_::index_type)m_objects.size() ){
+		uint32 index = h.getIndex();
+		if( index < (uint32)m_objects.size() ){
 			pObj = m_objects[index];
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){

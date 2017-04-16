@@ -95,7 +95,7 @@ bool GlobalHandler::createPool(uint32 poolType, CreateFunctionHandler create, De
 	return result;
 }
 // 创建一个目标Handler
-uint32 GlobalHandler::createDestination(uint32 poolType, Destination::index_type index){
+uint32 GlobalHandler::createDestination(uint32 poolType, uint32 index){
 	Destination* pDes;
 	uint32 handle = 0;
 	lock();

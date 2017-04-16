@@ -71,7 +71,7 @@ public:
 	Http(void);
 	virtual ~Http(void);
 
-	static EpollObject* createObject(EpollObject::index_type index){
+	static EpollObject* createObject(uint32 index){
 		return new Http();
 	}
 	static void releaseObject(EpollObject* pObj){

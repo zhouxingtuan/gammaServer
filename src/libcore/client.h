@@ -20,7 +20,7 @@ public:
 	Client(void);
 	virtual ~Client(void);
 
-	static EpollObject* createObject(EpollObject::index_type index){
+	static EpollObject* createObject(uint32 index){
 		return new Client();
 	}
 	static void releaseObject(EpollObject* pObj){

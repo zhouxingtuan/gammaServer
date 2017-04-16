@@ -49,7 +49,7 @@ public:
 		}
 		return pPool->get(handle);
 	}
-	_OBJECT_* createDestination(uint32 poolType, _OBJECT_::index_type index){
+	_OBJECT_* createDestination(uint32 poolType, uint32 index){
 		ObjectDestinationPool* pPool = getPool(poolType);
 		if(NULL == pPool){
 			return NULL;

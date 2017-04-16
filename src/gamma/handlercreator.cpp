@@ -10,7 +10,7 @@
 
 NS_HIVE_BEGIN
 
-Handler* HandlerCreatorCreateObject(Handler::index_type index){
+Handler* HandlerCreatorCreateObject(uint32 index){
 	switch(index){
 		case MAIN_HANDLER_INDEX:{
 			return new MainHandler();
