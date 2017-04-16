@@ -88,12 +88,7 @@ public:
 
 	template<class _OBJECT_>
 	_OBJECT_* getDestination(uint32 handle){
-		Destination* pDes = m_pGroup->getDestination(handle);
-		if(NULL == pDes){
-			LOG_DEBUG("can not find handle=%d", handle);
-			return NULL;
-		}
-		return static_cast<_OBJECT_*>(pDes);
+		return (_OBJECT_*)(m_pGroup->getDestination(handle));
 	}
 	inline EpollObjectDestinationGroup* getGroup(void) { return m_pGroup; }
 	bool initHttpsCertificate(const char* publicKey, const char* privateKey);
