@@ -45,7 +45,7 @@ public:
 		if(NULL == pDes){
 			return NULL;
 		}
-		return static_cast<_OBJECT_*>(pDes->this);
+		return dynamic_cast<_OBJECT_*>(pDes);
 	}
 	DestinationGroup* getGroup(void) { return m_pGroup; }
 	void initialize(void);

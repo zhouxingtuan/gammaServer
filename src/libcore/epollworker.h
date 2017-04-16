@@ -89,7 +89,7 @@ public:
 		if(NULL == pDes){
 			return NULL;
 		}
-		return static_cast<_OBJECT_*>(pDes->this);
+		return dynamic_cast<_OBJECT_*>(pDes);
 	}
 	inline DestinationGroup* getGroup(void) { return m_pGroup; }
 	bool initHttpsCertificate(const char* publicKey, const char* privateKey);
