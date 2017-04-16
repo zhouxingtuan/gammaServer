@@ -44,8 +44,6 @@ NS_HIVE_BEGIN
 class MainWorker;
 
 typedef DestinationGroup<EpollObject> EpollObjectDestinationGroup;
-typedef EpollObjectDestinationGroup::CreateFunction CreateFunctionEpollObject;
-typedef EpollObjectDestinationGroup::DestroyFunction DestroyFunctionEpollObject;
 
 class EpollWorker : public ActiveWorker, public Thread
 {
