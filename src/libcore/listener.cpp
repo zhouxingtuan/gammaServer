@@ -42,6 +42,12 @@ bool Listener::epollActive(uint32 events){
 	}
 	return true;
 }
+void Listener::epollIn(void){
+	
+}
+void Listener::epollOut(void){
+
+}
 void Listener::epollRemove(void){
 	LOG_DEBUG("handle=%d\n", this->getHandle());
 	MainWorker::getInstance()->closeListener(this->getHandle());
