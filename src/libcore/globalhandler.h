@@ -15,8 +15,8 @@
 NS_HIVE_BEGIN
 
 typedef DestinationGroup<Handler> HandlerDestinationGroup;
-typedef HandlerDestinationGroup::CreateFunction CreateFunctionHandler;
-typedef HandlerDestinationGroup::DestroyFunction DestroyFunctionHandler;
+typedef typename HandlerDestinationGroup::CreateFunction CreateFunctionHandler;
+typedef typename HandlerDestinationGroup::DestroyFunction DestroyFunctionHandler;
 
 class GlobalHandler : public RefObject, public Sync
 {
