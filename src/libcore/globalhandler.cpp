@@ -38,7 +38,6 @@ bool GlobalHandler::dispatchTask(uint32 handle, Task* pTask){
 	Handler* pHandler;
 	lock();
 	pHandler = this->getDestination<Handler>(handle);
-//	pHandler = (Handler*)m_pGroup->getDestination(handle);
 	if(NULL != pHandler){
 		pHandler->retain();
 	}
@@ -59,7 +58,6 @@ bool GlobalHandler::dispatchToHandler(Packet* pPacket){
 	PacketHead* pHead = pPacket->getHead();
 	uint32 handle = pHead->destination.handle;
 	lock();
-//	pHandler = (Handler*)m_pGroup->getDestination(handle);
 	pHandler = this->getDestination<Handler>(handle);
 	if(NULL != pHandler){
 		pHandler->retain();
@@ -77,7 +75,6 @@ bool GlobalHandler::dispatchToHandler(Packet* pPacket){
 int64 GlobalHandler::activeTimer(uint32 handle, uint32 callbackID){
 	Handler* pHandler;
 	lock();
-//	pHandler = (Handler*)m_pGroup->getDestination(handle);
 	pHandler = this->getDestination<Handler>(handle);
 	if(NULL != pHandler){
 		pHandler->retain();

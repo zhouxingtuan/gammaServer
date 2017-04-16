@@ -41,7 +41,7 @@ public:
 
 	template<class _OBJECT_>
 	_OBJECT_* getDestination(uint32 handle){
-		return dynamic_cast<_OBJECT_*>(m_pGroup->getDestination(handle));
+		return static_cast<_OBJECT_*>(m_pGroup->getDestination(handle));
 	}
 	DestinationGroup* getGroup(void) { return m_pGroup; }
 	void initialize(void);
