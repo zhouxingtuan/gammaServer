@@ -66,7 +66,8 @@ public:
 	void bindAccept(uint32 acceptHandle, uint32 bindHandle);
 	void sendCurlRequest(RequestData* pRequest);
 
-//	virtual void onReceivePacket(Packet* pPacket, Task* pTask) = 0;			// 处理消息，Destination已经定义
+	// from Destination
+	virtual void onReceivePacket(Packet* pPacket, Task* pTask){};			// 处理消息，Destination已经定义
 	virtual bool receivePacket(Packet* pPacket);							// 收到一个Packet
     virtual void acceptTask(Task* pTask); 									// Task 调用接收任务
     virtual void acceptTaskFront(Task* pTask);								// 任务放在最前面
