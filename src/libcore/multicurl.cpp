@@ -17,7 +17,7 @@ NS_HIVE_BEGIN
 static char curl_full_response[] = "Curl Queue Is Full!";
 static char curl_timeout_response[] = "Curl Request Is Timeout!";
 
-EasyCurl::EasyCurl(void) : EpollObject(), Object080816(), TimerObject(), RefObject(),
+EasyCurl::EasyCurl(void) : EpollObject(), TimerObject(), RefObject(),
 	m_pMultiCurl(NULL), m_pRequest(NULL), m_pResponse(NULL), m_pEasy(NULL), m_pHeader(NULL) {
 	memset(m_pError, 0, CURL_ERROR_SIZE);
 	setType(EASY_CURL_TYPE);
@@ -298,7 +298,7 @@ void MultiCurl::removeAndClearEasy(EasyCurl* pEasyCurl){
     		pRequest = this->getRequestQueue();
 			continue;
     	}
-    	pEasyCurl->increaseVersion();	// 使用新的Handle
+//    	pEasyCurl->increaseVersion();	// 使用新的Handle
     	pRequest->release();
     	++m_requestCount;
 //    	fprintf(stderr, "--MultiCurl::removeAndClearEasy add request from queue OK\n");
