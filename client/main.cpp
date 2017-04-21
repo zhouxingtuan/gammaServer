@@ -48,6 +48,9 @@ int main(int argc, char *argv[])
 	pClient->retain();
 
 	pClient->setNotifyInterface(pNotify);
+	pClient->setKey("1234567890123456");
+	pClient->setIsNeedEncrypt(true);
+	pClient->setIsNeedDecrypt(true);
 	pClient->setSocket("127.0.0.1", 9902);
 	pClient->startThread();		// 这个函数开启新的线程建立连接
 

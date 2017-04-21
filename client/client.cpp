@@ -9,7 +9,49 @@
 #include "client.h"
 
 NS_HIVE_BEGIN
-
+/*--------------------------------------------------------------------*/
+// tiny加密
+void tiny_encrypt(uint32_t* v, uint32_t* k, uint32_t round){
+	uint32_t v0=v[0], v1=v[1], sum=0, i;           /* set up */
+	uint32_t delta=0x9e3779b9;                     /* a key schedule constant */
+	uint32_t k0=k[0], k1=k[1], k2=k[2], k3=k[3];   /* cache key */
+	for (i=0; i < round; i++) {                       /* basic cycle start */
+		sum += delta;
+		v0 += ((v1<<4) + k0) ^ (v1 + sum) ^ ((v1>>5) + k1);
+		v1 += ((v0<<4) + k2) ^ (v0 + sum) ^ ((v0>>5) + k3);
+	}                                              /* end cycle */
+	v[0]=v0; v[1]=v1;
+}
+// tiny解密
+void tiny_decrypt(uint32_t* v, uint32_t* k, uint32_t round, uint32_t move){
+	uint32_t v0=v[0], v1=v[1], sum/*=0xC6EF3720*/, i;  /* set up */
+	uint32_t delta=0x9e3779b9;                     /* a key schedule constant */
+	sum = delta << move;
+	uint32_t k0=k[0], k1=k[1], k2=k[2], k3=k[3];   /* cache key */
+	for (i=0; i<round; i++) {                         /* basic cycle start */
+		v1 -= ((v0<<4) + k2) ^ (v0 + sum) ^ ((v0>>5) + k3);
+		v0 -= ((v1<<4) + k0) ^ (v1 + sum) ^ ((v1>>5) + k1);
+		sum -= delta;
+	}                                              /* end cycle */
+	v[0]=v0; v[1]=v1;
+}
+// 普通加密，速度和加密程度居中
+void binary_encrypt(char* ptr, unsigned int length, const char* key){
+    char* stop_ptr = ptr + (length-length%8);
+    uint32_t* u_key = (uint32_t*)key;
+    while(ptr < stop_ptr){
+		tiny_encrypt( (uint32_t*)ptr, u_key, 32 );
+    	ptr += 8;
+    };
+}
+void binary_decrypt(char* ptr, unsigned int length, const char* key){
+    char* stop_ptr = ptr + (length-length%8);
+    uint32_t* u_key = (uint32_t*)key;
+    while(ptr < stop_ptr){
+		tiny_decrypt( (uint32_t*)ptr, u_key, 32, 5 );
+    	ptr += 8;
+    };
+}
 /*--------------------------------------------------------------------*/
 bool Thread::startThread(void){
 	cancelThread();
@@ -39,6 +81,7 @@ pthread_t Thread::staticThread(ThreadCallback start_rtn, void *arg){
 }
 /*--------------------------------------------------------------------*/
 Buffer::Buffer(int length) : RefObject(), CharVector(length, 0) {
+	this->clearEncryptFlag();
 	this->clear();
 }
 Buffer::~Buffer(void){
@@ -59,7 +102,7 @@ Packet::~Packet(void){
 }
 /*--------------------------------------------------------------------*/
 Client::Client(void) : RefObject(), Sync(), Thread(),
-	m_fd(0), m_port(0),
+	m_fd(0), m_port(0), m_isNeedEncrypt(false), m_isNeedDecrypt(false),
 	m_tempReadPacket(NULL), m_pInterface(NULL) {
 	memset(m_ip, 0, sizeof(m_ip));
 }
@@ -104,6 +147,9 @@ int Client::threadFunction(void){
 	return 0;
 }
 void Client::dispatchPacket(Packet* pPacket){
+	if( this->isNeedDecrypt() && pPacket->getLength() > 8 ){
+		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, this->getKey());
+	}
 	addClientEvent(CLIENT_EVENT_PACKET_IN, pPacket);
 }
 void Client::dispatchEvent(void){
@@ -257,6 +303,10 @@ bool Client::readSocket(void){
 		//这里读取的信息很可能包含多条信息，这时候需要解析出来；这几条信息因为太短，在发送时被底层socket合并了
 		recvBufferPtr = recvBuffer;
         do{
+        	// 对头部数据进行解密
+        	if( this->isNeedDecrypt() ){
+				binary_decrypt(recvBufferPtr, 8, this->getKey());
+			}
             packetLength = ((PacketHead*)(recvBufferPtr))->length;
 			if( packetLength < PACKET_HEAD_LENGTH ){
 				break;	// 这里直接将数据丢弃
@@ -312,6 +362,12 @@ bool Client::writePacket(void){
 	return true;
 }
 bool Client::writeSocket(Packet* pPacket){
+	// 检查是否已经经过加密操作
+	if( pPacket->getBuffer()->checkEncryptFlag() ){
+		if( this->isNeedEncrypt() ){
+			binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), this->getKey());
+		}
+	}
     int nwrite;
     nwrite = write(m_fd, pPacket->getCursorPtr(), pPacket->getLength()-pPacket->getCursor());
     if(nwrite < 0){

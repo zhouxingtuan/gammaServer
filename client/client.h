@@ -131,6 +131,8 @@ typedef std::vector<char> CharVector;
 
 class Buffer : public RefObject, public CharVector
 {
+protected:
+	std::atomic_flag m_encryptFlag;
 public:
 	explicit Buffer(int length);
 	virtual ~Buffer(void);
@@ -157,6 +159,8 @@ public:
 	inline T to(int offset) const {
 		return *((T*)(this->data()+offset));
 	}
+	inline bool checkEncryptFlag(void){ return !m_encryptFlag.test_and_set(); }
+	inline void clearEncryptFlag(void){ m_encryptFlag.clear(); }
 };// end class Buffer
 /*--------------------------------------------------------------------*/
 // 服务间传递消息的头部数据结构
@@ -278,6 +282,12 @@ public:
 	}
 	virtual inline void setSocketFD(int fd){ m_fd = fd; }
 	virtual inline int getSocketFD(void) const { return m_fd; }
+	inline bool isNeedEncrypt(void) const { return m_isNeedEncrypt; }
+	inline void setIsNeedEncrypt(bool need) { m_isNeedEncrypt = need; }
+	inline bool isNeedDecrypt(void) const { return m_isNeedDecrypt; }
+	inline void setIsNeedDecrypt(bool need) { m_isNeedDecrypt = need; }
+	inline void setKey(const std::string& key){ m_key = key; }
+	inline const std::string& getKey(void) const { return m_key; }
 protected:
 	virtual bool connectServer(void);
 	virtual bool trySelectSocket(void);
@@ -294,6 +304,9 @@ protected:
     int m_fd;
     char m_ip[IP_SIZE];//192.168.110.110
     unsigned short m_port;
+	bool m_isNeedEncrypt;			// 是否需要解密
+	bool m_isNeedDecrypt;			// 是否需要加密
+	std::string m_key;				// 网络秘钥
 	PacketQueue m_packetQueue;
 	ClientEventQueue m_clientEventQueue;
 	ClientEventQueue m_tempEventQueue;
