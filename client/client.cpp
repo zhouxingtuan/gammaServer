@@ -148,7 +148,7 @@ int Client::threadFunction(void){
 }
 void Client::dispatchPacket(Packet* pPacket){
 	if( this->isNeedDecrypt() && pPacket->getLength() > 8 ){
-		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, this->getKey());
+		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, this->getKey().c_str());
 	}
 	addClientEvent(CLIENT_EVENT_PACKET_IN, pPacket);
 }
@@ -305,7 +305,7 @@ bool Client::readSocket(void){
         do{
         	// 对头部数据进行解密
         	if( this->isNeedDecrypt() ){
-				binary_decrypt(recvBufferPtr, 8, this->getKey());
+				binary_decrypt(recvBufferPtr, 8, this->getKey().c_str());
 			}
             packetLength = ((PacketHead*)(recvBufferPtr))->length;
 			if( packetLength < PACKET_HEAD_LENGTH ){
@@ -365,7 +365,7 @@ bool Client::writeSocket(Packet* pPacket){
 	// 检查是否已经经过加密操作
 	if( pPacket->getBuffer()->checkEncryptFlag() ){
 		if( this->isNeedEncrypt() ){
-			binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), this->getKey());
+			binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), this->getKey().c_str());
 		}
 	}
     int nwrite;
