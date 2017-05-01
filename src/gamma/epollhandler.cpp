@@ -7,6 +7,7 @@
 //
 
 #include "epollhandler.h"
+#include "dispatcher.h"
 
 NS_HIVE_BEGIN
 
@@ -89,9 +90,11 @@ void onAcceptEncrypt(Accept* pAccept, Packet* pPacket){
 }
 void onReceiveHttp(Http* pHttp){
 	LOG_DEBUG("handle=%d", pHttp->getHandle());
+
 }
 void onRemoveHttp(Http* pHttp){
 	LOG_DEBUG("handle=%d", pHttp->getHandle());
+
 }
 void onHttpReceivePacket(Http* pHttp, Packet* pPacket){
 	LOG_DEBUG("handle=%d packet length=%d", pHttp->getHandle(), pPacket->getLength());
@@ -116,11 +119,11 @@ void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 }
 void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
-
+	Dispatcher::getInstance()->dispatchCommand(pPacket, command);
 }
 void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
-
+	Dispatcher::getInstance()->dispatchCommand(pPacket, command);
 }
 
 NS_HIVE_END

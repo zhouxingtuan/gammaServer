@@ -16,6 +16,8 @@ NS_HIVE_BEGIN
 #define HANDLER_TYPE_MAIN 0
 #define MAIN_HANDLER_INDEX 1
 
+#define DEFAULT_ACCEPT_INDEX 0
+
 class MainHandler : public Handler
 {
 public:

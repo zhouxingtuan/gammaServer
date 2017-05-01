@@ -32,6 +32,7 @@ public:
 	bool dispatchTask(uint32 handle, Task* pTask);
 	// 将消息派发给某一个Handler，这里应该检查nodeID==currentNodeID,service==0；一般不会直接调用
 	bool dispatchToHandler(Packet* pPacket);
+	bool dispatchToHandler(Packet* pPacket, uint32 handle);
 	// 激活一个Handler的Timer
 	int64 activeTimer(uint32 handle, uint32 callbackID);
 	// 创建全局的HandlerPool

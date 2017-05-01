@@ -24,9 +24,11 @@ MainHandler::~MainHandler(void){
 }
 void MainHandler::onReceivePacket(Packet* pPacket, Task* pTask){
 	LOG_DEBUG("packet length=%d", pPacket->getLength());
+
 }
 void MainHandler::onCurlResponse(Buffer* pBuffer, uint32 callbackID, bool isRequestOK){
 	LOG_DEBUG("buffer length=%d callbackID=%d isRequestOK=%d", pBuffer->size(), callbackID, isRequestOK);
+
 }
 void MainHandler::onOpenClientOK(uint32 clientHandle, OpenClientOKTask* pTask){
 	LOG_DEBUG("clientHandle=%d", clientHandle);
@@ -34,7 +36,7 @@ void MainHandler::onOpenClientOK(uint32 clientHandle, OpenClientOKTask* pTask){
 }
 void MainHandler::onOpenClient(uint32 callbackID, uint32 clientHandle, OpenClientTask* pTask){
 	LOG_DEBUG("callbackID=%d clientHandle=%d", callbackID, clientHandle);
-//	m_handleToNode[clientHandle] = callbackID;
+	m_handleToNode[clientHandle] = callbackID;
 }
 void MainHandler::onOpenSocketListener(uint32 callbackID, uint32 listenerHandle, OpenSocketListenerTask* pTask){
 	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
@@ -42,12 +44,15 @@ void MainHandler::onOpenSocketListener(uint32 callbackID, uint32 listenerHandle,
 }
 void MainHandler::onOpenHttpListener(uint32 callbackID, uint32 listenerHandle, OpenHttpListenerTask* pTask){
 	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
+
 }
 void MainHandler::onOpenHttpsListener(uint32 callbackID, uint32 listenerHandle, OpenHttpsListenerTask* pTask){
 	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
+
 }
 void MainHandler::onCloseListener(uint32 callbackID, uint32 listenerHandle, CloseListenerTask* pTask){
 	LOG_DEBUG("callbackID=%d listenerHandle=%d", callbackID, listenerHandle);
+
 }
 void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask){
 	LOG_DEBUG("callbackID=%d connectHandle=%d", callbackID, connectHandle);
@@ -77,20 +82,17 @@ void MainHandler::checkNodeConnect(void){
 		if(connHandle > 0){
 			// do nothing
 		}else{
-			this->openClient(m_destID, m_destIP.c_str(), m_destPort,
-        		m_destEncrypt, m_destDecrypt, 0);
+			this->openClient(m_destID, m_destIP.c_str(), m_destPort, m_destEncrypt, m_destDecrypt, DEFAULT_ACCEPT_INDEX);
 		}
 	}
 }
 void MainHandler::openInnerListener(void){
 	LOG_DEBUG("ip=%s port=%d", m_innerIP.c_str(), m_innerPort);
-	this->openSocketListener(0, m_innerIP.c_str(), m_innerPort,
-		m_innerEncrypt, m_innerDecrypt, 0);
+	this->openSocketListener(0, m_innerIP.c_str(), m_innerPort, m_innerEncrypt, m_innerDecrypt, 0);
 }
 void MainHandler::openMainSocketListener(void){
 	LOG_DEBUG("ip=%s port=%d", m_socketIP.c_str(), m_socketPort);
-	this->openSocketListener(0, m_socketIP.c_str(), m_socketPort,
-		m_socketEncrypt, m_socketDecrypt, 0);
+	this->openSocketListener(0, m_socketIP.c_str(), m_socketPort, m_socketEncrypt, m_socketDecrypt, 0);
 }
 void MainHandler::openMainHttpListener(void){
 	LOG_DEBUG("ip=%s port=%d", m_httpIP.c_str(), m_httpPort);

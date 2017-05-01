@@ -26,7 +26,7 @@ RM = rm -f
 BIN = ../../bin
 TARGET = gamma
 
-OBJS = configloader.o epollhandler.o handlercreator.o mainhandler.o
+OBJS = configloader.o epollhandler.o handlercreator.o mainhandler.o dispatcher.o
 
 $(TARGET): main.o $(OBJS)
 	$(MAKE) -C ./../../third/jemalloc
@@ -46,6 +46,8 @@ mainhandler.o:mainhandler.cpp mainhandler.h
 handlercreator.o:handlercreator.cpp handlercreator.h
 
 epollhandler.o:epollhandler.cpp epollhandler.h
+
+dispatcher.o:dispatcher.cpp dispatcher.h
 
 clean:
 	-$(RM) $(BIN)/$(TARGET)

@@ -10,6 +10,7 @@
 #include "epollhandler.h"
 #include "mainhandler.h"
 #include "handlercreator.h"
+#include "dispatcher.h"
 
 NS_HIVE_BEGIN
 
@@ -64,8 +65,8 @@ void loadConfig(const char* fileName){
 	GlobalSetting::getInstance()->setPassword(password);
 	GlobalSetting::getInstance()->setPublicKey(https_public);
 	GlobalSetting::getInstance()->setPrivateKey(https_private);
-	GlobalSetting::getInstance()->setAcceptReadFunction(0, onAcceptRead);
-	GlobalSetting::getInstance()->setAcceptReceivePacketFunction(0, onAcceptReceivePacket);
+	GlobalSetting::getInstance()->setAcceptReadFunction(DEFAULT_ACCEPT_INDEX, onAcceptRead);
+	GlobalSetting::getInstance()->setAcceptReceivePacketFunction(DEFAULT_ACCEPT_INDEX, onAcceptReceivePacket);
 	GlobalSetting::getInstance()->setAcceptDecryptFunction(onAcceptDecrypt);
 	GlobalSetting::getInstance()->setAcceptEncryptFunction(onAcceptEncrypt);
 	GlobalSetting::getInstance()->setReceiveHttpFunction(onReceiveHttp);
@@ -102,6 +103,11 @@ void loadConfig(const char* fileName){
 	parseIPAndPort(http_addr, pMain->m_httpIP, pMain->m_httpPort);
 
 	parseIPAndPort(https_addr, pMain->m_httpsIP, pMain->m_httpsPort);
+
+	Dispatcher::getInstance()->appendCommandListener(COMMAND_REGISTER, mainHandle);
+	Dispatcher::getInstance()->appendCommandListener(COMMAND_RESPONSE, mainHandle);
+	Dispatcher::getInstance()->appendCommandListener(COMMAND_HIVE_REGISTER, mainHandle);
+	Dispatcher::getInstance()->appendCommandListener(COMMAND_HIVE_RESPONSE, mainHandle);
 
 	// kick start main handler
 	StartMainHandlerTask* pTask = new StartMainHandlerTask();

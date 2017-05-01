@@ -53,9 +53,12 @@ bool GlobalHandler::dispatchTask(uint32 handle, Task* pTask){
 }
 bool GlobalHandler::dispatchToHandler(Packet* pPacket){
 	// 查找Handler对象，派发给Handler去执行
-	Handler* pHandler;
 	PacketHead* pHead = pPacket->getHead();
 	uint32 handle = pHead->destination.handle;
+	return this->dispatchToHandler(pPacket, handle);
+}
+bool GlobalHandler::dispatchToHandler(Packet* pPacket, uint32 handle){
+	Handler* pHandler;
 	lock();
 	pHandler = this->getDestination<Handler>(handle);
 	if(NULL != pHandler){
