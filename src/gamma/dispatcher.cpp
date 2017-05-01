@@ -79,8 +79,9 @@ bool Dispatcher::dispatchCommand(Packet* pPacket, uint32 command){
 	if(handle == 0){
 		LOG_ERROR("dispatchCommand can not find available Handler command=%d", command);
 	}else{
-		GlobalHandler::getInstance()->dispatchToHandler(pPacket, handle);
+		return GlobalHandler::getInstance()->dispatchToHandler(pPacket, handle);
 	}
+	return false;
 }
 uint32 Dispatcher::getCommandHandle(uint32 command){
 	uint32 handle = 0;
