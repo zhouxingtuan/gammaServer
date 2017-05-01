@@ -54,7 +54,6 @@ void Dispatcher::removeCommandListener(uint32 command, uint32 handle){
 		}
 	}
 	unlock();
-	return true;
 }
 bool Dispatcher::appendCommandListener(uint32 command, uint32 handle){
 	lock();
