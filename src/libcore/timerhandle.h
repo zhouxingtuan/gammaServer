@@ -98,11 +98,20 @@ class StartTimerTask : public Task
 {
 public:
 	StartTimerTask(void) : Task(), m_timeCount(-1), m_handlerID(0), m_callbackID(0), m_timerHandle(0) {}
-	virtual ~StartTimerTask(void);
+	virtual ~StartTimerTask(void){}
 
 	// from Task
-	virtual void doHandlerTask(Handler* pHandler);
-	virtual void doActiveTask(ActiveWorker* pHandler){}
+	virtual void doHandlerTask(Handler* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){
+		TimerHandle* pHandle = TimerManager::getInstance()->getTimerHandle(m_timerHandle);
+    	if(NULL != pHandle){
+    		pHandle->setCallbackID(m_callbackID);
+    		pHandle->setActiveObject(m_handlerID);
+    		pHandle->setTimer(m_timeCount, TimerManager::getInstance()->getTimer());
+    	}else{
+    		LOG_ERROR("Bug happened. May have memory leak!");
+    	}
+	}
 
 	uint32 getTimerHandle(void) const { return m_timerHandle; }
 	void setTimerHandle(uint32 handle){ m_timerHandle = handle; }
@@ -125,8 +134,10 @@ public:
 	virtual ~RemoveTimerTask(void){}
 
 	// from Task
-	virtual void doHandlerTask(Handler* pHandler);
-	virtual void doActiveTask(ActiveWorker* pHandler){}
+	virtual void doHandlerTask(Handler* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){
+		TimerManager::getInstance()->removeTimer(m_timerHandle);
+	}
 
 	uint32 getTimerHandle(void) const { return m_timerHandle; }
 	void setTimerHandle(uint32 handle){ m_timerHandle = handle; }
@@ -141,8 +152,10 @@ public:
 	virtual ~ChangeTimerTask(void){}
 
 	// from Task
-	virtual void doHandlerTask(Handler* pHandler);
-	virtual void doActiveTask(ActiveWorker* pHandler){}
+	virtual void doHandlerTask(Handler* pHandler){}
+	virtual void doActiveTask(ActiveWorker* pHandler){
+		TimerManager::getInstance()->changeTimer(m_timerHandle, m_timeCount);
+	}
 
 	uint32 getTimerHandle(void) const { return m_timerHandle; }
 	void setTimerHandle(uint32 handle){ m_timerHandle = handle; }

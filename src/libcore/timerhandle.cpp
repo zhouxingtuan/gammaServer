@@ -55,19 +55,20 @@ void TimerManager::destroy(void){
 
 // 异步 开始一个计时器
 uint32 TimerManager::startTimerSync(uint32 callbackID, int64 timeCount, Handler* pHandler){
-//	fprintf(stderr, "TimerManager::startTimerSync callbackID=%d timeCount=%lld\n", callbackID, timeCount);
+	LOG_DEBUG("handle=%d callbackID=%d timeCount=%lld", pHandler->getHandle(), callbackID, timeCount);
 	TimerHandle* pHandle = this->createTimerHandle();
 	if(NULL == pHandle){
+		LOG_ERROR("not enough time handle handle=%d callbackID=%d timeCount=%lld", pHandler->getHandle(), callbackID, timeCount);
 		return 0;
 	}
 	uint32 handle = pHandle->getHandle();
-//	fprintf(stderr, "TimerManager::startTimerSync StartTimerTask handle=%d\n", handle);
 	StartTimerTask* pTask = new StartTimerTask();
 	pTask->retain();
 	pTask->setTimerHandle(handle);
 	pTask->setCallbackID(callbackID);
 	pTask->setTimeCount(timeCount);
 	pTask->setActiveObject(pHandler->getHandle());
+	LOG_DEBUG("send task to main handle=%d callbackID=%d timeCount=%lld", pHandler->getHandle(), callbackID, timeCount);
 	MainWorker::getInstance()->acceptTask(pTask);
 	pTask->release();
 	return handle;
@@ -130,28 +131,6 @@ int64 TimerManager::getTimerLeft(uint32 handle){
 		return pHandle->getTimerLeft();
 	}
 	return 0;
-}
-
-StartTimerTask::~StartTimerTask(void){
-
-}
-void StartTimerTask::doHandlerTask(Handler* pHandler){
-	TimerHandle* pHandle = TimerManager::getInstance()->getTimerHandle(m_timerHandle);
-	if(NULL != pHandle){
-		pHandle->setCallbackID(m_callbackID);
-		pHandle->setActiveObject(m_handlerID);
-		pHandle->setTimer(m_timeCount, TimerManager::getInstance()->getTimer());
-	}else{
-		LOG_ERROR("Bug happened. May have memory leak!");
-	}
-}
-
-void RemoveTimerTask::doHandlerTask(Handler* pHandler){
-	TimerManager::getInstance()->removeTimer(m_timerHandle);
-}
-
-void ChangeTimerTask::doHandlerTask(Handler* pHandler){
-	TimerManager::getInstance()->changeTimer(m_timerHandle, m_timeCount);
 }
 
 

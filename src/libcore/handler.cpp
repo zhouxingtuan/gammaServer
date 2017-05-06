@@ -105,9 +105,8 @@ int64 Handler::timerActiveCallback(uint32 callbackID){
 
 // 开始一个计时器
 uint32 Handler::startTimer(uint32 callbackID, int64 timeCount){
-//	fprintf(stderr, "Handler::startTimer callbackID=%d timeCount=%lld\n", callbackID, timeCount);
+	LOG_DEBUG("Handler startTimer handle=%d callbackID=%d timeCount=%lld", getHandle(), callbackID, timeCount);
 	return TimerManager::getInstance()->startTimerSync(callbackID, timeCount, this);
-	return 0;
 }
 // 移除计时器
 void Handler::removeTimer(uint32 handle){
