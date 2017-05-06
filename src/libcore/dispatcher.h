@@ -10,6 +10,8 @@
 #define __hive__dispatcher__
 
 #include "globalhandler.h"
+#include "globalservice.h"
+#include "globalsetting.h"
 
 NS_HIVE_BEGIN
 
