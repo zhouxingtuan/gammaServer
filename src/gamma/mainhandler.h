@@ -28,9 +28,9 @@ typedef struct HiveInformation{
         reset();
     }
     void set(const char* ptr){
-        memcpy(&id, sizeof(HiveInformation), 0);
+        memcpy(get(), ptr, sizeof(HiveInformation));
     }
-    const char* get(void) {
+    char* get(void) {
         return ((const char*)(&id));
     }
     void set(uint32 id, const char* ip, uint16 port, bool encrypt, bool decrypt){
