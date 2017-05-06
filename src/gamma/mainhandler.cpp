@@ -84,8 +84,8 @@ bool MainHandler::registerNode(const HiveInformation& regInfo){
 		LOG_INFO("current node info equal to register node");
 		return true;
 	}
+	unregisterNode(regInfo.id);
 	info.set(regInfo.get());
-	unregisterNode(info.id);
 	checkNodeConnect(info.id);
 	return true;
 }
