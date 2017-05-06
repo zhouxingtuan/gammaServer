@@ -72,6 +72,7 @@ void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseC
     	GlobalService::getInstance()->removeNodeConnect(callbackID);
     	// connect again in seconds
 		startTimer(callbackID, NODE_RECONNECT_TIME);
+		LOG_DEBUG("schedule node to reconnect id=%d", callbackID);
 	}
 }
 int64 MainHandler::onTimerUpdate(uint32 callbackID){
@@ -145,6 +146,7 @@ void MainHandler::checkNodeConnect(uint32 id){
 		uint32 connectHandle = GlobalService::getInstance()->getNodeConnect(id);
 		if(connectHandle > 0){
 			// do nothing
+			LOG_DEBUG("the current node is already connected");
 		}else{
 			HiveInformation& info = m_hiveNodes[id];
 			LOG_DEBUG("try to open client to node=%d ip=%s port=%d", id, info.ip, info.port);
