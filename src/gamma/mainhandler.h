@@ -44,7 +44,7 @@ typedef struct HiveInformation{
         memset(&id, sizeof(HiveInformation), 0);
     }
 	inline bool operator==(const HiveInformation& h) const{
-		return (memcmp(this->get(), h.get(), sizeof(HiveInformation)) == 0);
+		return (memcmp(get(), h.get(), sizeof(HiveInformation)) == 0);
 	}
 	inline HiveInformation& operator=(const HiveInformation& h){
 		this->set(h.get());

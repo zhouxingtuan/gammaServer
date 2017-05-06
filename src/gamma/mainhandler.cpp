@@ -57,7 +57,7 @@ void MainHandler::onCloseListener(uint32 callbackID, uint32 listenerHandle, Clos
 void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask){
 	LOG_DEBUG("callbackID=%d connectHandle=%d", callbackID, connectHandle);
 	// check if callbackID > 0 , then connect again in seconds
-	
+
 }
 int64 MainHandler::onTimerUpdate(uint32 callbackID){
 	LOG_DEBUG("callbackID=%d", callbackID);
