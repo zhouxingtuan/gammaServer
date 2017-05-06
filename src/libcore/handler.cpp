@@ -168,6 +168,7 @@ void Handler::destroy(void){
 	releaseTask();
 }
 void Handler::releaseTask(void){
+	LOG_DEBUG("Handler release Task handle=%d", getHandle());
 	this->lock();
 	for( auto pTask : m_taskQueue ){
 		pTask->release();
@@ -195,23 +196,26 @@ void Handler::acceptTask(Task* pTask){
 	m_taskQueue.push_back(pTask);
 	if( m_isInHandlerQueue ){	// 已经在队列里面，入队后不做任何处理
 		this->unlock();
-		LOG_DEBUG("Handler acceptTask when is in HandlerQueue handle=%d", getHandle());
+		LOG_DEBUG("Handler accept Task when is in HandlerQueue handle=%d", getHandle());
 	}else{						// 原先不在队列中则重新入队
 		m_isInHandlerQueue = true;
 		this->unlock();
-		LOG_DEBUG("Handler acceptTask when is not in HandlerQueue, and push handle=%d", getHandle());
+		LOG_DEBUG("Handler accept Task when is not in HandlerQueue, and push handle=%d", getHandle());
 		HandlerQueue::getInstance()->acceptHandler(this);	// 将handler提交给队
 	}
 }
 void Handler::acceptTaskFront(Task* pTask){
 	pTask->retain();
+	LOG_DEBUG("Handler accept Task Front handle=%d", getHandle());
 	this->lock();
 	m_taskQueue.push_front(pTask);
 	if( m_isInHandlerQueue ){	// 已经在队列里面，入队后不做任何处理
 		this->unlock();
+		LOG_DEBUG("Handler accept Task Front when is in HandlerQueue handle=%d", getHandle());
 	}else{						// 原先不在队列中则重新入队
 		m_isInHandlerQueue = true;
 		this->unlock();
+		LOG_DEBUG("Handler accept Task Front when is not in HandlerQueue, and push handle=%d", getHandle());
 		HandlerQueue::getInstance()->acceptHandler(this);	// 将handler提交给队
 	}
 }
