@@ -96,9 +96,8 @@ public:
 	inline MultiCurl* getMultiCurl(void){ return m_pMultiCurl; }
 	inline char* getReadBuffer(void){ return m_pReadBuffer; }
 	inline Packet* getPingPacket(void){ return m_pPingPacket; }
-protected:
-	virtual int threadFunction(void);
 
+	virtual int threadFunction(void);
 	virtual void initialize(void);
 	virtual void destroy(void);
 };
