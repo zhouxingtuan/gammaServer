@@ -20,7 +20,6 @@ EpollWorker::~EpollWorker(void){
 }
 
 int EpollWorker::threadFunction(void){
-	initialize();
 	this->retain();
 	LOG_INFO("start serviceID=%d", getServiceID());
 	int64 timeout;

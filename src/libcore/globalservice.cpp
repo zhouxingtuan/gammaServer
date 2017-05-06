@@ -141,6 +141,7 @@ void GlobalService::initialize(uint16 epollWorkerNumber){
 	for(uint16 i = 1; i <= epollWorkerNumber; ++i){
 		EpollWorker* pWorker = new EpollWorker(i);
 		pWorker->retain();
+		pWorker->initialize();  // init right after create
 		if(!pWorker->startThread()){
 			LOG_ERROR("EpollWorker startThread failed serviceID=%d", i);
 		}
