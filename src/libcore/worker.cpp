@@ -22,6 +22,7 @@ int Worker::threadFunction(void){
 	HandlerQueue* pHandlerQueue = m_pHandlerQueue;
 	pHandlerQueue->retain();
 	this->retain();
+	LOG_INFO("Worker thread start");
 	while(true){
 		pHandlerQueue->lock();
 		pHandler = pHandlerQueue->nextHandler();		// 临界区
@@ -34,6 +35,7 @@ int Worker::threadFunction(void){
 		pHandler->doHandler(pHandlerQueue);	// 执行任务内容
 		pHandler->release();				// 执行完之后释放掉，对应的是入队时的retain
 	};
+	LOG_INFO("Worker thread end");
 	this->release();
 	pHandlerQueue->release();
 	return 0;

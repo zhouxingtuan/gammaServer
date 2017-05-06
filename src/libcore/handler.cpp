@@ -194,9 +194,11 @@ void Handler::acceptTask(Task* pTask){
 	m_taskQueue.push_back(pTask);
 	if( m_isInHandlerQueue ){	// 已经在队列里面，入队后不做任何处理
 		this->unlock();
+		LOG_DEBUG("Handler acceptTask when is in HandlerQueue");
 	}else{						// 原先不在队列中则重新入队
 		m_isInHandlerQueue = true;
 		this->unlock();
+		LOG_DEBUG("Handler acceptTask when is not in HandlerQueue, and push");
 		HandlerQueue::getInstance()->acceptHandler(this);	// 将handler提交给队
 	}
 }
