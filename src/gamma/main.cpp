@@ -38,14 +38,20 @@ void operator delete[](void* p){
 
 USING_NS_HIVE;
 
+static char defaultConfigFile[] = "config.ini";
+
 int main(int argc, char *argv[])
 {
+	const char* config = defaultConfigFile;
+	if( argc > 1 ){
+		config = argv[1];
+	}
 	// 使用默认的信号处理
 	defaultSignalHandle();
 	// 创建单例管理器
 	MainWorker::createInstance();
 	// 初始化配置
-	loadConfig("config.ini");
+	loadConfig(config);
 	MainWorker::getInstance()->update();
 	LOG_INFO("main loop exit ...");
 	MainWorker::destroyInstance();
