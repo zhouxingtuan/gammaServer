@@ -1,0 +1,4 @@
+
+nohup ./gamma config1.ini -print >> node1.log 2>&1 &
+
+nohup ./gamma config2.ini -print >> node2.log 2>&1 &
