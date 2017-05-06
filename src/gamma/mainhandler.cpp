@@ -17,7 +17,7 @@ MainHandler::MainHandler(void) : Handler(),
 	m_httpPort(0),
 	m_httpsPort(0)
 {
-	memset(m_hiveNodes, sizeof(m_hiveNodes), 0);
+	memset(m_hiveNodes, 0, sizeof(m_hiveNodes));
 }
 MainHandler::~MainHandler(void){
 

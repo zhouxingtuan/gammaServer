@@ -42,7 +42,7 @@ typedef struct HiveInformation{
         this->decrypt = decrypt;
     }
     void reset(void){
-        memset((char*)get(), sizeof(HiveInformation), 0);
+        memset((char*)get(), 0, sizeof(HiveInformation));
     }
 	inline bool operator==(const HiveInformation& h) const{
 		return (memcmp(get(), (h.get()), sizeof(HiveInformation)) == 0);
