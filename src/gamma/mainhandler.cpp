@@ -146,7 +146,7 @@ void MainHandler::checkNodeConnect(uint32 id){
 		uint32 connectHandle = GlobalService::getInstance()->getNodeConnect(id);
 		if(connectHandle > 0){
 			// do nothing
-			LOG_DEBUG("the current node is already connected");
+			LOG_DEBUG("the current node is already connected id=%d connectHandle=%d", id, connectHandle);
 		}else{
 			HiveInformation& info = m_hiveNodes[id];
 			LOG_DEBUG("try to open client to node=%d ip=%s port=%d", id, info.ip, info.port);
