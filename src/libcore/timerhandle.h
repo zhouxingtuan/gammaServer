@@ -103,6 +103,7 @@ public:
 	// from Task
 	virtual void doHandlerTask(Handler* pHandler){}
 	virtual void doActiveTask(ActiveWorker* pHandler){
+		LOG_DEBUG("StartTimerTask handle=%d m_callbackID=%d m_handlerID=%d", m_timerHandle, m_callbackID, m_handlerID);
 		TimerHandle* pHandle = TimerManager::getInstance()->getTimerHandle(m_timerHandle);
     	if(NULL != pHandle){
     		pHandle->setCallbackID(m_callbackID);
@@ -136,6 +137,7 @@ public:
 	// from Task
 	virtual void doHandlerTask(Handler* pHandler){}
 	virtual void doActiveTask(ActiveWorker* pHandler){
+		LOG_DEBUG("RemoveTimerTask handle=%d", m_timerHandle);
 		TimerManager::getInstance()->removeTimer(m_timerHandle);
 	}
 
@@ -154,6 +156,7 @@ public:
 	// from Task
 	virtual void doHandlerTask(Handler* pHandler){}
 	virtual void doActiveTask(ActiveWorker* pHandler){
+		LOG_DEBUG("ChangeTimerTask handle=%d", m_timerHandle);
 		TimerManager::getInstance()->changeTimer(m_timerHandle, m_timeCount);
 	}
 
