@@ -18,10 +18,45 @@ NS_HIVE_BEGIN
 
 #define DEFAULT_ACCEPT_INDEX 0
 
+typedef struct HiveInformation{
+    uint32 id;
+    char ip[IP_SIZE];//192.168.110.110
+    uint16 port;
+    bool encrypt;
+    bool decrypt;
+    HiveInformation(void){
+        reset();
+    }
+    void set(const char* ptr){
+        memcpy(&id, sizeof(HiveInformation), 0);
+    }
+    const char* get(void) {
+        return ((const char*)(&id));
+    }
+    void set(uint32 id, const char* ip, uint16 port, bool encrypt, bool decrypt){
+        this->id = id;
+        memcpy(this->ip, ip, IP_SIZE);
+        this->port = port;
+        this->encrypt = encrypt;
+        this->decrypt = decrypt;
+    }
+    void reset(void){
+        memset(&id, sizeof(HiveInformation), 0);
+    }
+	inline bool operator==(const HiveInformation& h) const{
+		return (memcmp(this->get(), h.get(), sizeof(HiveInformation)) == 0);
+	}
+	inline HiveInformation& operator=(const HiveInformation& h){
+		this->set(h.get());
+		return *this;
+	}
+}HiveInformation;
+
 class MainHandler : public Handler
 {
 public:
 	typedef std::map<uint32, uint32> HandleToNodeMap;
+	typedef std::vector<uint32> UIntVector;
 public:
 	// discovery node information
 	uint32 m_destID;
@@ -52,6 +87,8 @@ public:
 
 	// connectHandle->nodeID
 	HandleToNodeMap m_handleToNode;
+	HiveInformation m_hiveNodes[MAX_NODE_NUMBER + 1];
+	UIntVector m_waitNodes; // wait in queue to check connect
 public:
 	MainHandler(void);
 	virtual ~MainHandler(void);
@@ -71,8 +108,13 @@ public:
 	virtual int64 onTimerUpdate(uint32 callbackID);
 
 	void onInitialize(void);
+
+	bool registerNode(const char* ptr);
+	bool registerNode(uint32 id, const char* ip, uint16 port, bool encrypt, bool decrypt);
+	bool registerNode(const HiveInformation& regInfo);
+	bool unregisterNode(uint32 id);
 protected:
-	void checkNodeConnect(void);
+	void checkNodeConnect(uint32 id);
 	void openInnerListener(void);
 	void openMainSocketListener(void);
 	void openMainHttpListener(void);

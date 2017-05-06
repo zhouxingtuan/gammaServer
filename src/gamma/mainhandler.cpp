@@ -17,7 +17,7 @@ MainHandler::MainHandler(void) : Handler(),
 	m_httpPort(0),
 	m_httpsPort(0)
 {
-
+	memset(m_hiveNodes, sizeof(m_hiveNodes), 0);
 }
 MainHandler::~MainHandler(void){
 
@@ -56,34 +56,81 @@ void MainHandler::onCloseListener(uint32 callbackID, uint32 listenerHandle, Clos
 }
 void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask){
 	LOG_DEBUG("callbackID=%d connectHandle=%d", callbackID, connectHandle);
-
+	// check if callbackID > 0 , then connect again in seconds
+	
 }
 int64 MainHandler::onTimerUpdate(uint32 callbackID){
 	LOG_DEBUG("callbackID=%d", callbackID);
 	return -1;
 }
 
+bool MainHandler::registerNode(const char* ptr){
+	HiveInformation regInfo;
+	regInfo.set(ptr);
+	return registerNode(regInfo);
+}
+bool MainHandler::registerNode(uint32 id, const char* ip, uint16 port, bool encrypt, bool decrypt){
+	HiveInformation regInfo;
+	regInfo.set(id, ip, port, encrypt, decrypt);
+	return registerNode(regInfo);
+}
+bool MainHandler::registerNode(const HiveInformation& regInfo){
+	if(regInfo.id > MAX_NODE_NUMBER){
+		LOG_ERROR("you are trying to register a node id > MAX_NODE_NUMBER id=%d", regInfo.id);
+        return false;
+	}
+	HiveInformation& info = m_hiveNodes[regInfo.id];
+	if(info == regInfo){
+		LOG_INFO("current node info equal to register node");
+		return true;
+	}
+	info.set(regInfo.get());
+	unregisterNode(info.id);
+	checkNodeConnect(info.id);
+	return true;
+}
+bool MainHandler::unregisterNode(uint32 id){
+	if(id > MAX_NODE_NUMBER){
+		LOG_ERROR("you are trying to unregister a node id > MAX_NODE_NUMBER id=%d", id);
+		return false;
+	}
+	HiveInformation& info = m_hiveNodes[id];
+	if(info.id > 0){
+		info.reset();                           // reset the data
+		uint32 connectHandle = GlobalService::getInstance()->getNodeConnect(id);
+		if(connHandle > 0){
+			closeConnect(0, connectHandle);    // close connection
+			return true;
+		}
+	}
+	return false;
+}
 void MainHandler::onInitialize(void){
 	LOG_DEBUG("main handler start...");
 	openInnerListener();
 	openMainSocketListener();
 	openMainHttpListener();
 	openMainHttpsListener();
-	checkNodeConnect();
+	// register self
+	uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
+	registerNode(nodeID, m_innerIP.c_str(), m_innerPort, m_innerEncrypt, m_innerDecrypt);
+	// register discovery node
+	registerNode(m_destID, m_destIP.c_str(), m_destPort, m_destEncrypt, m_destDecrypt);
 }
-void MainHandler::checkNodeConnect(void){
+void MainHandler::checkNodeConnect(uint32 id){
 	// try to connect the destination node
 	uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
-	if( m_destID == nodeID ){
+	if( id == nodeID ){
 		LOG_DEBUG("the current node is the destination node");
 	}else{
 		// if the connection is already connected, skip
-		uint32 connHandle = GlobalService::getInstance()->getNodeConnect(m_destID);
+		uint32 connHandle = GlobalService::getInstance()->getNodeConnect(id);
 		if(connHandle > 0){
 			// do nothing
 		}else{
-			LOG_DEBUG("try to open client to node=%d ip=%s port=%d", m_destID, m_destIP.c_str(), m_destPort);
-			this->openClient(m_destID, m_destIP.c_str(), m_destPort, m_destEncrypt, m_destDecrypt, DEFAULT_ACCEPT_INDEX);
+			HiveInformation& info = m_hiveNodes[id];
+			LOG_DEBUG("try to open client to node=%d ip=%s port=%d", id, info.ip, info.port);
+			openClient(id, info.ip, info.port, info.encrypt, info.decrypt, DEFAULT_ACCEPT_INDEX);
 		}
 	}
 }

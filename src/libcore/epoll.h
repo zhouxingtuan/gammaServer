@@ -17,7 +17,7 @@ NS_HIVE_BEGIN
 #define MAX_WAIT_EVENT_SIZE 10240
 #define EPOLL_WAIT_FLAG -1
 
-#define IP_SIZE 18
+#define IP_SIZE 16
 typedef struct SocketInformation{
     int fd;
     char ip[IP_SIZE];//192.168.110.110
