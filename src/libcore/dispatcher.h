@@ -9,7 +9,7 @@
 #ifndef __hive__dispatcher__
 #define __hive__dispatcher__
 
-#include "mainhandler.h"
+#include "globalhandler.h"
 
 NS_HIVE_BEGIN
 

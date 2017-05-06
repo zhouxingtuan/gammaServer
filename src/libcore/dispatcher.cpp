@@ -7,7 +7,6 @@
 //
 
 #include "dispatcher.h"
-#include "globalhandler.h"
 
 NS_HIVE_BEGIN
 

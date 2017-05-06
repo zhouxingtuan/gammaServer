@@ -103,7 +103,7 @@ void loadConfig(const char* fileName){
 	parseIPAndPort(http_addr, pMain->m_httpIP, pMain->m_httpPort);
 
 	parseIPAndPort(https_addr, pMain->m_httpsIP, pMain->m_httpsPort);
-	
+
 	Dispatcher::getInstance()->appendCommandListener(COMMAND_HIVE_REGISTER, mainHandle);
 	Dispatcher::getInstance()->appendCommandListener(COMMAND_HIVE_RESPONSE, mainHandle);
 
