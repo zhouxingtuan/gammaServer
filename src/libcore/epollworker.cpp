@@ -338,6 +338,7 @@ bool EpollWorker::closeConnect(uint32 handle){
 }
 void EpollWorker::notifyCloseConnect(Accept* pAccept){
 	uint32 bindHandle = pAccept->getBindHandle();
+	LOG_DEBUG("connection close handle=%d bindHandle=%d", pAccept->getHandle(), bindHandle);
 	if(bindHandle == 0){
 		LOG_DEBUG("can not find bindHandle %d", bindHandle);
 		return;

@@ -67,6 +67,7 @@ bool Client::epollActive(uint32 events){
 			return true;
 		}
 		LOG_DEBUG("connect OK to handle=%d ip=%s port=%d", getHandle(), getIP(), getPort());
+		setConnectionState(CS_CONNECT_OK);
 		getEpollWorker()->receiveClient(this);
 		return true;
 	}
