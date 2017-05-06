@@ -63,17 +63,16 @@ void MainHandler::onCloseListener(uint32 callbackID, uint32 listenerHandle, Clos
 }
 void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask){
 	LOG_DEBUG("callbackID=%d connectHandle=%d", callbackID, connectHandle);
-	// check if callbackID > 0 , handle connection out
-	if(callbackID > 0){
-		HandleToNodeMap::iterator itCur = m_handleToNode.find(connectHandle);
-    	if(itCur != m_handleToNode.end()){
-    		m_handleToNode.erase(itCur);
-    	}
-    	GlobalService::getInstance()->removeNodeConnect(callbackID);
-    	// connect again in seconds
-		startTimer(callbackID, NODE_RECONNECT_TIME);
-		LOG_DEBUG("schedule node to reconnect id=%d", callbackID);
-	}
+	// check handle connection out
+	HandleToNodeMap::iterator itCur = m_handleToNode.find(connectHandle);
+    if(itCur != m_handleToNode.end()){
+        uint32 id = itCur->second;
+        m_handleToNode.erase(itCur);
+        GlobalService::getInstance()->removeNodeConnect(id);
+        // connect again in seconds
+        startTimer(callbackID, NODE_RECONNECT_TIME);
+        LOG_DEBUG("schedule node to reconnect id=%d", id);
+    }
 }
 int64 MainHandler::onTimerUpdate(uint32 callbackID){
 	LOG_DEBUG("callbackID=%d", callbackID);
