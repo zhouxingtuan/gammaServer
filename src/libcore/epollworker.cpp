@@ -348,6 +348,7 @@ void EpollWorker::notifyCloseConnect(Accept* pAccept){
 	pTask->m_callbackID = 0;
 	pTask->m_bindHandle = bindHandle;
 	pTask->m_connectHandle = pAccept->getHandle();
+	LOG_DEBUG("notifyCloseConnect to bindHandle=%d", bindHandle);
 	GlobalHandler::getInstance()->dispatchTask(bindHandle, pTask);
 	pTask->release();
 }
