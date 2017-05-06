@@ -12,6 +12,7 @@
 #include "timer.h"
 #include "object.h"
 #include "objectpool.h"
+#include "log.h"
 
 NS_HIVE_BEGIN
 
