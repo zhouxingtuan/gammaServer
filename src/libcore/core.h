@@ -39,6 +39,7 @@
 #include "globalhandler.h"
 #include "globalsetting.h"
 #include "globalservice.h"
+#include "dispatcher.h"
 #include "worker.h"
 #include "handlerqueue.h"
 #include "mainworker.h"
