@@ -34,7 +34,6 @@ void GlobalHandler::destroyInstance(void){
 }
 
 bool GlobalHandler::dispatchTask(uint32 handle, Task* pTask){
-	LOG_DEBUG("handle = %d", handle);
 	Handler* pHandler;
 	lock();
 	pHandler = this->getDestination<Handler>(handle);
@@ -46,7 +45,6 @@ bool GlobalHandler::dispatchTask(uint32 handle, Task* pTask){
 		LOG_ERROR("Handler not found=%d", handle);
 		return false;
 	}
-	LOG_DEBUG("pHandler=0x%x", pHandler);
 	pHandler->acceptTask(pTask);
 	pHandler->release();
 	return true;

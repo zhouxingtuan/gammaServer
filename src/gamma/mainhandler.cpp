@@ -82,6 +82,7 @@ void MainHandler::checkNodeConnect(void){
 		if(connHandle > 0){
 			// do nothing
 		}else{
+			LOG_DEBUG("try to open client to node=%d ip=%s port=%d", m_destID, m_destIP.c_str(), m_destPort);
 			this->openClient(m_destID, m_destIP.c_str(), m_destPort, m_destEncrypt, m_destDecrypt, DEFAULT_ACCEPT_INDEX);
 		}
 	}
