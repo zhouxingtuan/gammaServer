@@ -98,7 +98,7 @@ bool MainHandler::unregisterNode(uint32 id){
 	if(info.id > 0){
 		info.reset();                           // reset the data
 		uint32 connectHandle = GlobalService::getInstance()->getNodeConnect(id);
-		if(connHandle > 0){
+		if(connectHandle > 0){
 			closeConnect(0, connectHandle);    // close connection
 			return true;
 		}
