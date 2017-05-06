@@ -190,6 +190,7 @@ void Handler::doTask(void){
 }
 void Handler::acceptTask(Task* pTask){
 	pTask->retain();
+	LOG_DEBUG("Handler accept Task handle=%d", getHandle());
 	this->lock();
 	m_taskQueue.push_back(pTask);
 	if( m_isInHandlerQueue ){	// 已经在队列里面，入队后不做任何处理
