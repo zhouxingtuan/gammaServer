@@ -70,8 +70,8 @@ void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseC
         m_handleToNode.erase(itCur);
         GlobalService::getInstance()->removeNodeConnect(id);
         // connect again in seconds
-        startTimer(callbackID, NODE_RECONNECT_TIME);
         LOG_DEBUG("schedule node to reconnect id=%d", id);
+        startTimer(id, NODE_RECONNECT_TIME);
     }
 }
 int64 MainHandler::onTimerUpdate(uint32 callbackID){
