@@ -7,6 +7,7 @@
 //
 
 #include "mainworker.h"
+#include "dispatcher.h"
 
 NS_HIVE_BEGIN
 
