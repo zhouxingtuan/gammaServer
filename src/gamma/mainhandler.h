@@ -18,6 +18,8 @@ NS_HIVE_BEGIN
 
 #define DEFAULT_ACCEPT_INDEX 0
 
+#define NODE_RECONNECT_TIME 3000
+
 typedef struct HiveInformation{
     uint32 id;
     char ip[IP_SIZE];//192.168.110.110
