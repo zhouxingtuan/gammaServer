@@ -21,25 +21,6 @@ typedef struct SignalHandleInfo {
 typedef std::map<int, SignalHandleInfo> SignalHandleInfoMap;
 static SignalHandleInfoMap g_signalMap;
 
-void dumpCore(int sig) {
-    void *array[10];
-    size_t size;
-    char **strings;
-    size_t i;
-
-    signal(sig, SIG_DFL);
-
-    size = backtrace (array, 10);
-    strings = (char **)backtrace_symbols (array, size);
-
-    fprintf(stderr, "Stack trace:\n");
-    for (i = 0; i < size; i++) {
-        fprintf(stderr, "%d %s \n",i,strings[i]);
-    }
-
-    free (strings);
-    exit(1);
-}
 void handleSignal(int sig){
 	fprintf(stderr, "handleSignal called sig=%d\n", sig);
 	SignalHandleInfoMap::iterator itCur = g_signalMap.find(sig);
@@ -81,11 +62,11 @@ void defaultSignalHandle(SignalCallback coreCb, SignalCallback exitCb, SignalCal
 	SIGNAL_IGNORE(SIGPIPE);
 	SIGNAL_IGNORE(SIGCHLD);
 
-	if(NULL == coreCb){
-		coreCb = dumpCore;
+	if(NULL != coreCb){
+		// 指针错误信号监听
+		SIGNAL_EXIT(SIGSEGV, coreCb);
 	}
-	// 指针错误信号监听
-//	SIGNAL_EXIT(SIGSEGV, coreCb);
+
 	// 监听并打印信号或处理
 	SIGNAL_EXIT(SIGILL, exitCb);
 	SIGNAL_EXIT(SIGTRAP, exitCb);
@@ -98,6 +79,9 @@ void defaultSignalHandle(SignalCallback coreCb, SignalCallback exitCb, SignalCal
 	SIGNAL_EXIT(SIGXCPU, exitCb);
 	SIGNAL_EXIT(SIGXFSZ, exitCb);
 	SIGNAL_EXIT(SIGTERM, exitCb);
+	SIGNAL_EXIT(SIGTSTP, exitCb);
+	SIGNAL_EXIT(SIGTTIN, exitCb);
+	SIGNAL_EXIT(SIGTTOU, exitCb);
 
 	// 只监听打印，不处理
 	SIGNAL_HANDLE(SIGALRM, handleCb);
@@ -108,6 +92,7 @@ void defaultSignalHandle(SignalCallback coreCb, SignalCallback exitCb, SignalCal
 	SIGNAL_HANDLE(SIGVTALRM, handleCb);
 	SIGNAL_HANDLE(SIGUSR1, handleCb);
 	SIGNAL_HANDLE(SIGUSR2, handleCb);
+	SIGNAL_HANDLE(SIGIO, handleCb);
 }
 
 NS_HIVE_END

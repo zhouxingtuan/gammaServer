@@ -31,11 +31,11 @@ void MainHandler::onCurlResponse(Buffer* pBuffer, uint32 callbackID, bool isRequ
 
 }
 void MainHandler::onOpenClientOK(uint32 clientHandle, OpenClientOKTask* pTask){
-	LOG_DEBUG("clientHandle=%d", clientHandle);
+	LOG_DEBUG("client open success clientHandle=%d", clientHandle);
 
 }
 void MainHandler::onOpenClient(uint32 callbackID, uint32 clientHandle, OpenClientTask* pTask){
-	LOG_DEBUG("callbackID=%d clientHandle=%d", callbackID, clientHandle);
+	LOG_DEBUG("client open processing callbackID=%d clientHandle=%d", callbackID, clientHandle);
 	m_handleToNode[clientHandle] = callbackID;
 }
 void MainHandler::onOpenSocketListener(uint32 callbackID, uint32 listenerHandle, OpenSocketListenerTask* pTask){
