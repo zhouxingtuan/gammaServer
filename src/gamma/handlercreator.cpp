@@ -13,21 +13,27 @@ NS_HIVE_BEGIN
 Handler* HandlerCreatorCreateObject(uint32 index){
 	switch(index){
 		case MAIN_HANDLER_INDEX:{
-			return new MainHandler();
+			MainHandler* pMain = new MainHandler();
+			pMain->retain();
+			return pMain;
 		}
 		default:{
 			LOG_INFO("create default handler in creator index=%d", index);
 			// create default object
-			return new MainHandler();
+			MainHandler* pMain = new MainHandler();
+			pMain->retain();
+			return pMain;
 		}
 	}
 	// should never come here
-	return new MainHandler();
+	MainHandler* pMain = new MainHandler();
+	pMain->retain();
+	return pMain;
 }
 
 void HandlerCreatorReleaseObject(Handler* pObj){
 	if(NULL != pObj){
-		delete pObj;
+		pObj->release();
 	}
 }
 

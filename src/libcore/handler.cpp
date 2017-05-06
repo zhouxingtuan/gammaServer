@@ -165,6 +165,7 @@ void Handler::initialize(void){
 
 }
 void Handler::destroy(void){
+	LOG_DEBUG("Handler destroy called handle=%d", getHandle());
 	releaseTask();
 }
 void Handler::releaseTask(void){
@@ -174,6 +175,7 @@ void Handler::releaseTask(void){
 		pTask->release();
 	}
 	m_taskQueue.clear();
+	m_isInHandlerQueue = false;
 	this->unlock();
 }
 void Handler::doTask(void){

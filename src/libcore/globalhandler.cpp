@@ -45,6 +45,7 @@ bool GlobalHandler::dispatchTask(uint32 handle, Task* pTask){
 		LOG_ERROR("Handler not found=%d", handle);
 		return false;
 	}
+	LOG_DEBUG("GlobalHandler dispatchTask to  handle=%d", handle);
 	pHandler->acceptTask(pTask);
 	pHandler->release();
 	return true;

@@ -33,6 +33,7 @@ void ActiveWorker::onActive(uint64 value){
 	}
 }
 void ActiveWorker::acceptTask(Task* pTask){
+	LOG_DEBUG("ActiveWorker accept Task handle=%d", getHandle());
 	pTask->retain();
 	this->lock();
 	m_taskQueue.push_back(pTask);
