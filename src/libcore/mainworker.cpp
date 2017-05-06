@@ -125,6 +125,7 @@ void MainWorker::initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 work
 	// 初始化基类数据
 	ActiveWorker::initialize();
 
+	Dispatcher::createInstance();
 	GlobalSetting::createInstance()->initialize(nodeID);
 	if(NULL == m_pListenerPool){
 		m_pListenerPool = new ListenerDestinationPool();

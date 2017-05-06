@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
 	// 使用默认的信号处理
 	defaultSignalHandle();
 	// 创建单例管理器
-	Dispatcher::createInstance();
 	MainWorker::createInstance();
 	// 初始化配置
 	loadConfig("config.ini");
