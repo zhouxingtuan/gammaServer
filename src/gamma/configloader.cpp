@@ -27,7 +27,7 @@ void parseIPAndPort(const std::string& ip_port_str, std::string& ip, uint16& por
 
 void loadConfig(const char* fileName){
 	Token::TokenMap config;
-	Token::readConfig("config.ini", config);
+	Token::readConfig(fileName, config);
 	// # the discovery node to join
 	int 				des_id 				= atoi(config["des_id"].c_str());
 	const std::string&	des_addr 			= config["des_addr"];

@@ -42,7 +42,7 @@ static char defaultConfigFile[] = "config.ini";
 
 int main(int argc, char *argv[])
 {
-	const char* config = defaultConfigFile;
+	char* config = defaultConfigFile;
 	if( argc > 1 ){
 		config = argv[1];
 	}
