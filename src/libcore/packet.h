@@ -22,10 +22,8 @@ NS_HIVE_BEGIN
 
 // 服务间传递消息的头部数据结构
 typedef struct PacketHead {
-	union {
-		unsigned int length 	: 24;	// 数据长度
-		unsigned int command 	: 8;	// 当前数据包的命令
-	};
+	unsigned int length 	: 24;	// 数据长度
+	unsigned int command 	: 8;	// 当前数据包的命令
 	DestinationHandle destination;	// 4 目标服务句柄
 } PacketHead;
 
