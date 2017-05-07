@@ -51,6 +51,7 @@ void onAcceptRead(Accept* pAccept, char* recvBuffer, int nread){
 	do{
 		// 对头部数据进行解密
 		if( pAccept->isNeedDecrypt() ){
+			LOG_DEBUG("Accept decrypt head");
 			binary_decrypt(recvBufferPtr, 8, GlobalSetting::getInstance()->getKey());
 		}
 		packetLength = ((PacketHead*)(recvBufferPtr))->length;
