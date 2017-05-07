@@ -103,19 +103,65 @@ void onHttpReceivePacket(Http* pHttp, Packet* pPacket){
 }
 void onCommandPing(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
-
+	pAccept->setOnline(true);
+	pPacket->setCommand(COMMAND_PONG);
+	pAccept->sendPacket(pPacket);
 }
 void onCommandPong(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
-
+	pAccept->setOnline(true);
 }
 void onCommandRegister(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
-
+	char temp[256] = {0};
+	uint32 nodeID = 0;
+	uint32 t = 0;
+	uint64 magic = 0;
+	pPacket->readBegin();
+	pPacket->read(&nodeID, sizeof(uint32));
+	pPacket->read(&t, sizeof(uint32));
+	pPacket->read(&magic, sizeof(uint64));
+	pPacket->readEnd();
+	const std::string& password = GlobalSetting::getInstance()->getPassword();
+	sprintf(temp, "%04d-%d-%s", nodeID, t, password.c_str());
+	uint64 magicHere = binary_hash64(temp, strlen(temp));
+	LOG_DEBUG("onCommandRegister nodeID=%d str=%s magic=%llu magicHere=%llu", nodeID, temp, magic, magicHere);
+	if(magic != magicHere){
+		// response error message
+		uint32 acceptHandle = pAccept->getHandle();
+		Packet* pResponse = new Packet(PACKET_HEAD_LENGTH);
+        pResponse->retain();
+        pResponse->writeBegin(COMMAND_RESPONSE, 0);
+        pResponse->writeEnd();
+        bool result = pAccept->sendPacket(pResponse);
+        uint32 connectHandle = pPacket->getDestination();
+        LOG_DEBUG("onCommandRegister failed to remote connectHandle=%d result=%d current handle=%d", connectHandle, result, pAccept->getHandle());
+        pResponse->release();
+		// close the connection
+		pAccept->epollRemove();
+	}else{
+		// response success message
+		uint32 acceptHandle = pAccept->getHandle();
+		Packet* pResponse = new Packet(PACKET_HEAD_LENGTH);
+        pResponse->retain();
+        pResponse->writeBegin(COMMAND_RESPONSE, acceptHandle);
+        pResponse->writeEnd();
+        bool result = pAccept->sendPacket(pResponse);
+        uint32 connectHandle = pPacket->getDestination();
+	    LOG_DEBUG("onCommandRegister OK to remote connectHandle=%d result=%d acceptHandle=%d", connectHandle, result, acceptHandle);
+        pResponse->release();
+		// set Accept to identify state
+		pAccept->setConnectionState(CS_IDENTIFY_OK);
+	}
 }
 void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
-
+	uint32 remoteHandle = pPacket->getDestination();
+	LOG_DEBUG("onCommandResponse remoteHandle=%d", remoteHandle);
+	if(remoteHandle > 0){
+		// identify OK, tell the MainHandler to register Hive
+		
+	}
 }
 void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);

@@ -86,6 +86,8 @@ public:
 	inline void setCommand(unsigned int cmd){ getHead()->command = cmd; }
 	inline void setDestination(unsigned int handle){ getHead()->destination = handle; }
 	inline void recordLength(void){ getHead()->length = getLength(); }
+	inline unsigned int getCommand(void) { return getHead()->command; }
+	inline unsigned int getDestination(void) { return getHead()->destination.handle; }
 };// end class Packet
 
 NS_HIVE_END

@@ -24,7 +24,7 @@ MainHandler::~MainHandler(void){
 }
 void MainHandler::onReceivePacket(Packet* pPacket, Task* pTask){
 	LOG_DEBUG("packet length=%d", pPacket->getLength());
-	// handle register hive here
+	// handle response register hive here
 
 }
 void MainHandler::onCurlResponse(Buffer* pBuffer, uint32 callbackID, bool isRequestOK){
@@ -39,6 +39,8 @@ void MainHandler::onOpenClientOK(uint32 clientHandle, OpenClientOKTask* pTask){
 		uint32 id = itCur->second;
 		GlobalService::getInstance()->setNodeConnect(id, clientHandle);
 	}
+	// register the client to remote node
+	identifyHive(clientHandle);
 }
 void MainHandler::onOpenClient(uint32 callbackID, uint32 clientHandle, OpenClientTask* pTask){
 	LOG_DEBUG("client open processing callbackID=%d clientHandle=%d", callbackID, clientHandle);
@@ -81,6 +83,25 @@ int64 MainHandler::onTimerUpdate(uint32 callbackID){
 	return -1;
 }
 
+void MainHandler::identifyHive(uint32 connectHandle){
+	char temp[256] = {0};
+	uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
+	uint32 t = time(NULL);
+	const std::string& password = GlobalSetting::getInstance()->getPassword();
+	sprintf(temp, "%04d-%d-%s", nodeID, t, password.c_str());
+	uint64 magic = binary_hash64(temp, strlen(temp));
+	LOG_DEBUG("identifyHive to connectHandle=%d nodeID=%d str=%s magic=%llu", connectHandle, nodeID, temp, magic);
+	Packet* pPacket = new Packet(PACKET_HEAD_LENGTH + 16);
+	pPacket->retain();
+	pPacket->writeBegin(COMMAND_REGISTER, connectHandle);
+	pPacket->write(&nodeID, sizeof(uint32));
+	pPacket->write(&t, sizeof(uint32));
+	pPacket->write(&magic, sizeof(uint64));
+	pPacket->writeEnd();
+	bool result = GlobalService::getInstance()->sendToService(connectHandle, pPacket);
+	LOG_DEBUG("identifyHive to connectHandle=%d result=%d", connectHandle, result);
+	pPacket->release();
+}
 bool MainHandler::registerNode(const char* ptr){
 	HiveInformation regInfo;
 	regInfo.set(ptr);

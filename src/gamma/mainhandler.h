@@ -116,6 +116,8 @@ public:
 	bool registerNode(uint32 id, const char* ip, uint16 port, bool encrypt, bool decrypt);
 	bool registerNode(const HiveInformation& regInfo);
 	bool unregisterNode(uint32 id);
+
+	void identifyHive(uint32 connectHandle);
 protected:
 	void checkNodeConnect(uint32 id);
 	void openInnerListener(void);
