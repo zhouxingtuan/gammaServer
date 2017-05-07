@@ -73,6 +73,21 @@ public:
 	inline void writeEnd(void){
 		recordLength();
 	}
+	template<typename NUMBER_T>
+	inline int beginArray(void){
+		int arrayOffset = getCursor();
+		NUMBER_T zero = 0;
+		write(&zero, sizeof(NUMBER_T));
+		return arrayOffset;
+	}
+	template<typename NUMBER_T>
+	inline int writeArray(const void* ptr, int length, int arrayOffset){
+		int n = write(ptr, length);
+		if( n > 0 ){
+			(*((NUMBER_T*)(getOffsetPtr(arrayOffset))))++;
+		}
+		return n;
+	}
 	inline int write(const void* ptr, int length){
 		int n = m_pBuffer->write(ptr, length, getCursor());
 		if( n > 0 ){

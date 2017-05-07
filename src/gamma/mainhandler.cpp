@@ -25,7 +25,40 @@ MainHandler::~MainHandler(void){
 void MainHandler::onReceivePacket(Packet* pPacket, Task* pTask){
 	LOG_DEBUG("packet length=%d", pPacket->getLength());
 	// handle response register hive here
-
+	uint32 command = pPacket->getCommand();
+	switch(command){
+		case COMMAND_RESPONSE:{
+			uint32 connectHandle = pPacket->getDestination();
+			registerHive(connectHandle);
+			break;
+		}
+		case COMMAND_HIVE_REGISTER:{
+			uint32 connectHandle = pPacket->getDestination();
+			LOG_DEBUG("COMMAND_HIVE_REGISTER get connectHandle=%d", connectHandle);
+			pPacket->readBegin();
+			// get all the node info and record
+			recordHiveInfo(pPacket);
+			pPacket->readEnd();
+			// response the remote node, current node info
+			pPacket->writeBegin(COMMAND_HIVE_RESPONSE, connectHandle);
+			writeHiveInfo(pPacket);
+			pPacket->writeEnd();
+			bool result = GlobalService::getInstance()->sendToService(connectHandle, pPacket);
+			LOG_DEBUG("COMMAND_HIVE_RESPONSE to connectHandle=%d command=%d result=%d", connectHandle, pPacket->getCommand(), result);
+			break;
+		}
+		case COMMAND_HIVE_RESPONSE:{
+			uint32 connectHandle = pPacket->getDestination();
+			LOG_DEBUG("COMMAND_HIVE_RESPONSE get connectHandle=%d", connectHandle);
+			// record all the node info
+			recordHiveInfo(pPacket);
+			break;
+		}
+		default:{
+			LOG_ERROR("command for MainHandler is not handle");
+			break;
+		}
+	};
 }
 void MainHandler::onCurlResponse(Buffer* pBuffer, uint32 callbackID, bool isRequestOK){
 	LOG_DEBUG("buffer length=%d callbackID=%d isRequestOK=%d", pBuffer->size(), callbackID, isRequestOK);
@@ -83,6 +116,36 @@ int64 MainHandler::onTimerUpdate(uint32 callbackID){
 	return -1;
 }
 
+void MainHandler::recordHiveInfo(Packet* pPacket){
+	int32 arraySize = 0;
+	pPacket->read(&arraySize, sizeof(int32));
+	for(auto i=0; i<arraySize; ++i){
+		HiveInformation info;
+		pPacket->read(&info, sizeof(HiveInformation));
+		LOG_DEBUG("registerHive with id=%d ip=%s port=%d encrypt=%d decrypt=%d", info.id, info.ip, info.port, info.encrypt, info.decrypt);
+		registerNode(info);
+	}
+}
+void MainHandler::writeHiveInfo(Packet* pPacket){
+	int arrayOffset = pPacket->beginArray<int32>();
+	for(auto &info : m_hiveNodes){
+		if(info.id > 0){
+			LOG_DEBUG("registerHive with id=%d ip=%s port=%d encrypt=%d decrypt=%d", info.id, info.ip, info.port, info.encrypt, info.decrypt);
+			pPacket->writeArray<int32>(info.get(), sizeof(HiveInformation), arrayOffset);
+		}
+	}
+}
+void MainHandler::registerHive(uint32 connectHandle){
+	LOG_DEBUG("start register hive connectHandle=%d", connectHandle);
+	Packet* pPacket = new Packet(1024);
+	pPacket->retain();
+	pPacket->writeBegin(COMMAND_HIVE_REGISTER, connectHandle);
+	writeHiveInfo(pPacket);
+	pPacket->writeEnd();
+	bool result = GlobalService::getInstance()->sendToService(connectHandle, pPacket);
+	LOG_DEBUG("registerHive to connectHandle=%d command=%d result=%d", connectHandle, pPacket->getCommand(), result);
+	pPacket->release();
+}
 void MainHandler::identifyHive(uint32 connectHandle){
 	char temp[256] = {0};
 	uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
@@ -98,9 +161,8 @@ void MainHandler::identifyHive(uint32 connectHandle){
 	pPacket->write(&t, sizeof(uint32));
 	pPacket->write(&magic, sizeof(uint64));
 	pPacket->writeEnd();
-	LOG_DEBUG("identifyHive to connectHandle=%d command=%d COMMAND_REGISTER=%d sizeof(PacketHead)=%d",
-		connectHandle, pPacket->getCommand(), COMMAND_REGISTER, (int)sizeof(PacketHead));
 	bool result = GlobalService::getInstance()->sendToService(connectHandle, pPacket);
+	LOG_DEBUG("identifyHive to connectHandle=%d command=%d result=%d", connectHandle, pPacket->getCommand(), result);
 	pPacket->release();
 }
 bool MainHandler::registerNode(const char* ptr){
@@ -123,6 +185,7 @@ bool MainHandler::registerNode(const HiveInformation& regInfo){
 		LOG_INFO("current node info equal to register node");
 		return true;
 	}
+	LOG_DEBUG("registerNode id=%d ip=%s port=%d encrypt=%d decrypt=%d", info.id, info.ip, info.port, info.encrypt, info.decrypt);
 	unregisterNode(regInfo.id);
 	info.set(regInfo.get());
 	checkNodeConnect(info.id);

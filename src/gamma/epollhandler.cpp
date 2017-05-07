@@ -129,14 +129,13 @@ void onCommandRegister(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("onCommandRegister nodeID=%d str=%s magic=%llu magicHere=%llu", nodeID, temp, magic, magicHere);
 	if(magic != magicHere){
 		// response error message
-		uint32 acceptHandle = pAccept->getHandle();
 		Packet* pResponse = new Packet(PACKET_HEAD_LENGTH);
         pResponse->retain();
         pResponse->writeBegin(COMMAND_RESPONSE, 0);
         pResponse->writeEnd();
         bool result = pAccept->sendPacket(pResponse);
         uint32 connectHandle = pPacket->getDestination();
-        LOG_DEBUG("onCommandRegister failed to remote connectHandle=%d result=%d acceptHandle=%d", connectHandle, result, acceptHandle);
+        LOG_DEBUG("onCommandRegister failed to remote connectHandle=%d result=%d acceptHandle=%d", connectHandle, result, pAccept->getHandle());
         pResponse->release();
 		// close the connection
 		pAccept->epollRemove();
@@ -164,15 +163,18 @@ void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 		Timer* pTimer = (pAccept->getEpollWorker()->getTimer());
 		pAccept->setTimeout(CONNECT_KEEP_ONLINE_TIME, pTimer, EpollWorker::keepConnectOnline);
 		// identify OK, tell the MainHandler to register Hive
-
+		pPacket->setDestination(pAccept->getHandle());
+		Dispatcher::getInstance()->dispatchCommand(pPacket, command);
 	}
 }
 void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
+	pPacket->setDestination(pAccept->getHandle());
 	Dispatcher::getInstance()->dispatchCommand(pPacket, command);
 }
 void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
+	pPacket->setDestination(pAccept->getHandle());
 	Dispatcher::getInstance()->dispatchCommand(pPacket, command);
 }
 
