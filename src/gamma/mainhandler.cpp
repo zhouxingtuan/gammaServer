@@ -98,7 +98,7 @@ void MainHandler::identifyHive(uint32 connectHandle){
 	pPacket->write(&t, sizeof(uint32));
 	pPacket->write(&magic, sizeof(uint64));
 	pPacket->writeEnd();
-	LOG_DEBUG("identifyHive to connectHandle=%d result=%d command=%d COMMAND_REGISTER=%d", connectHandle, result, pPacket->getCommand(), COMMAND_REGISTER);
+	LOG_DEBUG("identifyHive to connectHandle=%d command=%d COMMAND_REGISTER=%d", connectHandle, pPacket->getCommand(), COMMAND_REGISTER);
 	bool result = GlobalService::getInstance()->sendToService(connectHandle, pPacket);
 	pPacket->release();
 }
