@@ -27,6 +27,12 @@ typedef struct PacketHead {
 	DestinationHandle destination;	// 4 目标服务句柄
 } PacketHead;
 
+#define WRITE_VALUE(p, v)\
+	p->write(&v, sizeof(v))
+
+#define READ_VALUE(p,v)\
+	p->read(&v, sizeof(v))
+
 class Packet : public RefObject
 {
 protected:

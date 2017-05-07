@@ -18,7 +18,7 @@
 
 NS_HIVE_BEGIN
 
-#define MAX_LENGTH_NOT_IDENTIFY 512
+#define MAX_LENGTH_NOT_IDENTIFY 64
 #define MAX_LENGTH_IDENTIFY 4194312	// 4M + 8
 
 enum ConnectionState {
