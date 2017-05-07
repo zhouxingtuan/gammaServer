@@ -159,6 +159,9 @@ void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 	uint32 remoteHandle = pPacket->getDestination();
 	LOG_DEBUG("onCommandResponse remoteHandle=%d", remoteHandle);
 	if(remoteHandle > 0){
+		// schedule current client to keep online
+		Timer* pTimer = (pAccept->getEpollWorker()->getTimer());
+		pAccept->setTimeout(CONNECT_KEEP_ONLINE_TIME, pTimer, EpollWorker::keepConnectOnline);
 		// identify OK, tell the MainHandler to register Hive
 		
 	}
