@@ -180,13 +180,16 @@ void Accept::resetData(void){
 	m_isNeedDecrypt = false;
 }
 void Accept::dispatchPacket(Packet* pPacket, uint8 command){
+	LOG_DEBUG("Accept handle=%d dispatchPacket command=%d", getHandle(), command);
 	// 对收到的消息进行解密处理：从body开始解密；头部已经在判断长度的时候解密
 	if( this->isNeedDecrypt() ){
+		LOG_DEBUG("Accept handle=%d dispatchPacket command=%d need decrypt", getHandle(), command);
 		GlobalSetting::getInstance()->getAcceptDecryptFunction()(this, pPacket);
 	}
 	// 判断cmd执行后续操作
 	AcceptCommandFunction func = GlobalSetting::getInstance()->getAcceptCommandFunction(command);
 	if(NULL == func){
+		LOG_DEBUG("Accept handle=%d dispatchPacket command=%d function not found. dispatchToService", getHandle(), command);
 		// 这里不执行的命令，发送消息给后面的服务执行
 		GlobalService::getInstance()->dispatchToService(pPacket);
 		return;
