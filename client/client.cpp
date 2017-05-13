@@ -10,6 +10,49 @@
 
 NS_HIVE_BEGIN
 /*--------------------------------------------------------------------*/
+// 64-bit hash for 64-bit platforms
+uint64_t binary_murmur_hash64A ( const void * key, int len, unsigned int seed )
+{
+    const uint64_t m = 0xc6a4a7935bd1e995;
+    const int r = 47;
+
+    uint64_t h = seed ^ (len * m);
+
+    const uint64_t * data = (const uint64_t *)key;
+    const uint64_t * end = data + (len/8);
+
+    while(data != end)
+    {
+        uint64_t k = *data++;
+
+        k *= m;
+        k ^= k >> r;
+        k *= m;
+
+        h ^= k;
+        h *= m;
+    }
+
+    const unsigned char * data2 = (const unsigned char*)data;
+
+    switch(len & 7)
+    {
+        case 7: h ^= uint64_t(data2[6]) << 48;
+        case 6: h ^= uint64_t(data2[5]) << 40;
+        case 5: h ^= uint64_t(data2[4]) << 32;
+        case 4: h ^= uint64_t(data2[3]) << 24;
+        case 3: h ^= uint64_t(data2[2]) << 16;
+        case 2: h ^= uint64_t(data2[1]) << 8;
+        case 1: h ^= uint64_t(data2[0]);
+            h *= m;
+    };
+
+    h ^= h >> r;
+    h *= m;
+    h ^= h >> r;
+
+    return h;
+}
 // tiny加密
 void tiny_encrypt(uint32_t* v, uint32_t* k, uint32_t round){
 	uint32_t v0=v[0], v1=v[1], sum=0, i;           /* set up */
@@ -102,7 +145,7 @@ Packet::~Packet(void){
 }
 /*--------------------------------------------------------------------*/
 Client::Client(void) : RefObject(), Sync(), Thread(),
-	m_fd(0), m_port(0), m_isNeedEncrypt(false), m_isNeedDecrypt(false),
+	m_fd(0), m_port(0), m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_pingTime(0),
 	m_tempReadPacket(NULL), m_pInterface(NULL) {
 	memset(m_ip, 0, sizeof(m_ip));
 }
@@ -117,6 +160,44 @@ void Client::releasePacket(void){
 	}
 	m_packetQueue.clear();
 	this->unlock();
+}
+void Client::identifyHive(void){
+	char temp[256] = {0};
+	uint32_t t = time(NULL);
+	srand(t);
+	uint32_t nodeID = rand();
+	const std::string& password = getPassword();
+	sprintf(temp, "%04d-%d-%s", nodeID, t, password.c_str());
+	uint64_t magic = binary_hash64(temp, strlen(temp));
+	fprintf(stderr, "identifyHive nodeID=%d str=%s magic=%llu\n", nodeID, temp, magic);
+	Packet* pPacket = new Packet(PACKET_HEAD_LENGTH + 16);
+	pPacket->retain();
+	pPacket->writeBegin(COMMAND_REGISTER, 0);
+	pPacket->write(&nodeID, sizeof(uint32_t));
+	pPacket->write(&t, sizeof(uint32_t));
+	pPacket->write(&magic, sizeof(uint64_t));
+	pPacket->writeEnd();
+	bool result = receivePacket(pPacket);
+	fprintf(stderr, "identifyHive to server command=%d result=%d\n", pPacket->getCommand(), result);
+	pPacket->release();
+	m_pingTime = t + 5;
+}
+void Client::checkAndPingServer(void){
+	int currentTime = time(NULL);
+	if( currentTime > m_pingTime ){
+		m_pingTime = currentTime + CONNECT_KEEP_ONLINE_TIME;
+		fprintf(stderr, "try to ping server\n");
+		Packet* pPacket = new Packet(sizeof(PacketHead));
+        pPacket->retain();
+        pPacket->writeBegin(COMMAND_PING, 0);
+        pPacket->writeEnd();
+        receivePacket(pPacket);
+        pPacket->release();
+	}
+}
+void Client::reconnectSocket(void){
+	removeSocket();
+	startThread();
 }
 bool Client::receivePacket(Packet* pPacket){
 	if( 0 == m_fd ){
@@ -136,6 +217,8 @@ int Client::threadFunction(void){
 		return 0;
 	}
 	addClientEvent(CLIENT_EVENT_CONN_SUCCESS, NULL);
+	// identify the client
+	identifyHive();
 	while(true){
 		if( !trySelectSocket() ){
 			fprintf(stderr, "select failed. client out ...\n");
@@ -149,6 +232,27 @@ int Client::threadFunction(void){
 void Client::dispatchPacket(Packet* pPacket){
 	if( this->isNeedDecrypt() && pPacket->getLength() > 8 ){
 		binary_decrypt(pPacket->getDataPtr()+8, pPacket->getLength()-8, this->getKey().c_str());
+	}
+	unsigned int command = pPacket->getCommand();
+	switch(command){
+		case COMMAND_PONG:{
+			fprintf(stderr, "receive server pong back\n");
+			return;
+		}
+		case COMMAND_RESPONSE:{
+			unsigned int dest = pPacket->getDestination();
+			if(dest > 0){
+				fprintf(stderr, "receive server identify response OK\n");
+				addClientEvent(CLIENT_EVENT_IDENTIFY_FAILED, pPacket);
+			}else{
+				fprintf(stderr, "receive server identify response failed\n");
+				addClientEvent(CLIENT_EVENT_IDENTIFY_SUCCESS, pPacket);
+			}
+			return;
+		}
+		default:{
+			break;
+		}
 	}
 	addClientEvent(CLIENT_EVENT_PACKET_IN, pPacket);
 }
@@ -181,6 +285,14 @@ void Client::dispatchEvent(void){
     			m_pInterface->notifyConnectOut(this);	// 通知外部连接退出
     			break;
     		}
+    		case CLIENT_EVENT_IDENTIFY_FAILED:{
+				m_pInterface->notifyIdentifyServerFailed(this);	// 通知外部验证失败
+    		    break;
+    		}
+    		case CLIENT_EVENT_IDENTIFY_SUCCESS:{
+				m_pInterface->notifyIdentifyServerSuccess(this, evt.pPacket);	// 通知外部验证成功
+    		    break;
+    		}
     		default:{
     			fprintf(stderr, "unknown event type for client\n");
     			break;
@@ -190,7 +302,8 @@ void Client::dispatchEvent(void){
     		evt.pPacket->release();
     	}
 	};
-
+	// check to ping server
+	checkAndPingServer();
 }
 void Client::addClientEvent(ClientEventType event, Packet* pPacket){
 	ClientEvent evt;

@@ -66,6 +66,16 @@
 NS_HIVE_BEGIN
 
 /*--------------------------------------------------------------------*/
+#ifndef uint32_t
+typedef unsigned int uint32_t;
+#endif
+#ifndef uint64_t
+typedef unsigned long long int uint64_t;
+#endif
+#define BINARY_HASH_SEED 5381
+uint64_t binary_murmur_hash64A( const void * key, int len, unsigned int seed=BINARY_HASH_SEED );	// 64-bit hash for 64-bit platforms
+#define binary_hash64 binary_murmur_hash64A
+/*--------------------------------------------------------------------*/
 // 拥有同步互斥量的类
 class Sync
 {
@@ -167,7 +177,7 @@ public:
 typedef struct PacketHead {
 	unsigned int length 	: 24;	// 数据长度
 	unsigned int command 	: 8;	// 当前数据包的命令
-	unsigned int destination;			// 4 目标服务句柄
+	unsigned int destination;		// 4 目标服务句柄
 } PacketHead;
 
 class Packet : public RefObject
@@ -225,6 +235,8 @@ public:
 	inline void setCommand(unsigned int cmd){ getHead()->command = cmd; }
 	inline void setDestination(unsigned int handle){ getHead()->destination = handle; }
 	inline void recordLength(void){ getHead()->length = getLength(); }
+	inline unsigned int getCommand(void) { return getHead()->command; }
+	inline unsigned int getDestination(void) { return getHead()->destination; }
 protected:
 	Buffer* m_pBuffer;		// 数据指针
 	int m_cursor;			// 数据读取的偏移
@@ -244,6 +256,8 @@ public:
 	virtual void notifyConnectServerSuccess(Client* pClient) = 0;
 	virtual void notifyConnectOut(Client* pClient) = 0;
 	virtual void notifyPacketIn(Client* pClient, Packet* pPacket) = 0;
+	virtual void notifyIdentifyServerFailed(Client* pClient, Packet* pPacket) = 0;
+	virtual void notifyIdentifyServerSuccess(Client* pClient, Packet* pPacket) = 0;
 };// end class ClientInterface
 
 enum ClientEventType{
@@ -252,12 +266,23 @@ enum ClientEventType{
 	CLIENT_EVENT_CONN_SUCCESS = 2,
 	CLIENT_EVENT_CONN_OUT = 3,
 	CLIENT_EVENT_PACKET_IN = 4,
+	CLIENT_EVENT_IDENTIFY_FAILED = 5,
+	CLIENT_EVENT_IDENTIFY_SUCCESS = 6,
 };
 
 typedef struct ClientEvent{
 	ClientEventType event;
 	Packet* pPacket;
 }ClientEvent;
+
+#define CONNECT_KEEP_ONLINE_TIME 5
+
+#define COMMAND_PING 0
+#define COMMAND_PONG 1
+#define COMMAND_REGISTER 2
+#define COMMAND_RESPONSE 3
+#define COMMAND_DISPATCH_BY_HANDLE 6
+#define COMMAND_DISPATCH_BY_COMMAND 7
 
 class Client : public RefObject, public Sync, public Thread
 {
@@ -271,6 +296,7 @@ public:
 
 	virtual void dispatchEvent(void);	// 这个函数需要在主循环中调用，用来分发事件
 
+	virtual void reconnectSocket(void);
 	virtual bool receivePacket(Packet* pPacket);
 	virtual void removeSocket(void);
 	virtual void setNotifyInterface(ClientInterface* pInterface){ m_pInterface = pInterface; }
@@ -286,6 +312,8 @@ public:
 	inline void setIsNeedDecrypt(bool need) { m_isNeedDecrypt = need; }
 	inline void setKey(const std::string& key){ m_key = key; }
 	inline const std::string& getKey(void) const { return m_key; }
+	inline void setPassword(const std::string& password){ m_password = password; }
+	inline const std::string& getPassword(void) const { return m_password; }
 protected:
 	virtual bool connectServer(void);
 	virtual bool trySelectSocket(void);
@@ -296,6 +324,8 @@ protected:
 	virtual bool writeSocket(Packet* pPacket);
 	virtual void closeSocket(void);
 	virtual void addClientEvent(ClientEventType event, Packet* pPacket);
+	void identifyHive(void);
+	void checkAndPingServer(void);
 	void dispatchPacket(Packet* pPacket);
 	void releasePacket(void);
 protected:
@@ -304,7 +334,9 @@ protected:
     unsigned short m_port;
 	bool m_isNeedEncrypt;			// 是否需要解密
 	bool m_isNeedDecrypt;			// 是否需要加密
+	int m_pingTime;                 // ping服务器的时间
 	std::string m_key;				// 网络秘钥
+	std::string m_password;         // 连接密码
 	PacketQueue m_packetQueue;
 	ClientEventQueue m_clientEventQueue;
 	ClientEventQueue m_tempEventQueue;

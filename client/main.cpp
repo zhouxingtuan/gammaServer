@@ -33,9 +33,19 @@ public:
 	}
 	virtual void notifyConnectOut(Client* pClient){
 		fprintf(stderr, "Client called notifyConnectOut\n");
+		pClient->reconnectSocket();
 	}
 	virtual void notifyPacketIn(Client* pClient, Packet* pPacket){
-		fprintf(stderr, "Client called notifyPacketIn\n");
+		fprintf(stderr, "Client called notifyPacketIn command=%d destination=%d\n", pPacket->getCommand(), pPacket->getDestination());
+
+	}
+	virtual void notifyIdentifyServerFailed(Client* pClient){
+		fprintf(stderr, "Client identify server Failed\n");
+
+	}
+	virtual void notifyIdentifyServerSuccess(Client* pClient, unsigned int connectHandle){
+		fprintf(stderr, "Client identify server success connectHandle=%d\n", connectHandle);
+
 	}
 };
 
@@ -49,6 +59,7 @@ int main(int argc, char *argv[])
 
 	pClient->setNotifyInterface(pNotify);
 	pClient->setKey("1234567890123456");
+	pClient->setPassword("123456");
 	pClient->setIsNeedEncrypt(true);
 	pClient->setIsNeedDecrypt(true);
 	pClient->setSocket("127.0.0.1", 9902);

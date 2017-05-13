@@ -51,6 +51,13 @@ public:
 		}
 		return pPool->get(handle);
 	}
+	_OBJECT_* getDestinationByIndex(uint32 poolType, uint32 index){
+		ObjectDestinationPool* pPool = getPool(poolType);
+		if(NULL == pPool){
+			return NULL;
+		}
+		return pPool->getByIndex(index);
+	}
 	_OBJECT_* createDestination(uint32 poolType, uint32 index){
 		ObjectDestinationPool* pPool = getPool(poolType);
 		if(NULL == pPool){
@@ -73,6 +80,13 @@ public:
 			return false;
 		}
 		return pPool->remove(handle);
+	}
+	bool removeDestinationByIndex(uint32 poolType, uint32 index){
+		ObjectDestinationPool* pPool = getPool(poolType);
+		if(NULL == pPool){
+			return false;
+		}
+		return pPool->removeByIndex(index);
 	}
 	ObjectDestinationPool* getPool(uint32 poolType){
 		if(poolType >= (uint32)m_pools.size()){

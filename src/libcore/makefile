@@ -2,18 +2,20 @@
 THIRD_CURL_INC := /usr/local/include/curl/
 
 LIB_NAME := libcore.a
+DLL_NAME := libcore.so
 
 INC_PATH := -I$(THIRD_CURL_INC)
 LIB_PATH :=
 LIBS = -lssl -lcrypto -lz -lrt -lstdc++ -ldl
 
 # 注意，这里的 -ldl 需要放在flag的最后才能生效
-CXXFLAGS = -O2 -Wall -pthread -std=c++11 $(INC_PATH) $(LIB_PATH) $(LIBS)
-CFLAGS = -O2 -Wall -pthread $(INC_PATH) $(LIB_PATH) $(LIBS)
+CXXFLAGS = -O2 -Wall -fPIC -pthread -std=c++11 $(INC_PATH) $(LIB_PATH) $(LIBS)
+CFLAGS = -O2 -Wall -fPIC -pthread $(INC_PATH) $(LIB_PATH) $(LIBS)
 CC = gcc
 AR = ar
 ARFLAGS = cr
 DEBUG= -g -ggdb
+BIN = ../../bin
 
 OBJS = common.o util.o systemsignal.o token.o log.o buffer.o destination.o packet.o destinationpool.o destinationgroup.o\
 		object.o objectpool.o objecthashpool.o timer.o task.o epoll.o active.o activeworker.o \
@@ -23,7 +25,7 @@ OBJS = common.o util.o systemsignal.o token.o log.o buffer.o destination.o packe
 
 COBJS = http_parser.o
 
-all: $(COBJS) $(OBJS) $(LIB_NAME)
+all: $(COBJS) $(OBJS) $(LIB_NAME) $(DLL_NAME)
 
 $(OBJS): %.o:%.cpp
 	$(CC) $(DEBUG) -c $< -o $@ $(CXXFLAGS)
@@ -34,8 +36,14 @@ $(COBJS): %.o:%.c
 $(LIB_NAME):$(OBJS) $(COBJS)
 	$(AR) $(ARFLAGS) $(LIB_NAME) $(OBJS) $(COBJS)
 
+$(DLL_NAME):$(OBJS) $(COBJS)
+	$(CC) $(DEBUG) $(OBJS) $(COBJS) $(CXXFLAGS) -shared -o $(DLL_NAME)
+#	$(RM) $(BIN)/$(DLL_NAME)
+#	cp $(DLL_NAME) $(BIN)/$(DLL_NAME)
+
 clean:
 	-$(RM) $(LIB_NAME)
+	-$(RM) $(DLL_NAME)
 	-$(RM) *.o
 
 common.o:common.cpp common.h

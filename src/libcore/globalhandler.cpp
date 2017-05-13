@@ -125,6 +125,13 @@ bool GlobalHandler::removeDestination(uint32 handle){
 	unlock();
 	return result;
 }
+bool GlobalHandler::removeDestinationByIndex(uint32 poolType, uint32 index){
+	bool result;
+	lock();
+	result = m_pGroup->removeDestinationByIndex(poolType, index);
+	unlock();
+	return result;
+}
 void GlobalHandler::initialize(void){
 	if(NULL == m_pGroup){
 		uint32 nodeID = GlobalSetting::getInstance()->getNodeID();

@@ -7,6 +7,7 @@
 //
 
 #include "handlercreator.h"
+#include <dlfcn.h>
 
 NS_HIVE_BEGIN
 
@@ -35,6 +36,28 @@ void HandlerCreatorReleaseObject(Handler* pObj){
 	if(NULL != pObj){
 		pObj->release();
 	}
+}
+
+HandlerCreator::HandlerCreator(void) : RefObject(), Sync(){
+
+}
+HandlerCreator::~HandlerCreator(void){
+
+}
+
+static HandlerCreator* g_pHandlerCreator = NULL;
+HandlerCreator* HandlerCreator::getInstance(void){
+	return g_pHandlerCreator;
+}
+HandlerCreator* HandlerCreator::createInstance(void){
+	if(g_pHandlerCreator == NULL){
+		g_pHandlerCreator = new HandlerCreator();
+		SAFE_RETAIN(g_pHandlerCreator)
+	}
+	return g_pHandlerCreator;
+}
+void HandlerCreator::destroyInstance(void){
+    SAFE_RELEASE(g_pHandlerCreator)
 }
 
 NS_HIVE_END

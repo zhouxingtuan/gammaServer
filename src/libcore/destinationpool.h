@@ -115,6 +115,13 @@ public:
 		}
 		return NULL;
 	}
+	_OBJECT_* getByIndex(uint32 index){
+		_OBJECT_* pObj = NULL;
+		if( index < (uint32)m_objects.size() ){
+			pObj = m_objects[index];
+		}
+		return pObj;
+	}
 	bool idle(_OBJECT_* pObj){
 		return idle(pObj->getHandle());
 	}
@@ -144,6 +151,19 @@ public:
 			pObj = m_objects[index];
 		}
 		if( NULL != pObj && pObj->getHandle() == handle ){
+			m_objects[index] = NULL;
+			--m_useCount;
+			m_destroyFunction(pObj);
+			return true;
+		}
+		return false;
+	}
+	bool removeByIndex(uint32 index){
+		_OBJECT_* pObj = NULL;
+		if( index < (uint32)m_objects.size() ){
+			pObj = m_objects[index];
+		}
+		if( NULL != pObj ){
 			m_objects[index] = NULL;
 			--m_useCount;
 			m_destroyFunction(pObj);

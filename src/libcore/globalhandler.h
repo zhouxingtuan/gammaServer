@@ -43,10 +43,15 @@ public:
 	uint32 createDestination(uint32 poolType, uint32 index);
 	bool idleDestination(uint32 handle);
 	bool removeDestination(uint32 handle);
+	bool removeDestinationByIndex(uint32 poolType, uint32 index);
 
 	template<class _OBJECT_>
 	_OBJECT_* getDestination(uint32 handle){
 		return (_OBJECT_*)(m_pGroup->getDestination(handle));
+	}
+	template<class _OBJECT_>
+	_OBJECT_* getDestinationByIndex(uint32 poolType, uint32 index){
+		return (_OBJECT_*)(m_pGroup->getDestinationByIndex(poolType, index));
 	}
 	HandlerDestinationGroup* getGroup(void) { return m_pGroup; }
 	void initialize(void);
