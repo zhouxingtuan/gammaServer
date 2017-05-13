@@ -253,10 +253,10 @@ void Client::dispatchPacket(Packet* pPacket){
 			unsigned int dest = pPacket->getDestination();
 			if(dest > 0){
 				fprintf(stderr, "receive server identify response OK\n");
-				addClientEvent(CLIENT_EVENT_IDENTIFY_FAILED, pPacket);
+				addClientEvent(CLIENT_EVENT_IDENTIFY_SUCCESS, pPacket);
 			}else{
 				fprintf(stderr, "receive server identify response failed\n");
-				addClientEvent(CLIENT_EVENT_IDENTIFY_SUCCESS, pPacket);
+				addClientEvent(CLIENT_EVENT_IDENTIFY_FAILED, pPacket);
 			}
 			return;
 		}
