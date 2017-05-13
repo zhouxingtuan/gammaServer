@@ -119,7 +119,6 @@ public:
 	bool registerNode(const HiveInformation& regInfo);
 	bool unregisterNode(uint32 id);
 
-	void identifyHive(uint32 connectHandle);
 	void registerHive(uint32 connectHandle);
 	void recordHiveInfo(Packet* pPacket);
 	void writeHiveInfo(Packet* pPacket);

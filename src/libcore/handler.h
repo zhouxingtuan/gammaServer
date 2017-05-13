@@ -62,6 +62,7 @@ public:
 	virtual void onInitialize(void) = 0;
 	virtual void onDestroy(void) = 0;
 
+	void identifyHive(uint32 connectHandle);
 	void openClient(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
 	void openHttpListener(uint32 callbackID, const char* ip, uint16 port);
 	void openHttpsListener(uint32 callbackID, const char* ip, uint16 port);

@@ -152,25 +152,6 @@ void MainHandler::registerHive(uint32 connectHandle){
 	LOG_DEBUG("registerHive to connectHandle=%d command=%d result=%d", connectHandle, pPacket->getCommand(), result);
 	pPacket->release();
 }
-void MainHandler::identifyHive(uint32 connectHandle){
-	char temp[256] = {0};
-	uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
-	uint32 t = time(NULL);
-	const std::string& password = GlobalSetting::getInstance()->getPassword();
-	sprintf(temp, "%04d-%d-%s", nodeID, t, password.c_str());
-	uint64 magic = binary_hash64(temp, strlen(temp));
-	LOG_DEBUG("identifyHive to connectHandle=%d nodeID=%d str=%s magic=%llu", connectHandle, nodeID, temp, magic);
-	Packet* pPacket = new Packet(PACKET_HEAD_LENGTH + 16);
-	pPacket->retain();
-	pPacket->writeBegin(COMMAND_REGISTER, connectHandle);
-	pPacket->write(&nodeID, sizeof(uint32));
-	pPacket->write(&t, sizeof(uint32));
-	pPacket->write(&magic, sizeof(uint64));
-	pPacket->writeEnd();
-	bool result = GlobalService::getInstance()->sendToService(connectHandle, pPacket);
-	LOG_DEBUG("identifyHive to connectHandle=%d command=%d result=%d", connectHandle, pPacket->getCommand(), result);
-	pPacket->release();
-}
 bool MainHandler::registerNode(const char* ptr){
 	HiveInformation regInfo;
 	regInfo.set(ptr);
