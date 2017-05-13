@@ -198,7 +198,7 @@ void HandlerCreator::releaseObject(Handler* pObj){
 	if(NULL != pInfo){
 		// unregister Handler from the command Dispatcher
 		uint32 handle = pObj->getHandle();
-		Dispatcher::getInstance()->appendCommandListener(pInfo->command, handle);
+		Dispatcher::getInstance()->removeCommandListener(pInfo->command, handle);
 		pInfo->releaseFunc(pObj);
 	}
 }
