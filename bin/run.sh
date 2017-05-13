@@ -4,8 +4,9 @@ killall gamma
 
 rm -rf node*
 
-path=pwd
-export LD_LIBRARY_PATH=$(path)
+# set the running environment
+path=$(pwd)
+export LD_LIBRARY_PATH=$path
 
 sleep 1
 

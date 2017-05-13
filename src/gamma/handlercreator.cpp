@@ -75,8 +75,16 @@ void HandlerCreator::initializeSO(Token::TokenMap& config){
 		std::string name = config[key];
 		sprintf(key, "command_%d", i);
 		uint32 command = atoi(config[key].c_str());
+		if(command >= COMMAND_NUMBER){
+			LOG_ERROR("name=%s command >= COMMAND_NUMBER(%d)", name.c_str(), COMMAND_NUMBER);
+			continue;
+		}
 		sprintf(key, "pool_type_%d", i);
 		uint32 poolType = atoi(config[key].c_str());
+		if(poolType >= DESTINATION_MAX_GROUP){
+			LOG_ERROR("name=%s poolType >= DESTINATION_MAX_GROUP(%d)", name.c_str(), DESTINATION_MAX_GROUP);
+			continue;
+		}
 		sprintf(key, "handler_index_%d", i);
 		std::string beginEndStr = config[key];
 		uint32 beginIndex = 0;
