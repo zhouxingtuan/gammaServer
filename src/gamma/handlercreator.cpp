@@ -197,8 +197,10 @@ void HandlerCreator::releaseObject(Handler* pObj){
 	SOInformation* pInfo = findMatchInfo(index, poolType);
 	if(NULL != pInfo){
 		// unregister Handler from the command Dispatcher
-		uint32 handle = pObj->getHandle();
-		Dispatcher::getInstance()->removeCommandListener(pInfo->command, handle);
+		if(pInfo->command > COMMAND_HIVE_RESPONSE){
+			uint32 handle = pObj->getHandle();
+            Dispatcher::getInstance()->removeCommandListener(pInfo->command, handle);
+		}
 		pInfo->releaseFunc(pObj);
 	}
 }
