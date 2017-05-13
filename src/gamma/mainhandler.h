@@ -108,9 +108,11 @@ public:
 	virtual void onOpenHttpsListener(uint32 callbackID, uint32 listenerHandle, OpenHttpsListenerTask* pTask);
 	virtual void onCloseListener(uint32 callbackID, uint32 listenerHandle, CloseListenerTask* pTask);
 	virtual void onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask);
+	virtual void onInitialize(void);
+	virtual void onDestroy(void);
 	virtual int64 onTimerUpdate(uint32 callbackID);
 
-	void onInitialize(void);
+	void onConnectInitialize(void);
 
 	bool registerNode(const char* ptr);
 	bool registerNode(uint32 id, const char* ip, uint16 port, bool encrypt, bool decrypt);
@@ -137,7 +139,7 @@ public:
 
 	virtual void doHandlerTask(Handler* pHandler){
 		MainHandler* pMain = (MainHandler*)pHandler;
-		pMain->onInitialize();
+		pMain->onConnectInitialize();
 	}
 	virtual void doActiveTask(ActiveWorker* pHandler){}
 };

@@ -21,7 +21,7 @@ DEBUG= -g -ggdb
 
 BIN = ../../bin
 
-OBJS = cppmodule.o
+OBJS = cpphandler.o cppmodule.o
 
 all: $(OBJS) $(DLL_NAME)
 
@@ -33,7 +33,9 @@ $(DLL_NAME):$(OBJS)
 	$(RM) $(BIN)/$(DLL_NAME)
 	cp $(DLL_NAME) $(BIN)/$(DLL_NAME)
 
-cppmodule.o:cppmodule.cpp cppmodule.h
+cpphandler.o:cpphandler.cpp cpphandler.h
+
+cppmodule.o:cpphandler.o cppmodule.cpp cppmodule.h
 
 clean:
 	-$(RM) $(DLL_NAME)

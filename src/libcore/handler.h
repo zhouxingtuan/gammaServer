@@ -59,6 +59,8 @@ public:
 	virtual void onOpenHttpsListener(uint32 callbackID, uint32 listenerHandle, OpenHttpsListenerTask* pTask) = 0;
 	virtual void onCloseListener(uint32 callbackID, uint32 listenerHandle, CloseListenerTask* pTask) = 0;
 	virtual void onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask) = 0;
+	virtual void onInitialize(void) = 0;
+	virtual void onDestroy(void) = 0;
 
 	void openClient(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
 	void openHttpListener(uint32 callbackID, const char* ip, uint16 port);
@@ -69,25 +71,23 @@ public:
 	void bindAccept(uint32 acceptHandle, uint32 bindHandle);
 	void sendCurlRequest(RequestData* pRequest);
 
-	virtual bool receivePacket(Packet* pPacket);							// 收到一个Packet
-    virtual void acceptTask(Task* pTask); 									// Task 调用接收任务
-    virtual void acceptTaskFront(Task* pTask);								// 任务放在最前面
+	bool receivePacket(Packet* pPacket);							// 收到一个Packet
+    void acceptTask(Task* pTask); 									// Task 调用接收任务
+    void acceptTaskFront(Task* pTask);								// 任务放在最前面
 
 	virtual int64 onTimerUpdate(uint32 callbackID) = 0;						// 更新定时器
-	virtual int64 timerActiveCallback(uint32 callbackID);					// 异步调用激活Handler的Timer
-    virtual uint32 startTimer(uint32 callbackID, int64 timeCount);			// 开始一个计时器
-    virtual void removeTimer(uint32 handle);								// 移除计时器
-    virtual void changeTimer(uint32 handle, int64 timeCount);				// 更改计时器的时间
-    virtual int64 leftTimer(uint32 handle);									// 获取计时器剩余时间
+	int64 timerActiveCallback(uint32 callbackID);					        // 异步调用激活Handler的Timer
+    uint32 startTimer(uint32 callbackID, int64 timeCount);			        // 开始一个计时器
+    void removeTimer(uint32 handle);								        // 移除计时器
+    void changeTimer(uint32 handle, int64 timeCount);				        // 更改计时器的时间
+    int64 leftTimer(uint32 handle);									        // 获取计时器剩余时间
 
-	void initialize(void);
-	void destroy(void);
 protected:
 	void releaseTask(void);											// 放弃掉所有任务
-	virtual void doTask(void);										// 执行任务内容
-    virtual bool isFinished(void){ return m_taskQueue.empty(); }	// 是否已经结束
-    virtual void doHandler(HandlerQueue* pQueue=NULL);				// Worker 调用执行任务检测
-    virtual void notify(void);						// 通知当前handler进入队列
+	void doTask(void);										// 执行任务内容
+    bool isFinished(void){ return m_taskQueue.empty(); }	// 是否已经结束
+    void doHandler(HandlerQueue* pQueue=NULL);				// Worker 调用执行任务检测
+    void notify(void);						// 通知当前handler进入队列
 };// end class Handler
 
 class ReceivePacketTask : public Task

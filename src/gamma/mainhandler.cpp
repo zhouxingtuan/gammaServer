@@ -109,6 +109,12 @@ void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseC
         startTimer(id, NODE_RECONNECT_TIME);
     }
 }
+void MainHandler::onInitialize(void){
+	LOG_DEBUG("onInitialize called handle=%d", getHandle());
+}
+void MainHandler::onDestroy(void){
+	LOG_DEBUG("onDestroy called handle=%d", getHandle());
+}
 int64 MainHandler::onTimerUpdate(uint32 callbackID){
 	LOG_DEBUG("callbackID=%d", callbackID);
 	// try to connect the node again
@@ -208,7 +214,7 @@ bool MainHandler::unregisterNode(uint32 id){
 	}
 	return false;
 }
-void MainHandler::onInitialize(void){
+void MainHandler::onConnectInitialize(void){
 	LOG_DEBUG("main handler start...");
 	openInnerListener();
 	openMainSocketListener();

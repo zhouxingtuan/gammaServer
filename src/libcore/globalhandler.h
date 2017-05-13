@@ -44,6 +44,8 @@ public:
 	bool idleDestination(uint32 handle);
 	bool removeDestination(uint32 handle);
 	bool removeDestinationByIndex(uint32 poolType, uint32 index);
+	void checkOnDestroy(uint32 handle);
+	void checkOnDestroy(uint32 poolType, uint32 index);
 
 	template<class _OBJECT_>
 	_OBJECT_* getDestination(uint32 handle){

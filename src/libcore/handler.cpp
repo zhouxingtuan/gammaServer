@@ -16,10 +16,10 @@
 NS_HIVE_BEGIN
 
 Handler::Handler(void) : Destination(), RefObject(), Sync(), m_isInHandlerQueue(false) {
-	Handler::initialize();
+
 }
 Handler::~Handler(void){
-	Handler::destroy();
+	releaseTask();
 }
 
 void Handler::openClient(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex){
@@ -159,13 +159,6 @@ void Handler::notify(void){
 			HandlerQueue::getInstance()->acceptHandler(this);	// 将handler提交给队列
 		}
 	}
-}
-void Handler::initialize(void){
-
-}
-void Handler::destroy(void){
-	LOG_DEBUG("Handler destroy called handle=%d", getHandle());
-	releaseTask();
 }
 void Handler::releaseTask(void){
 	LOG_DEBUG("Handler release Task handle=%d", getHandle());

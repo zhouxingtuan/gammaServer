@@ -101,18 +101,50 @@ bool GlobalHandler::createPool(uint32 poolType,
 }
 // 创建一个目标Handler
 uint32 GlobalHandler::createDestination(uint32 poolType, uint32 index){
-	Destination* pDes;
+	Handler* pHandler;
 	uint32 handle = 0;
 	lock();
-	pDes = m_pGroup->createDestination(poolType, index);
-	if(NULL != pDes){
-		handle = pDes->getHandle();
+	pHandler = (Handler*)m_pGroup->createDestination(poolType, index);
+	if(NULL != pHandler){
+		handle = pHandler->getHandle();
+		pHandler->retain();
 	}
 	unlock();
+	if(NULL != pHandler){
+		pHandler->onInitialize();
+		pHandler->release();
+	}
 	return handle;
+}
+void GlobalHandler::checkOnDestroy(uint32 handle){
+	Handler* pHandler;
+	lock();
+	pHandler = getDestination<Handler>(handle);
+	if(NULL != pHandler){
+		pHandler->retain();
+	}
+	unlock();
+	if(NULL != pHandler){
+		pHandler->onDestroy();
+		pHandler->release();
+	}
+}
+void GlobalHandler::checkOnDestroy(uint32 poolType, uint32 index){
+	Handler* pHandler;
+	lock();
+	pHandler = getDestinationByIndex<Handler>(poolType, index);
+	if(NULL != pHandler){
+		pHandler->retain();
+	}
+	unlock();
+	if(NULL != pHandler){
+		pHandler->onDestroy();
+		pHandler->release();
+	}
 }
 bool GlobalHandler::idleDestination(uint32 handle){
 	bool result;
+	checkOnDestroy(handle);
 	lock();
 	result = m_pGroup->idleDestination(handle);
 	unlock();
@@ -120,6 +152,7 @@ bool GlobalHandler::idleDestination(uint32 handle){
 }
 bool GlobalHandler::removeDestination(uint32 handle){
 	bool result;
+	checkOnDestroy(handle);
 	lock();
 	result = m_pGroup->removeDestination(handle);
 	unlock();
@@ -127,6 +160,7 @@ bool GlobalHandler::removeDestination(uint32 handle){
 }
 bool GlobalHandler::removeDestinationByIndex(uint32 poolType, uint32 index){
 	bool result;
+	checkOnDestroy(poolType, index);
 	lock();
 	result = m_pGroup->removeDestinationByIndex(poolType, index);
 	unlock();
