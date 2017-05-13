@@ -15,12 +15,11 @@ NS_HIVE_BEGIN
 
 extern "C"{
 
+Handler* HandlerCreateObject(uint32 index, uint32 poolType);
+void HandlerReleaseObject(Handler* pObj);
+
 void SOInitialize(void);
 void SODestroy(void);
-
-Handler* HandlerCreateObject(uint32 index);
-
-void HandlerReleaseObject(Handler* pObj);
 
 }
 

@@ -199,6 +199,16 @@ void Client::reconnectSocket(void){
 	removeSocket();
 	startThread();
 }
+bool Client::sendData(unsigned int command, unsigned int handle, const char* pData, unsigned int length){
+	Packet* pPacket = new Packet(sizeof(PacketHead) + length);
+	pPacket->retain();
+	pPacket->writeBegin(command, handle);
+	pPacket->write(pData, length);
+	pPacket->writeEnd();
+	bool ret = receivePacket(pPacket);
+	pPacket->release();
+	return ret;
+}
 bool Client::receivePacket(Packet* pPacket){
 	if( 0 == m_fd ){
 		return false;

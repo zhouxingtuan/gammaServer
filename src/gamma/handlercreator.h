@@ -13,10 +13,7 @@
 
 NS_HIVE_BEGIN
 
-#define COMMAND_DISPATCH_BY_HANDLE 6
-#define COMMAND_DISPATCH_BY_COMMAND 7
-
-Handler* HandlerCreatorCreateObject(uint32 index);
+Handler* HandlerCreatorCreateObject(uint32 index, uint32 poolType);
 
 void HandlerCreatorReleaseObject(Handler* pObj);
 
@@ -31,6 +28,8 @@ typedef struct SOInformation{
 	SOReleaseObjectFunction releaseFunc;
 	SOInitializeFunction initializeFunc;
 	SODestroyFunction destroyFunc;
+	uint32 command;
+	uint32 poolType;
 	uint32 beginIndex;
 	uint32 endIndex;
 }SOInformation;
@@ -39,10 +38,8 @@ class HandlerCreator : public RefObject, public Sync
 {
 public:
 	typedef std::map<std::string, SOInformation*> SOInformationMap;
-	typedef std::vector<SOInformation*> HandlerIndexToSO;
 
 	SOInformationMap m_soInfoMap;
-	HandlerIndexToSO m_handlerIndexToSO;
 public:
 	HandlerCreator(void);
 	virtual ~HandlerCreator(void);
@@ -51,10 +48,14 @@ public:
 	static HandlerCreator* createInstance(void);
 	static void destroyInstance(void);
 
-	void initializeSO(const Token::TokenMap& config);
-	void loadSO(const std::string& name, int dispType, uint32 poolType, uint32 beginIndex, uint32 endIndex);
+	void initializeSO(Token::TokenMap& config);
+	void loadSO(const std::string& name, uint32 command, uint32 poolType, uint32 beginIndex, uint32 endIndex);
 	void unloadSO(const std::string& name);
-	Handler* CreateObject(uint32 index);
+	void unloadSOInformation(SOInformation* pInfo);
+	void unloadAll(void);
+	Handler* createObject(uint32 index, uint32 poolType);
+	void releaseObject(Handler* pObj);
+	SOInformation* findMatchInfo(uint32 index, uint32 poolType);
 };
 
 NS_HIVE_END

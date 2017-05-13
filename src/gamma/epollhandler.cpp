@@ -177,5 +177,8 @@ void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 	pPacket->setDestination(pAccept->getHandle());
 	Dispatcher::getInstance()->dispatchCommand(pPacket, command);
 }
+void onCommandDispatchByHandle(Accept* pAccept, Packet* pPacket, uint32 command){
+	GlobalService::getInstance()->dispatchToService(pPacket);
+}
 
 NS_HIVE_END

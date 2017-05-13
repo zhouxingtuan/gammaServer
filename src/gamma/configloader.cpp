@@ -11,7 +11,6 @@
 #include "mainhandler.h"
 #include "handlercreator.h"
 #include "dispatcher.h"
-#include <dlfcn.h>
 
 NS_HIVE_BEGIN
 
@@ -24,23 +23,6 @@ void parseIPAndPort(const std::string& ip_port_str, std::string& ip, uint16& por
 		LOG_DEBUG("ip=%s port=%d", ip.c_str(), port);
 		return;
 	}
-}
-
-void loadDLL(const Token::TokenMap& config){
-	void* pHandle = NULL;
-	HandlerDestinationGroup::CreateFunction createFunc;
-	HandlerDestinationGroup::DestroyFunction destroyFunc;
-	pHandle = dlopen("libcppmodule.so", RTLD_NOW);
-	if(NULL == pHandle){
-		LOG_ERROR("load dll failed");
-		return;
-	}
-	createFunc = (HandlerDestinationGroup::CreateFunction)dlsym(pHandle, "HandlerCreateObject");
-	if(dlerror() != NULL){
-	  LOG_ERROR("load dll func failed");
-	  return;
-	}
-	LOG_DEBUG("load function from dll success func=0x%x", createFunc);
 }
 
 void loadConfig(const char* fileName){
@@ -90,6 +72,7 @@ void loadConfig(const char* fileName){
 	GlobalSetting::getInstance()->setReceiveHttpFunction(onReceiveHttp);
 	GlobalSetting::getInstance()->setRemoveHttpFunction(onRemoveHttp);
 	GlobalSetting::getInstance()->setHttpReceivePacketFunction(onHttpReceivePacket);
+	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_DISPATCH_BY_HANDLE, onCommandDispatchByHandle);
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_PING, onCommandPing);
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_PONG, onCommandPong);
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_REGISTER, onCommandRegister);
@@ -98,14 +81,18 @@ void loadConfig(const char* fileName){
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_HIVE_RESPONSE, onCommandHiveResponse);
 	MainWorker::getInstance()->initialize((uint32)node_id, (uint32)epoll_number, (uint32)worker_number);
 
-	// register Handler Creator
-	loadDLL(config);
+	// create main handler; HANDLER_TYPE_MAIN included
+	for(uint32 poolType=0; poolType<DESTINATION_MAX_GROUP; ++poolType){
+		GlobalHandler::getInstance()->createPool(poolType, HandlerCreatorCreateObject, HandlerCreatorReleaseObject);
+	}
 
-	// create main handler
-	GlobalHandler::getInstance()->createPool(HANDLER_TYPE_MAIN, HandlerCreatorCreateObject, HandlerCreatorReleaseObject);
+	// create MainHandler
 	uint32 mainHandle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN, MAIN_HANDLER_INDEX);
 	MainHandler* pMain = GlobalHandler::getInstance()->getDestination<MainHandler>(mainHandle);
 	LOG_DEBUG("MainHandler handle=%d mainHandle=%d", pMain->getHandle(), mainHandle);
+
+	// create Handlers
+	HandlerCreator::createInstance()->initializeSO(config);
 
 	// record main init data
 	pMain->m_destID = des_id;

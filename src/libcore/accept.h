@@ -53,7 +53,7 @@ public:
 	explicit Accept(void);
 	virtual ~Accept(void);
 
-	static EpollObject* createObject(uint32 index){
+	static EpollObject* createObject(uint32 index, uint32 poolType){
 		return new Accept();
 	}
 	static void releaseObject(EpollObject* pObj){

@@ -27,7 +27,7 @@ public:
 	Listener(void);
 	virtual ~Listener(void);
 
-	static Listener* createObject(uint32 index){
+	static Listener* createObject(uint32 index, uint32 poolType){
 		return new Listener();
 	}
 	static void releaseObject(Listener* pObj){

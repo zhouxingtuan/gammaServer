@@ -4,6 +4,9 @@ killall gamma
 
 rm -rf node*
 
+path=pwd
+export LD_LIBRARY_PATH=$(path)
+
 sleep 1
 
 nohup ./gamma config1.ini -print >> node1.log 2>&1 &

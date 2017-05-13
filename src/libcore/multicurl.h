@@ -70,7 +70,7 @@ public:
 	EasyCurl(void);
 	virtual ~EasyCurl(void);
 
-	static EasyCurl* createObject(uint32 index){
+	static EasyCurl* createObject(uint32 index, uint32 poolType){
 		EasyCurl* pEasyCurl = new EasyCurl();
 		pEasyCurl->retain();
 		return pEasyCurl;

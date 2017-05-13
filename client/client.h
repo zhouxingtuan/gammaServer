@@ -277,12 +277,11 @@ typedef struct ClientEvent{
 
 #define CONNECT_KEEP_ONLINE_TIME 5
 
-#define COMMAND_PING 0
-#define COMMAND_PONG 1
-#define COMMAND_REGISTER 2
-#define COMMAND_RESPONSE 3
-#define COMMAND_DISPATCH_BY_HANDLE 6
-#define COMMAND_DISPATCH_BY_COMMAND 7
+#define COMMAND_DISPATCH_BY_HANDLE 0
+#define COMMAND_PING 1
+#define COMMAND_PONG 2
+#define COMMAND_REGISTER 3
+#define COMMAND_RESPONSE 4
 
 class Client : public RefObject, public Sync, public Thread
 {
@@ -296,6 +295,8 @@ public:
 
 	virtual void dispatchEvent(void);	// 这个函数需要在主循环中调用，用来分发事件
 
+	// 6 <= command <= 255
+	virtual bool sendData(unsigned int command, unsigned int handle, const char* pData, unsigned int length);
 	virtual void reconnectSocket(void);
 	virtual bool receivePacket(Packet* pPacket);
 	virtual void removeSocket(void);

@@ -18,7 +18,7 @@ template<class _OBJECT_>
 class DestinationPool : public RefObject
 {
 public:
-	typedef _OBJECT_* (*CreateFunction)(uint32 index);
+	typedef _OBJECT_* (*CreateFunction)(uint32 index, uint32 poolType);
 	typedef void (*DestroyFunction)(_OBJECT_* pDes);
 	typedef std::vector<_OBJECT_*> ObjectVector;
 protected:
@@ -72,7 +72,7 @@ public:
 			pObj = m_idleObjects.back();
 			m_idleObjects.pop_back();
 		}else{
-			pObj = m_createFunction(0);
+			pObj = m_createFunction(0, m_poolType);
 		}
 		return pObj;
 	}
@@ -83,10 +83,16 @@ public:
 		}
 		_OBJECT_* pObj;
 		if(index == 0){
-			index = getNextSlot();
 			pObj = getIdleObject();
+			if(NULL == pObj){
+                return NULL;
+            }
+            index = getNextSlot();
 		}else{
-			pObj = m_createFunction(index);
+			pObj = m_createFunction(index, m_poolType);
+			if(NULL == pObj){
+				return NULL;
+			}
 		}
 		pObj->setService(m_serviceID);
 		pObj->setType(m_poolType);

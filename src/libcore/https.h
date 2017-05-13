@@ -22,7 +22,7 @@ public:
 	Https(void);
 	virtual ~Https(void);
 
-	static EpollObject* createObject(uint32 index){
+	static EpollObject* createObject(uint32 index, uint32 poolType){
 		return new Https();
 	}
 	static void releaseObject(EpollObject* pObj){

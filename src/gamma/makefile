@@ -1,20 +1,22 @@
 
-JEMALLOC_LIB := ./../../third/jemalloc/lib/libjemalloc_pic.a ./../../third/jemalloc/lib/libjemalloc.a
-JEMALLOC_INC := ./../../third/jemalloc/include/jemalloc/
+JEMALLOC_DIR := ./../../third/jemalloc
+#JEMALLOC_LIB := $(JEMALLOC_DIR)/lib/libjemalloc_pic.a $(JEMALLOC_DIR)/lib/libjemalloc.a
+JEMALLOC_INC := $(JEMALLOC_DIR)/include/jemalloc/
+JEMALLOC_DLL_PATH := $(JEMALLOC_DIR)/lib
 
-CURL_LIB := /usr/local/lib/libcurl.a
+#CURL_LIB := /usr/local/lib/libcurl.a
 CURL_INC := /usr/local/include/curl/
 
-CORE_LIB := ./../libcore/libcore.a
+#CORE_LIB := ./../libcore/libcore.a
 CORE_INC := ./../libcore/
-CORE_DLL := ./../libcore/
+CORE_DLL_PATH := ./../../bin/
 
 # 静态库的引用需要注意顺序，最底层的静态库放在后面
 STATIC_LIB := $(CORE_LIB) $(CURL_LIB) $(JEMALLOC_LIB)
 
 # static的依赖库要放在static的后面，比如luasocket依赖openssl
-LIBPATH = -L/usr/local/lib -L$(CORE_DLL)
-LIBS = -lssl -lcrypto -lz -lrt -lstdc++ -ldl
+LIBPATH = -L/usr/local/lib -L$(CORE_DLL_PATH) -L$(JEMALLOC_DLL_PATH)
+LIBS = -lcore -ljemalloc -lcurl -lssl -lcrypto -lz -lrt -lstdc++ -ldl
 
 INCLUDES = -I$(JEMALLOC_INC) -I$(CORE_INC) -I$(CURL_INC)
 
@@ -30,7 +32,7 @@ TARGET = gamma
 OBJS = configloader.o epollhandler.o handlercreator.o mainhandler.o
 
 $(TARGET): main.o $(OBJS)
-	$(MAKE) -C ./../../third/jemalloc
+	cp $(JEMALLOC_DIR)/lib/libjemalloc.so.2 $(BIN)
 	$(MAKE) -C ./../libcore
 	$(CC) $(DEBUG) main.o $(OBJS) $(STATIC_LIB) $(LIBPATH) $(LIBS) -o $(BIN)/$(TARGET) $(CFLAGS)
 

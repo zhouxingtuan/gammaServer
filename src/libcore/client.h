@@ -20,7 +20,7 @@ public:
 	Client(void);
 	virtual ~Client(void);
 
-	static EpollObject* createObject(uint32 index){
+	static EpollObject* createObject(uint32 index, uint32 poolType){
 		return new Client();
 	}
 	static void releaseObject(EpollObject* pObj){

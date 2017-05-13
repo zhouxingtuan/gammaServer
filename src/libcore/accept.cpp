@@ -189,10 +189,10 @@ void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 	// 判断cmd执行后续操作
 	AcceptCommandFunction func = GlobalSetting::getInstance()->getAcceptCommandFunction(command);
 	if(NULL == func){
-		LOG_DEBUG("Accept handle=%d dispatchPacket command=%d function not found. dispatchToService", getHandle(), command);
+		LOG_ERROR("Accept handle=%d dispatchPacket command=%d function not found.", getHandle(), command);
 		// 这里不执行的命令，发送消息给后面的服务执行
-		GlobalService::getInstance()->dispatchToService(pPacket);
-		return;
+//		GlobalService::getInstance()->dispatchToService(pPacket);
+//		return;
 	}else{
 		func(this, pPacket, command);
 	}
