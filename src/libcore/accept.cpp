@@ -187,6 +187,12 @@ void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 		LOG_DEBUG("Accept handle=%d dispatchPacket command=%d need decrypt", getHandle(), command);
 		GlobalSetting::getInstance()->getAcceptDecryptFunction()(this, pPacket);
 	}
+	// 判断当前的连接是否已经验证
+	if(getConnectionState() < CS_IDENTIFY_OK && getType() == POOL_TYPE_ACCEPT && command != COMMAND_REGISTER){
+		LOG_ERROR("Accept is not identify yet. close the connection handle=%d command=%d", getHandle(), command);
+		epollRemove();
+		return;
+	}
 	// 判断cmd执行后续操作
 	AcceptCommandFunction func = GlobalSetting::getInstance()->getAcceptCommandFunction(command);
 	if(NULL == func){
