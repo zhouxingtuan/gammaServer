@@ -172,7 +172,7 @@ bool MainHandler::registerNode(const HiveInformation& regInfo){
 		LOG_INFO("current node info equal to register node");
 		return true;
 	}
-	LOG_DEBUG("registerNode id=%d ip=%s port=%d encrypt=%d decrypt=%d", info.id, info.ip, info.port, info.encrypt, info.decrypt);
+	LOG_DEBUG("registerNode id=%d ip=%s port=%d encrypt=%d decrypt=%d", regInfo.id, regInfo.ip, regInfo.port, regInfo.encrypt, regInfo.decrypt);
 	unregisterNode(regInfo.id);
 	info.set(regInfo.get());
 	checkNodeConnect(info.id);

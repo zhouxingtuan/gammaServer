@@ -112,9 +112,7 @@ void loadConfig(const char* fileName){
 
 	parseIPAndPort(https_addr, pMain->m_httpsIP, pMain->m_httpsPort);
 
-	Dispatcher::getInstance()->appendCommandListener(COMMAND_RESPONSE, mainHandle);
 	Dispatcher::getInstance()->appendCommandListener(COMMAND_HIVE_REGISTER, mainHandle);
-	Dispatcher::getInstance()->appendCommandListener(COMMAND_HIVE_RESPONSE, mainHandle);
 
 	// kick start main handler
 	StartMainHandlerTask* pTask = new StartMainHandlerTask();

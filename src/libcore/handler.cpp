@@ -22,7 +22,7 @@ Handler::~Handler(void){
 	releaseTask();
 }
 
-void MainHandler::identifyHive(uint32 connectHandle){
+void Handler::identifyHive(uint32 connectHandle){
 	char temp[256] = {0};
 	uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
 	uint32 t = time(NULL);

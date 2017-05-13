@@ -169,8 +169,7 @@ void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 			LOG_DEBUG("onCommandResponse dispatch to bindHandle=%d", bindHandle);
 			GlobalHandler::getInstance()->dispatchToHandler(pPacket, bindHandle);
 		}else{
-			LOG_DEBUG("onCommandResponse dispatch by command=%d", command);
-			Dispatcher::getInstance()->dispatchCommand(pPacket, command);
+			LOG_ERROR("command=%d will not be handle bindHandle==0", command);
 		}
 	}
 }
@@ -182,7 +181,13 @@ void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command){
 void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 	pPacket->setDestination(pAccept->getHandle());
-	Dispatcher::getInstance()->dispatchCommand(pPacket, command);
+	uint32 bindHandle = pAccept->getBindHandle();
+	if(bindHandle > 0){
+		LOG_DEBUG("onCommandResponse dispatch to bindHandle=%d", bindHandle);
+        GlobalHandler::getInstance()->dispatchToHandler(pPacket, bindHandle);
+	}else{
+		LOG_ERROR("command=%d will not be handle bindHandle==0", command);
+	}
 }
 void onCommandDispatchByHandle(Accept* pAccept, Packet* pPacket, uint32 command){
 	GlobalService::getInstance()->dispatchToService(pPacket);

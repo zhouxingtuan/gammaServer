@@ -11,6 +11,7 @@
 #include "globalservice.h"
 #include "epollworker.h"
 #include "mainworker.h"
+#include "dispatcher.h"
 #include "globalsetting.h"
 
 NS_HIVE_BEGIN
@@ -189,10 +190,10 @@ void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 	// 判断cmd执行后续操作
 	AcceptCommandFunction func = GlobalSetting::getInstance()->getAcceptCommandFunction(command);
 	if(NULL == func){
-		LOG_ERROR("Accept handle=%d dispatchPacket command=%d function not found.", getHandle(), command);
+		LOG_DEBUG("Accept handle=%d dispatchPacket command=%d function not found.", getHandle(), command);
 		// 这里不执行的命令，发送消息给后面的服务执行
-//		GlobalService::getInstance()->dispatchToService(pPacket);
-//		return;
+		pPacket->setDestination(this->getHandle());
+		Dispatcher::getInstance()->dispatchCommand(pPacket, command);
 	}else{
 		func(this, pPacket, command);
 	}
