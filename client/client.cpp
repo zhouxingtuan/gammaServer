@@ -296,7 +296,7 @@ void Client::dispatchEvent(void){
     			break;
     		}
     		case CLIENT_EVENT_IDENTIFY_FAILED:{
-				m_pInterface->notifyIdentifyServerFailed(this);	// 通知外部验证失败
+				m_pInterface->notifyIdentifyServerFailed(this, evt.pPacket);	// 通知外部验证失败
     		    break;
     		}
     		case CLIENT_EVENT_IDENTIFY_SUCCESS:{

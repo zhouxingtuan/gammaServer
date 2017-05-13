@@ -39,11 +39,12 @@ public:
 		fprintf(stderr, "Client called notifyPacketIn command=%d destination=%d\n", pPacket->getCommand(), pPacket->getDestination());
 
 	}
-	virtual void notifyIdentifyServerFailed(Client* pClient){
+	virtual void notifyIdentifyServerFailed(Client* pClient, Packet* pPacket){
 		fprintf(stderr, "Client identify server Failed\n");
 
 	}
-	virtual void notifyIdentifyServerSuccess(Client* pClient, unsigned int connectHandle){
+	virtual void notifyIdentifyServerSuccess(Client* pClient, Packet* pPacket){
+		unsigned int connectHandle = pPacket->getDestination();
 		fprintf(stderr, "Client identify server success connectHandle=%d\n", connectHandle);
 
 	}
