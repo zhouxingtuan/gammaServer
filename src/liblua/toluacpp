@@ -1,0 +1,6 @@
+
+cd pfile
+
+tolua++ -o ../liblua.cpp liblua.pfile
+
+cd ../

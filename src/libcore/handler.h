@@ -72,9 +72,9 @@ public:
 	void bindAccept(uint32 acceptHandle, uint32 bindHandle);
 	void sendCurlRequest(RequestData* pRequest);
 
-	bool receivePacket(Packet* pPacket);							// 收到一个Packet
-    void acceptTask(Task* pTask); 									// Task 调用接收任务
-    void acceptTaskFront(Task* pTask);								// 任务放在最前面
+	bool receivePacket(Packet* pPacket);							        // 收到一个Packet
+    void acceptTask(Task* pTask); 									        // Task 调用接收任务
+    void acceptTaskFront(Task* pTask);								        // 任务放在最前面
 
 	virtual int64 onTimerUpdate(uint32 callbackID) = 0;						// 更新定时器
 	int64 timerActiveCallback(uint32 callbackID);					        // 异步调用激活Handler的Timer
@@ -84,11 +84,11 @@ public:
     int64 leftTimer(uint32 handle);									        // 获取计时器剩余时间
 
 protected:
-	void releaseTask(void);											// 放弃掉所有任务
-	void doTask(void);										// 执行任务内容
-    bool isFinished(void){ return m_taskQueue.empty(); }	// 是否已经结束
-    void doHandler(HandlerQueue* pQueue=NULL);				// Worker 调用执行任务检测
-    void notify(void);						// 通知当前handler进入队列
+	void releaseTask(void);									                // 放弃掉所有任务
+	void doTask(void);										                // 执行任务内容
+    bool isFinished(void){ return m_taskQueue.empty(); }	                // 是否已经结束
+    void doHandler(HandlerQueue* pQueue=NULL);				                // Worker 调用执行任务检测
+    void notify(void);						                                // 通知当前handler进入队列
 };// end class Handler
 
 class ReceivePacketTask : public Task
