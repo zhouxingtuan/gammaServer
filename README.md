@@ -11,8 +11,8 @@ codes was in the client directory. main.cpp shows the way to use the client.
 depends on pthread, Support Linux/Mac/IOS/Android.
 
 # developing plans
-1) complete and test framework done
-2) add C++ module (ing...)
+1) complete and test framework (done)
+2) add C++ module (done)
 3) add lua/luajit module (ing...)
 4) add javascript(V8 engine) module (waiting)
 5) add python module (waiting)
