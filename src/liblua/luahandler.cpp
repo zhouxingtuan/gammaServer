@@ -63,7 +63,7 @@ void LuaHandler::onInitialize(const std::string& param){
     	m_pScript->setState(NULL);
     	m_pScript->requireFile(param);
 	}
-	m_pScript->callFunctionS("onInitialize", param.c_str(), 0);
+	m_pScript->callFunctionUR("onInitialize", this, "Handler", param.c_str(), param.length(), 0);
 }
 void LuaHandler::onDestroy(void){
 	LOG_DEBUG("onDestroy called handle=%d", getHandle());

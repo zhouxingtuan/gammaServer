@@ -7,11 +7,13 @@
 --
 
 local print = print
+local m_pHandler
 
 print("main loaded")
 
-function onInitialize(param)
-	print("onInitialize called", param)
+function onInitialize(pHandler, param)
+	print("onInitialize called", pHandler:getHandle(), param)
+	m_pHandler = pHandler
 
 end
 function onDestroy()
