@@ -6,13 +6,10 @@
 // To change this template use File | Settings | File Templates.
 //
 
-#ifndef __hive__liblua.h__
-#define __hive__liblua.h__
+#ifndef __hive__liblua__
+#define __hive__liblua__
 
 NS_HIVE_BEGIN
-
-/* Exported function */
-TOLUA_API int  tolua_liblua_open (lua_State* tolua_S);
 
 NS_HIVE_END
 

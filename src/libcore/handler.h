@@ -59,7 +59,7 @@ public:
 	virtual void onOpenHttpsListener(uint32 callbackID, uint32 listenerHandle, OpenHttpsListenerTask* pTask) = 0;
 	virtual void onCloseListener(uint32 callbackID, uint32 listenerHandle, CloseListenerTask* pTask) = 0;
 	virtual void onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask) = 0;
-	virtual void onInitialize(void) = 0;
+	virtual void onInitialize(const std::string& param) = 0;
 	virtual void onDestroy(void) = 0;
 
 	void identifyHive(uint32 connectHandle);

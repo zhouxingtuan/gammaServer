@@ -53,8 +53,8 @@ void CppHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseCo
 	LOG_DEBUG("callbackID=%d connectHandle=%d", callbackID, connectHandle);
 
 }
-void CppHandler::onInitialize(void){
-	LOG_DEBUG("onInitialize called handle=%d", getHandle());
+void CppHandler::onInitialize(const std::string& param){
+	LOG_DEBUG("onInitialize called handle=%d param=%s", getHandle(), param.c_str());
 }
 void CppHandler::onDestroy(void){
 	LOG_DEBUG("onDestroy called handle=%d", getHandle());

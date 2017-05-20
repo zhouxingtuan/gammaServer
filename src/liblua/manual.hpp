@@ -13,5 +13,7 @@ USING_NS_HIVE
 
 #define TOLUA_RELEASE 1
 
+/* Exported function */
+TOLUA_API int  tolua_liblua_open (lua_State* tolua_S);
 
 

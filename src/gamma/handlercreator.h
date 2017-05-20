@@ -57,7 +57,7 @@ public:
 	static void destroyInstance(void);
 
 	void initializeSO(Token::TokenMap& config);
-	void loadModule(const std::string& soName, const std::string& moduleName,
+	void loadModule(const std::string& soName, const std::string& moduleName, const std::string& param,
 		uint32 command, uint32 poolType, uint32 beginIndex, uint32 endIndex);
 	void unloadModule(const std::string& moduleName);
 	void unloadModuleInformation(ModuleInformation* pModuleInfo);

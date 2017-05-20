@@ -100,7 +100,7 @@ bool GlobalHandler::createPool(uint32 poolType,
 	return result;
 }
 // 创建一个目标Handler
-uint32 GlobalHandler::createDestination(uint32 poolType, uint32 index){
+uint32 GlobalHandler::createDestination(uint32 poolType, uint32 index, const std::string& param){
 	Handler* pHandler;
 	uint32 handle = 0;
 	lock();
@@ -111,7 +111,7 @@ uint32 GlobalHandler::createDestination(uint32 poolType, uint32 index){
 	}
 	unlock();
 	if(NULL != pHandler){
-		pHandler->onInitialize();
+		pHandler->onInitialize(param);
 		pHandler->release();
 	}
 	return handle;

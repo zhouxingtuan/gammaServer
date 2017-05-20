@@ -33,7 +33,7 @@ public:
 	virtual void onOpenHttpsListener(uint32 callbackID, uint32 listenerHandle, OpenHttpsListenerTask* pTask);
 	virtual void onCloseListener(uint32 callbackID, uint32 listenerHandle, CloseListenerTask* pTask);
 	virtual void onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask);
-	virtual void onInitialize(void);
+	virtual void onInitialize(const std::string& param);
 	virtual void onDestroy(void);
 	virtual int64 onTimerUpdate(uint32 callbackID);
 

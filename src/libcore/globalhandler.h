@@ -40,7 +40,7 @@ public:
 		HandlerDestinationGroup::CreateFunction create,
 		HandlerDestinationGroup::DestroyFunction destroy);
 	// 创建一个目标Handler
-	uint32 createDestination(uint32 poolType, uint32 index);
+	uint32 createDestination(uint32 poolType, uint32 index, const std::string& param);
 	bool idleDestination(uint32 handle);
 	bool removeDestination(uint32 handle);
 	bool removeDestinationByIndex(uint32 poolType, uint32 index);

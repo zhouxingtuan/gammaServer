@@ -109,8 +109,8 @@ void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseC
         startTimer(id, NODE_RECONNECT_TIME);
     }
 }
-void MainHandler::onInitialize(void){
-	LOG_DEBUG("onInitialize called handle=%d", getHandle());
+void MainHandler::onInitialize(const std::string& param){
+	LOG_DEBUG("onInitialize called handle=%d param=%s", getHandle(), param.c_str());
 }
 void MainHandler::onDestroy(void){
 	LOG_DEBUG("onDestroy called handle=%d", getHandle());

@@ -10,11 +10,11 @@
 
 NS_HIVE_BEGIN
 
-LuaHandler::LuaHandler(void) : Handler(){
+LuaHandler::LuaHandler(void) : Handler(), m_pScript(NULL) {
 
 }
 LuaHandler::~LuaHandler(void){
-
+	SAFE_RELEASE(m_pScript);
 }
 
 void LuaHandler::onReceivePacket(Packet* pPacket, Task* pTask){
@@ -53,8 +53,14 @@ void LuaHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseCo
 	LOG_DEBUG("callbackID=%d connectHandle=%d", callbackID, connectHandle);
 
 }
-void LuaHandler::onInitialize(void){
-	LOG_DEBUG("onInitialize called handle=%d", getHandle());
+void LuaHandler::onInitialize(const std::string& param){
+	LOG_DEBUG("onInitialize called handle=%d param=%s", getHandle(), param.c_str());
+	if(NULL == m_pScript){
+		m_pScript = new Script();
+		m_pScript->retain();
+    	m_pScript->setState(NULL);
+    	m_pScript->requireFile(param);
+	}
 }
 void LuaHandler::onDestroy(void){
 	LOG_DEBUG("onDestroy called handle=%d", getHandle());

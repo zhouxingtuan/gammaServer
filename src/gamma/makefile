@@ -32,9 +32,9 @@ TARGET = gamma
 OBJS = configloader.o epollhandler.o handlercreator.o mainhandler.o
 
 $(TARGET): main.o $(OBJS)
-	cp $(JEMALLOC_DIR)/lib/libjemalloc.so.2 $(BIN)
 	$(MAKE) -C ./../libcore
 	$(CC) $(DEBUG) main.o $(OBJS) $(STATIC_LIB) $(LIBPATH) $(LIBS) -o $(BIN)/$(TARGET) $(CFLAGS)
+	cp $(JEMALLOC_DLL_PATH)/libjemalloc.so.2 $(BIN)
 
 main.o: main.cpp
 	$(CC) $(DEBUG) -c $< -o $@ $(CFLAGS)

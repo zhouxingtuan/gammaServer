@@ -75,6 +75,8 @@ void HandlerCreator::initializeSO(Token::TokenMap& config){
 		std::string moduleName = config[key];
 		sprintf(key, "module_so_%d", i);
 		std::string soName = config[key];
+		sprintf(key, "module_param_%d", i);
+		std::string param = config[key];
 		sprintf(key, "module_command_%d", i);
 		uint32 command = atoi(config[key].c_str());
 		if(command >= COMMAND_NUMBER){
@@ -92,10 +94,10 @@ void HandlerCreator::initializeSO(Token::TokenMap& config){
 		uint32 beginIndex = 0;
 		uint32 endIndex = 0;
 		parseBeginEnd(beginEndStr, beginIndex, endIndex);
-		loadModule(soName, moduleName, command, poolType, beginIndex, endIndex);
+		loadModule(soName, moduleName, param, command, poolType, beginIndex, endIndex);
 	}
 }
-void HandlerCreator::loadModule(const std::string& soName, const std::string& moduleName,
+void HandlerCreator::loadModule(const std::string& soName, const std::string& moduleName, const std::string& param,
 		uint32 command, uint32 poolType, uint32 beginIndex, uint32 endIndex){
 	LOG_DEBUG("load SO soName=%s moduleName=%s command=%d poolType=%d beginIndex=%d endIndex=%d",
 		soName.c_str(), moduleName.c_str(), command, poolType, beginIndex, endIndex);
@@ -111,7 +113,7 @@ void HandlerCreator::loadModule(const std::string& soName, const std::string& mo
 	m_moduleInfoMap.insert(std::make_pair(moduleName, pModuleInfo));
 	// load the modules
 	for(uint32 i=beginIndex; i<=endIndex; ++i){
-         GlobalHandler::getInstance()->createDestination(poolType, i);
+         GlobalHandler::getInstance()->createDestination(poolType, i, param);
 	}
 }
 void HandlerCreator::unloadModule(const std::string& moduleName){
@@ -142,30 +144,35 @@ void HandlerCreator::loadSO(const std::string& name){
 	void* pHandle;
 	lock();
 	do{
+		char* errorStr;
 		pHandle = dlopen(name.c_str(), RTLD_NOW);
 		if(NULL == pHandle){
-			LOG_ERROR("load dll failed");
+			LOG_ERROR("load dll failed error=%s", dlerror());
 			break;
 		}
 		pInfo->pHandle = pHandle;
 		pInfo->createFunc = (SOCreateObjectFunction)dlsym(pHandle, "HandlerCreateObject");
-		if(dlerror() != NULL){
-		  LOG_ERROR("load dll func failed HandlerCreateObject");
+		errorStr = dlerror();
+		if(errorStr != NULL){
+		  LOG_ERROR("load dll func failed HandlerCreateObject error=%s", errorStr);
 		  break;
 		}
 		pInfo->releaseFunc = (SOReleaseObjectFunction)dlsym(pHandle, "HandlerReleaseObject");
-		if(dlerror() != NULL){
-		  LOG_ERROR("load dll func failed HandlerReleaseObject");
+		errorStr = dlerror();
+		if(errorStr != NULL){
+		  LOG_ERROR("load dll func failed HandlerReleaseObject error=%s", errorStr);
 		  break;
 		}
 		pInfo->initializeFunc = (SOInitializeFunction)dlsym(pHandle, "SOInitialize");
-		if(dlerror() != NULL){
-		  LOG_ERROR("load dll func failed SOInitialize");
+		errorStr = dlerror();
+		if(errorStr != NULL){
+		  LOG_ERROR("load dll func failed SOInitialize error=%s", errorStr);
 		  break;
 		}
 		pInfo->destroyFunc = (SODestroyFunction)dlsym(pHandle, "SODestroy");
-		if(dlerror() != NULL){
-		  LOG_ERROR("load dll func failed SODestroy");
+		errorStr = dlerror();
+		if(errorStr != NULL){
+		  LOG_ERROR("load dll func failed SODestroy error=%s", errorStr);
 		  break;
 		}
 		m_soInfoMap.insert(std::make_pair(name, pInfo));

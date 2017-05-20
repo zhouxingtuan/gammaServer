@@ -87,7 +87,7 @@ void loadConfig(const char* fileName){
 	}
 
 	// create MainHandler
-	uint32 mainHandle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN, MAIN_HANDLER_INDEX);
+	uint32 mainHandle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN, MAIN_HANDLER_INDEX, "");
 	MainHandler* pMain = GlobalHandler::getInstance()->getDestination<MainHandler>(mainHandle);
 	LOG_DEBUG("MainHandler handle=%d mainHandle=%d", pMain->getHandle(), mainHandle);
 

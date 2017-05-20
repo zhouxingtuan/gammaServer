@@ -10,13 +10,14 @@
 #define __hive__luahandler__
 
 #include "core.h"
+#include "script.h"
 
 NS_HIVE_BEGIN
 
 class LuaHandler : public Handler
 {
 public:
-
+	Script* m_pScript;
 public:
 	LuaHandler(void);
 	virtual ~LuaHandler(void);
@@ -33,7 +34,7 @@ public:
 	virtual void onOpenHttpsListener(uint32 callbackID, uint32 listenerHandle, OpenHttpsListenerTask* pTask);
 	virtual void onCloseListener(uint32 callbackID, uint32 listenerHandle, CloseListenerTask* pTask);
 	virtual void onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseConnectTask* pTask);
-	virtual void onInitialize(void);
+	virtual void onInitialize(const std::string& param);
 	virtual void onDestroy(void);
 	virtual int64 onTimerUpdate(uint32 callbackID);
 
