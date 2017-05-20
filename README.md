@@ -13,7 +13,7 @@ depends on pthread, Support Linux/Mac/IOS/Android.
 # developing plans
 1) complete and test framework (done)
 2) add C++ module (done)
-3) add lua/luajit module (ing...)
+3) add lua/luajit module (done, testing)
 4) add javascript(V8 engine) module (waiting)
-5) add python module (waiting)
+5) add python module (ing...)
 
