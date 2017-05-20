@@ -68,6 +68,7 @@ void LuaHandler::onInitialize(const std::string& param){
 void LuaHandler::onDestroy(void){
 	LOG_DEBUG("onDestroy called handle=%d", getHandle());
 	m_pScript->callFunction("onDestroy", 0);
+	SAFE_RELEASE(m_pScript);
 }
 int64 LuaHandler::onTimerUpdate(uint32 callbackID){
 	LOG_DEBUG("callbackID=%d", callbackID);
