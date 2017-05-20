@@ -12,14 +12,14 @@
 NS_HIVE_BEGIN
 
 void SOInitialize(void){
-	LOG_DEBUG("cpp SOInitialize called");
+	LOG_DEBUG("lua SOInitialize called");
 }
 void SODestroy(void){
-	LOG_DEBUG("cpp SODestroy called");
+	LOG_DEBUG("lua SODestroy called");
 }
 
 Handler* HandlerCreateObject(uint32 index, uint32 poolType){
-	LOG_DEBUG("cpp HandlerCreateObject called index=%d poolType=%d", index, poolType);
+	LOG_DEBUG("lua HandlerCreateObject called index=%d poolType=%d", index, poolType);
 	LuaHandler* pHandler = new LuaHandler();
 	pHandler->retain();
 	return pHandler;
@@ -29,7 +29,7 @@ void HandlerReleaseObject(Handler* pObj){
 	if(NULL != pObj){
 		uint32 index = pObj->getIndex();
         uint32 poolType = pObj->getType();
-		LOG_DEBUG("cpp HandlerReleaseObject called index=%d poolType=%d", index, poolType);
+		LOG_DEBUG("lua HandlerReleaseObject called index=%d poolType=%d", index, poolType);
 		pObj->release();
 	}
 }

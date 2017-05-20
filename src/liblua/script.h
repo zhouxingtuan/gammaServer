@@ -60,6 +60,11 @@ public:
         lua_getglobal(m_pState, function_name);
         luaCall(0, result_count);
     }
+	inline void callFunctionS(const char * function_name, const char* str, int result_count=0){
+		lua_getglobal(m_pState, function_name);
+		tolua_pushstring(m_pState, str);
+		luaCall(1, result_count);
+	}
 	inline void callFunctionN(const char * function_name, uint32 number1, int result_count=0){
 		lua_getglobal(m_pState, function_name);
 		tolua_pushnumber(m_pState,(lua_Number)number1);
@@ -91,6 +96,13 @@ public:
 		tolua_pushnumber(m_pState,(lua_Number)number1);
 		lua_pushlstring(m_pState,ptr,length);
 		luaCall(2, result_count);
+	}
+	inline void callFunctionNNR(const char * function_name, uint32 number1, uint32 number2, const char* ptr, uint32 length, int result_count=0){
+		lua_getglobal(m_pState, function_name);
+		tolua_pushnumber(m_pState,(lua_Number)number1);
+		tolua_pushnumber(m_pState,(lua_Number)number2);
+		lua_pushlstring(m_pState, ptr,length);
+		luaCall(3, result_count);
 	}
 	inline void callFunctionBNR(const char * function_name, bool result, uint32 number1, const char* ptr, uint32 length, int result_count=0){
 		lua_getglobal(m_pState, function_name);

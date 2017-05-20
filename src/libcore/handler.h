@@ -71,6 +71,7 @@ public:
 	void closeConnect(uint32 callbackID, uint32 connectHandle);
 	void bindAccept(uint32 acceptHandle, uint32 bindHandle);
 	void sendCurlRequest(RequestData* pRequest);
+	void sendToDestination(uint32 command, uint32 destination, const char* ptr, uint32 length);
 
 	bool receivePacket(Packet* pPacket);							        // 收到一个Packet
     void acceptTask(Task* pTask); 									        // Task 调用接收任务

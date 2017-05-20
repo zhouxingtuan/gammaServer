@@ -39,6 +39,8 @@ void Script::setState(lua_State* pState){
 	lua_settop( m_pState, 0 );
 	// open my lua lib
 	tolua_liblua_open(m_pState);
+	// extend libs
+	tolua_liblua_extend_open(m_pState);
 }
 
 NS_HIVE_END

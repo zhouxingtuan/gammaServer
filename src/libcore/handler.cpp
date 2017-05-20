@@ -112,6 +112,15 @@ void Handler::closeListener(uint32 callbackID, uint32 listenerHandle){
 void Handler::sendCurlRequest(RequestData* pRequest){
 	GlobalService::getInstance()->sendCurlRequest(pRequest);
 }
+void Handler::sendToDestination(uint32 command, uint32 destination, const char* ptr, uint32 length){
+	Packet* pPacket = new Packet(sizeof(PacketHead) + length);
+	pPacket->retain();
+	pPacket->writeBegin(command, destination);
+	pPacket->write(ptr, length);
+	pPacket->writeEnd();
+	GlobalService::getInstance()->dispatchToService(pPacket);
+	pPacket->release();
+}
 
 int64 Handler::timerActiveCallback(uint32 callbackID){
 	TimerUpdateTask* pTask = new TimerUpdateTask();
