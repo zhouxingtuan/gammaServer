@@ -38,10 +38,33 @@ void Token::split(const std::string& str, const std::string& delimiter, TokenMap
 		return;
 	}
 	std::string key = str.substr(0, pos);	// pos, len
-	std::string value = str.substr(pos+1);
+	std::string value = str.substr(pos + delimiter.length());
 	trim(key);
 	trim(value);
 	tokenMap[key] = value;
+}
+void Token::splitArray(const std::string& str, const std::string& delimiter, TokenVector& tokenVector){
+	if(str.empty()){
+		return;
+	}
+	size_t from = 0;
+	size_t pos = str.find(delimiter, from);
+	while( pos != std::string::npos ){
+		std::string value = str.substr(from, pos-from);
+        trim(value);
+        if(value.length() > 0){
+            tokenVector.push_back(value);
+        }
+		from = pos + delimiter.length();
+		pos = str.find(delimiter, from);
+	};
+	if(str.length() > from){
+		std::string value = str.substr(from);
+		trim(value);
+		if(value.length() > 0){
+			tokenVector.push_back(value);
+		}
+	}
 }
 void Token::trim(std::string& str){
 	if(str.empty()){

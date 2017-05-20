@@ -72,37 +72,75 @@ void HandlerCreator::initializeSO(Token::TokenMap& config){
 	LOG_DEBUG("initializeSO module_count=%d", module_count);
 	for(int i=1; i<=module_count; ++i){
 		sprintf(key, "module_name_%d", i);
-		std::string name = config[key];
-		sprintf(key, "command_%d", i);
+		std::string moduleName = config[key];
+		sprintf(key, "module_so_%d", i);
+		std::string soName = config[key];
+		sprintf(key, "module_command_%d", i);
 		uint32 command = atoi(config[key].c_str());
 		if(command >= COMMAND_NUMBER){
-			LOG_ERROR("name=%s command >= COMMAND_NUMBER(%d)", name.c_str(), COMMAND_NUMBER);
+			LOG_ERROR("moduleName=%s command >= COMMAND_NUMBER(%d)", moduleName.c_str(), COMMAND_NUMBER);
 			continue;
 		}
-		sprintf(key, "pool_type_%d", i);
+		sprintf(key, "module_pool_type_%d", i);
 		uint32 poolType = atoi(config[key].c_str());
 		if(poolType >= DESTINATION_MAX_GROUP){
-			LOG_ERROR("name=%s poolType >= DESTINATION_MAX_GROUP(%d)", name.c_str(), DESTINATION_MAX_GROUP);
+			LOG_ERROR("moduleName=%s poolType >= DESTINATION_MAX_GROUP(%d)", moduleName.c_str(), DESTINATION_MAX_GROUP);
 			continue;
 		}
-		sprintf(key, "handler_index_%d", i);
+		sprintf(key, "module_index_%d", i);
 		std::string beginEndStr = config[key];
 		uint32 beginIndex = 0;
 		uint32 endIndex = 0;
 		parseBeginEnd(beginEndStr, beginIndex, endIndex);
-		loadSO(name, command, poolType, beginIndex, endIndex);
+		loadModule(soName, moduleName, command, poolType, beginIndex, endIndex);
 	}
 }
-void HandlerCreator::loadSO(const std::string& name, uint32 command, uint32 poolType, uint32 beginIndex, uint32 endIndex){
-	LOG_DEBUG("load SO name=%s command=%d poolType=%d beginIndex=%d endIndex=%d", name.c_str(), command, poolType, beginIndex, endIndex);
+void HandlerCreator::loadModule(const std::string& soName, const std::string& moduleName,
+		uint32 command, uint32 poolType, uint32 beginIndex, uint32 endIndex){
+	LOG_DEBUG("load SO soName=%s moduleName=%s command=%d poolType=%d beginIndex=%d endIndex=%d",
+		soName.c_str(), moduleName.c_str(), command, poolType, beginIndex, endIndex);
+	unloadModule(moduleName);
+	loadSO(soName);
+	ModuleInformation* pModuleInfo = new ModuleInformation();
+	pModuleInfo->soName = soName;
+	pModuleInfo->moduleName = moduleName;
+	pModuleInfo->command = command;
+	pModuleInfo->poolType = poolType;
+	pModuleInfo->beginIndex = beginIndex;
+	pModuleInfo->endIndex = endIndex;
+	m_moduleInfoMap.insert(std::make_pair(moduleName, pModuleInfo));
+	// load the modules
+	for(uint32 i=beginIndex; i<=endIndex; ++i){
+         GlobalHandler::getInstance()->createDestination(poolType, i);
+	}
+}
+void HandlerCreator::unloadModule(const std::string& moduleName){
+	ModuleInformationMap::iterator itCur = m_moduleInfoMap.find(moduleName);
+	if(itCur != m_moduleInfoMap.end()){
+		unloadModuleInformation(itCur->second);
+		m_moduleInfoMap.erase(itCur);
+	}
+}
+void HandlerCreator::unloadModuleInformation(ModuleInformation* pModuleInfo){
+	uint32 beginIndex = pModuleInfo->beginIndex;
+    uint32 endIndex = pModuleInfo->endIndex;
+    uint32 poolType = pModuleInfo->poolType;
+    for(uint32 i=beginIndex; i<=endIndex; ++i){
+        GlobalHandler::getInstance()->removeDestinationByIndex(poolType, i);
+    }
+    delete pModuleInfo;
+}
+void HandlerCreator::loadSO(const std::string& name){
+	LOG_DEBUG("load SO name=%s", name.c_str());
+	SOInformationMap::iterator itCur = m_soInfoMap.find(name);
+	if(itCur != m_soInfoMap.end())
+	{
+		return;
+	}
 	SOInformation* pInfo = new SOInformation();
-	pInfo->command = command;
-	pInfo->poolType = poolType;
-	pInfo->beginIndex = beginIndex;
-	pInfo->endIndex = endIndex;
+	pInfo->soName = name;
 	void* pHandle;
 	lock();
-	unloadSO(name);
 	do{
 		pHandle = dlopen(name.c_str(), RTLD_NOW);
 		if(NULL == pHandle){
@@ -133,9 +171,6 @@ void HandlerCreator::loadSO(const std::string& name, uint32 command, uint32 pool
 		m_soInfoMap.insert(std::make_pair(name, pInfo));
 		LOG_INFO("load SO OK name=%s", name.c_str());
 		pInfo->initializeFunc();
-		for(uint32 i=beginIndex; i<=endIndex; ++i){
-            GlobalHandler::getInstance()->createDestination(poolType, i);
-        }
         unlock();
 		return;
 	}while(0);
@@ -159,7 +194,7 @@ void HandlerCreator::unloadSO(const std::string& name){
 		m_soInfoMap.erase(itCur);
 	}
 }
-void HandlerCreator::unloadAll(void){
+void HandlerCreator::unloadAllSO(void){
 	for(auto &kv : m_soInfoMap){
 		SOInformation* pInfo = kv.second;
 		unloadSOInformation(pInfo);
@@ -167,11 +202,16 @@ void HandlerCreator::unloadAll(void){
 	m_soInfoMap.clear();
 }
 void HandlerCreator::unloadSOInformation(SOInformation* pInfo){
-	uint32 beginIndex = pInfo->beginIndex;
-	uint32 endIndex = pInfo->endIndex;
-	uint32 poolType = pInfo->poolType;
-	for(uint32 i=beginIndex; i<=endIndex; ++i){
-		GlobalHandler::getInstance()->removeDestinationByIndex(poolType, i);
+	// find and remove all the so objects
+	std::vector<std::string> removeModuleNames;
+	for( auto &kv : m_moduleInfoMap ){
+		ModuleInformation* pModuleInfo = kv.second;
+		if(pModuleInfo->soName == pInfo->soName){
+            removeModuleNames.push_back(pModuleInfo->moduleName);
+		}
+	}
+	for(auto &name : removeModuleNames){
+		unloadModule(name);
 	}
 	pInfo->destroyFunc();
 	// close the SO file
@@ -179,13 +219,14 @@ void HandlerCreator::unloadSOInformation(SOInformation* pInfo){
 	delete pInfo;
 }
 Handler* HandlerCreator::createObject(uint32 index, uint32 poolType){
-	SOInformation* pInfo = findMatchInfo(index, poolType);
+	ModuleInformation* pModuleInfo = NULL;
+	SOInformation* pInfo = findMatchInfo(index, poolType, &pModuleInfo);
 	if(NULL != pInfo){
 		Handler* pHandler = pInfo->createFunc(index, poolType);
-		if(NULL != pHandler && pInfo->command > COMMAND_HIVE_RESPONSE){
+		if(NULL != pHandler && pModuleInfo->command > COMMAND_HIVE_RESPONSE){
 			// register Handler to the command Dispatcher
 			uint32 handle = pHandler->getHandle();
-			Dispatcher::getInstance()->appendCommandListener(pInfo->command, handle);
+			Dispatcher::getInstance()->appendCommandListener(pModuleInfo->command, handle);
 		}
 		return pHandler;
 	}
@@ -194,21 +235,26 @@ Handler* HandlerCreator::createObject(uint32 index, uint32 poolType){
 void HandlerCreator::releaseObject(Handler* pObj){
 	uint32 index = pObj->getIndex();
 	uint32 poolType = pObj->getType();
-	SOInformation* pInfo = findMatchInfo(index, poolType);
+	ModuleInformation* pModuleInfo = NULL;
+	SOInformation* pInfo = findMatchInfo(index, poolType, &pModuleInfo);
 	if(NULL != pInfo){
 		// unregister Handler from the command Dispatcher
-		if(pInfo->command > COMMAND_HIVE_RESPONSE){
+		if(pModuleInfo->command > COMMAND_HIVE_RESPONSE){
 			uint32 handle = pObj->getHandle();
-            Dispatcher::getInstance()->removeCommandListener(pInfo->command, handle);
+            Dispatcher::getInstance()->removeCommandListener(pModuleInfo->command, handle);
 		}
 		pInfo->releaseFunc(pObj);
 	}
 }
-SOInformation* HandlerCreator::findMatchInfo(uint32 index, uint32 poolType){
-	for(auto &kv : m_soInfoMap){
-		SOInformation* pInfo = kv.second;
-		if(pInfo->poolType == poolType && index >= pInfo->beginIndex && index <= pInfo->endIndex){
-			return pInfo;
+SOInformation* HandlerCreator::findMatchInfo(uint32 index, uint32 poolType, ModuleInformation** ppModuleInfo){
+	for(auto &kv : m_moduleInfoMap){
+		ModuleInformation* pModuleInfo = kv.second;
+		*ppModuleInfo = pModuleInfo;
+		if(pModuleInfo->poolType == poolType && index >= pModuleInfo->beginIndex && index <= pModuleInfo->endIndex){
+			SOInformationMap::iterator itCur = m_soInfoMap.find(pModuleInfo->soName);
+			if(itCur != m_soInfoMap.end()){
+				return itCur->second;
+			}
 		}
 	}
 	return NULL;

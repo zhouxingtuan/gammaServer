@@ -107,6 +107,9 @@ public:
 	virtual int64 timerCallback(void);
 
 	void responseRequest(const char* ptr, uint32 length);	// 返回请求字符串
+	void responseBegin(uint32 length);
+	void responseAppend(const char* ptr, uint32 length);    // 追加一个请求字符串
+	void responseEnd(void);
 
 	virtual int readSocket(void);
 	virtual int writeSocket(void);

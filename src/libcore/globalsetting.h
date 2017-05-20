@@ -17,6 +17,8 @@ NS_HIVE_BEGIN
 #define NET_KEY_LENGTH 16
 #define COMMAND_NUMBER 256
 
+#define INVALID_COMMAND (uint32)(-1)
+
 typedef void (*AcceptReadFunction)(Accept* pAccept, char* recvBuffer, int nread);
 typedef void (*AcceptReceivePacketFunction)(Accept* pAccept, Packet* pPacket);
 typedef void (*AcceptEncryptFunction)(Accept* pAccept, Packet* pPacket);
@@ -25,6 +27,8 @@ typedef void (*ReceiveHttpFunction)(Http* pHttp);
 typedef void (*RemoveHttpFunction)(Http* pHttp);
 typedef void (*HttpReceivePacketFunction)(Http* pHttp, Packet* pPacket);
 typedef void (*AcceptCommandFunction)(Accept* pAccept, Packet* pPacket, uint32 command);
+
+typedef std::unordered_map<std::string, uint32> CommandMap;
 
 class GlobalSetting : public RefObject
 {
@@ -42,6 +46,7 @@ public:
 	std::string m_password;						// 服务间连接验证密码
 	std::string m_publicKey;					// 公共密钥
 	std::string m_privateKey;					// 私钥
+	CommandMap m_commandMap;
 public:
 	GlobalSetting(void);
 	virtual ~GlobalSetting(void);
@@ -53,6 +58,22 @@ public:
 	void initialize(uint32 nodeID);
 	void destroy(void);
 
+	inline void addCommandMap(const std::string& commandStr, uint32 command){
+		m_commandMap[commandStr] = command;
+	}
+	inline uint32 getCommand(const std::string& commandStr){
+		CommandMap::iterator itCur = m_commandMap.find(commandStr);
+		if(itCur != m_commandMap.end()){
+			return itCur->second;
+		}
+		return INVALID_COMMAND;
+	}
+	inline void removeCommandMap(const std::string& commandStr){
+		CommandMap::iterator itCur = m_commandMap.find(commandStr);
+		if(itCur != m_commandMap.end()){
+			m_commandMap.erase(itCur);
+		}
+	}
 	inline void setAcceptReadFunction(uint8 acceptIndex, AcceptReadFunction func){
 		m_acceptReadArr[acceptIndex] = func;
 	}

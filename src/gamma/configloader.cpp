@@ -94,6 +94,18 @@ void loadConfig(const char* fileName){
 	// create Handlers
 	HandlerCreator::createInstance()->initializeSO(config);
 
+	// load command Name->Number
+	std::string command_hash_ = "command_hash_";
+	for(auto &kv : config){
+		const std::string& key = kv.first;
+		if( Token::startWith(key, command_hash_) ){
+			std::string commandName = key.substr(command_hash_.length());
+			uint32 commandNumber = atoi(kv.second.c_str());
+			LOG_DEBUG("addCommandMap commandName=%s commandNumber=%d", commandName.c_str(), commandNumber);
+			GlobalSetting::getInstance()->addCommandMap(commandName, commandNumber);
+		}
+	}
+
 	// record main init data
 	pMain->m_destID = des_id;
 	parseIPAndPort(des_addr, pMain->m_destIP, pMain->m_destPort);

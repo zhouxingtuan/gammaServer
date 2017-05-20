@@ -305,10 +305,12 @@ bool EpollWorker::closeHttp(uint32 handle){
 		LOG_ERROR("can not find Http handle=%d", handle);
 		return false;
 	}
-	pHttp->checkEpollRemove();
-	pHttp->setState(HTTP_STATE_DESTROY);
-	pHttp->closeSocket();
+	pHttp->resetData();
+//	pHttp->checkEpollRemove();
+//	pHttp->setState(HTTP_STATE_DESTROY);
+//	pHttp->closeSocket();
 	m_pGroup->idleDestination(handle);
+	LOG_DEBUG("handle=%d", handle);
 	return true;
 }
 bool EpollWorker::closeHttps(uint32 handle){

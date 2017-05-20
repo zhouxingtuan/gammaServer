@@ -96,6 +96,7 @@ int Http::recordBody(const char* at, size_t length){
 bool Http::epollActive(uint32 events){
 	// 检查是读事件还是写事件；根据当前状态执行下一个处理动作
 	if( this->getState() >= HTTP_STATE_WRITE_DONE ){
+		LOG_DEBUG("state=%d >= HTTP_STATE_WRITE_DONE=%d", getState(), HTTP_STATE_WRITE_DONE);
 		this->epollRemove();	// main主线程，在这里检查删除
 		return true;
 	}
@@ -107,6 +108,7 @@ bool Http::epollActive(uint32 events){
 		this->setState(HTTP_STATE_WRITE);
 		this->epollOut();
 	}else if(events & EPOLLERR){
+		LOG_DEBUG("EPOLLERR");
 		this->epollRemove();	// main主线程，在这里检查删除
 		return true;
 	}
@@ -152,6 +154,7 @@ void Http::epollIn(void){
 	}
     // 不管成功还是失败，都会检查删除
 	if( this->getState() >= HTTP_STATE_WRITE_DONE ){
+		LOG_DEBUG("state=%d >= HTTP_STATE_WRITE_DONE=%d", getState(), HTTP_STATE_WRITE_DONE);
 		this->epollRemove();
 	}
 }
@@ -174,6 +177,7 @@ void Http::epollOut(void){
 	}while(0);
     // 不管成功还是失败，都会检查删除
 	if( this->getState() >= HTTP_STATE_WRITE_DONE ){
+		LOG_DEBUG("state=%d >= HTTP_STATE_WRITE_DONE=%d", getState(), HTTP_STATE_WRITE_DONE);
 		this->epollRemove();
 	}
 }
@@ -182,7 +186,7 @@ void Http::epollRemove(void){
 	// 移除回调
 	GlobalSetting::getInstance()->getRemoveHttpFunction()(this);
 	// 清理状态，移除出epoll
-	this->resetData();
+//	this->resetData();
 	getEpollWorker()->closeHttp(this->getHandle());
 }
 bool Http::checkEpollState(uint32 events){
@@ -207,6 +211,7 @@ void Http::onReceivePacket(Packet* pPacket, Task* pTask){
 	GlobalSetting::getInstance()->getHttpReceivePacketFunction()(this, pPacket);
 }
 int64 Http::timerCallback(void){
+	LOG_DEBUG("Http timerCallback");
 	this->epollRemove();		// main主线程，在这里检查删除
 	return -1;
 }
@@ -214,6 +219,19 @@ void Http::responseRequest(const char* ptr, uint32 length){
 	Buffer* pBuffer = this->createBuffer(length);
 	pBuffer->clear();
 	pBuffer->write(ptr, (int)length, 0);
+	this->setOffset(0);
+	this->epollOut();
+}
+void Http::responseBegin(uint32 length){
+	Buffer* pBuffer = this->createBuffer(length);
+	pBuffer->clear();
+}
+// 追加一个请求字符串
+void Http::responseAppend(const char* ptr, uint32 length){
+	Buffer* pBuffer = this->createBuffer(length);
+	pBuffer->write(ptr, (int)length, 0);
+}
+void Http::responseEnd(void){
 	this->setOffset(0);
 	this->epollOut();
 }

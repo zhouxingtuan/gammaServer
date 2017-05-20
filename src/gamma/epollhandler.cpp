@@ -8,6 +8,8 @@
 
 #include "epollhandler.h"
 #include "dispatcher.h"
+#include "http.h"
+#include "http_parser.h"
 
 NS_HIVE_BEGIN
 
@@ -90,8 +92,76 @@ void onAcceptEncrypt(Accept* pAccept, Packet* pPacket){
 	binary_encrypt(pPacket->getDataPtr(), pPacket->getLength(), GlobalSetting::getInstance()->getKey());
 }
 void onReceiveHttp(Http* pHttp){
-	LOG_DEBUG("handle=%d", pHttp->getHandle());
-
+	LOG_DEBUG("handle=%d buffer=\n%s", pHttp->getHandle(), pHttp->getBuffer()->data());
+	// if this is a preflight request
+	if(HTTP_OPTIONS == pHttp->getParser()->method){
+		static char options_response[] = {"HTTP/1.1 200 OK\r\n"
+                    "Access-Control-Allow-Origin: *\r\n"
+                    "Access-Control-Allow-Methods: POST,GET\r\n"
+                    "Access-Control-Allow-Headers: *\r\n"
+                    "Content-Type: text/html; charset=utf-8\r\n"
+                    "Content-Length: 0\r\n"
+                    "\r\n"
+                    ""};
+		LOG_DEBUG("options_response length=%d data=\n%s", (int)sizeof(options_response), options_response);
+		pHttp->responseRequest(options_response, sizeof(options_response));
+		return;
+	}
+	uint32 command = COMMAND_DISPATCH_BY_HANDLE;
+	uint32 handle = 0;
+	// find cmd and handle
+	Token::TokenVector urlVector;
+	std::string url(pHttp->getUrl(), pHttp->getUrlLength());
+	Token::splitArray(url, "/", urlVector);
+	LOG_DEBUG("url=%s", url.c_str());
+	for(auto &s : urlVector){
+		LOG_DEBUG("%s", s.c_str());
+	}
+	if(urlVector.size() == 0){
+		LOG_ERROR("can not find command for url");
+		static char no_command_response[] = {"HTTP/1.1 200 OK\r\n"
+					"Access-Control-Allow-Origin: *\r\n"
+	                "Content-Type: text/html; charset=utf-8\r\n"
+	                "Content-Length: 40\r\n"
+	                "\r\n"
+	                "{\"error\":\"can not find command for url\"}"};
+		pHttp->responseRequest(no_command_response, sizeof(no_command_response));
+		return;
+	}else if(urlVector.size() == 1){
+		command = GlobalSetting::getInstance()->getCommand(urlVector[0]);
+	}else{
+		command = GlobalSetting::getInstance()->getCommand(urlVector[0]);
+		handle = atoi(urlVector[1].c_str());
+	}
+	if(command == INVALID_COMMAND){
+		LOG_ERROR("INVALID_COMMAND found commandStr=%s", urlVector[0].c_str());
+		static char invalid_command_response[] = {"HTTP/1.1 200 OK\r\n"
+					"Access-Control-Allow-Origin: *\r\n"
+                    "Content-Type: text/html; charset=utf-8\r\n"
+                    "Content-Length: 35\r\n"
+                    "\r\n"
+                    "{\"error\":\"invalid command request\"}"};
+		pHttp->responseRequest(invalid_command_response, sizeof(invalid_command_response));
+		return;
+	}
+	LOG_DEBUG("get url commandStr=%s command=%d handle=%d", urlVector[0].c_str(), command, handle);
+	// dispatch the packet
+	Packet* pPacket = new Packet(sizeof(PacketHead) + pHttp->getBodyLength());
+	pPacket->retain();
+	pPacket->writeBegin(command, handle);
+	pPacket->write(pHttp->getBody(), pHttp->getBodyLength());
+	pPacket->writeEnd();
+	// 判断cmd执行后续操作
+	if(command == COMMAND_DISPATCH_BY_HANDLE){
+		LOG_DEBUG("onReceiveHttp handle=%d dispatchToService", pHttp->getHandle());
+		GlobalService::getInstance()->dispatchToService(pPacket);
+	}else{
+		LOG_DEBUG("onReceiveHttp handle=%d dispatchPacket command=%d function not found.", pHttp->getHandle(), command);
+		// 这里不执行的命令，发送消息给后面的服务执行
+		pPacket->setDestination(pHttp->getHandle());
+		Dispatcher::getInstance()->dispatchCommand(pPacket, command);
+	}
+	pPacket->release();
 }
 void onRemoveHttp(Http* pHttp){
 	LOG_DEBUG("handle=%d", pHttp->getHandle());
@@ -100,7 +170,19 @@ void onRemoveHttp(Http* pHttp){
 void onHttpReceivePacket(Http* pHttp, Packet* pPacket){
 	LOG_DEBUG("handle=%d packet length=%d", pHttp->getHandle(), pPacket->getLength());
 	// here will skip the packet head
-	pHttp->responseRequest(pPacket->getBody(), pPacket->getBodyLength());
+	static char ok_response[] = {"HTTP/1.1 200 OK\r\n"
+				"Access-Control-Allow-Origin: *\r\n"
+                "Content-Type: text/html; charset=utf-8\r\n"
+                "Content-Length: %d\r\n"
+                "\r\n"};
+    char headBuffer[256];
+    // 写入头部长度
+    int bodyLength = pPacket->getBodyLength();
+    sprintf(headBuffer, ok_response, bodyLength);
+    pHttp->responseBegin(sizeof(ok_response) + bodyLength);
+    pHttp->responseAppend(ok_response, sizeof(ok_response));
+    pHttp->responseAppend(pPacket->getBody(), bodyLength);
+    pHttp->responseEnd();
 }
 void onCommandPing(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);

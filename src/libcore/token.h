@@ -20,6 +20,7 @@ class Token
 {
 public:
 	typedef std::map<std::string, std::string> TokenMap;
+	typedef std::vector<std::string> TokenVector;
 protected:
 
 public:
@@ -31,6 +32,7 @@ public:
 	static void trim(std::string& str);
 	static void replace(std::string& str, const std::string& rp, const std::string& by);
 	static bool startWith(const std::string& str, const std::string& mark);
+	static void splitArray(const std::string& str, const std::string& delimiter, TokenVector& tokenVector);
 };
 
 NS_HIVE_END
