@@ -6,6 +6,32 @@
 -- To change this template use File | Settings | File Templates.
 --
 
+--[[
+class Handler
+{
+	unsigned int getService(void) const;
+	unsigned int getType(void) const;
+	unsigned int getIndex(void) const;
+	unsigned int getNode(void) const;
+	unsigned int getHandle(void) const;											// 获取当前的句柄
+
+	void identifyHive(uint32 connectHandle);
+	void openClient(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
+	void openHttpListener(uint32 callbackID, const char* ip, uint16 port);
+	void openHttpsListener(uint32 callbackID, const char* ip, uint16 port);
+	void openSocketListener(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
+	void closeListener(uint32 callbackID, uint32 listenerHandle);
+	void closeConnect(uint32 callbackID, uint32 connectHandle);
+	void bindAccept(uint32 acceptHandle, uint32 bindHandle);
+	void sendToDestination(uint32 command, uint32 destination, const char* ptr, uint32 length);
+
+    uint32 startTimer(uint32 callbackID, int64 timeCount);			        // 开始一个计时器
+    void removeTimer(uint32 handle);								        // 移除计时器
+    void changeTimer(uint32 handle, int64 timeCount);				        // 更改计时器的时间
+    int64 leftTimer(uint32 handle);									        // 获取计时器剩余时间
+};// end class Handler
+-- ]]
+
 local print = print
 local m_pHandler
 
