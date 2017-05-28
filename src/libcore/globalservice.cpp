@@ -103,7 +103,7 @@ bool GlobalService::sendToService(uint32 handle, Packet* pPacket){
 	DestinationHandle h(handle);
 	if(0 == h.service){
 		// 分发消息给GlobalHandler
-		return GlobalHandler::getInstance()->dispatchToHandler(pPacket);
+		return GlobalHandler::getInstance()->dispatchToHandler(pPacket, handle);
 	}else{
 		return dispatchToEpollWorker(handle, pPacket);
 	}
