@@ -51,9 +51,9 @@ bool Client::epollActive(uint32 events){
 		socklen_t len = sizeof(error);
 		if( getsockopt(this->getSocketFD(), SOL_SOCKET, SO_ERROR, &error, &len) < 0 ){
 			LOG_ERROR("failed to connect to handle=%d ip=%s port=%d", getHandle(), getIP(), getPort());
-			closeSocket();
 			getEpollWorker()->notifyCloseConnect(this);
 			getEpollWorker()->closeClient(this->getHandle());
+//			closeSocket();
 		}
 		if(error){
 			if(error == EINTR || error == EINPROGRESS){
@@ -61,9 +61,9 @@ bool Client::epollActive(uint32 events){
 				return true;
 			}
 			LOG_ERROR("failed to connect to handle=%d ip=%s port=%d", getHandle(), getIP(), getPort());
-			closeSocket();
 			getEpollWorker()->notifyCloseConnect(this);
 			getEpollWorker()->closeClient(this->getHandle());
+//			closeSocket();
 			return true;
 		}
 		LOG_DEBUG("connect OK to handle=%d ip=%s port=%d", getHandle(), getIP(), getPort());
