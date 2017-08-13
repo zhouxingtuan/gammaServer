@@ -20,7 +20,8 @@ BIN = ../../bin
 OBJS = common.o util.o systemsignal.o token.o log.o buffer.o destination.o packet.o destinationpool.o destinationgroup.o\
 		object.o objectpool.o objecthashpool.o timer.o task.o epoll.o active.o activeworker.o \
 		accept.o client.o http.o https.o listener.o timerhandle.o handler.o multicurl.o \
-		globalhandler.o globalsetting.o epollworker.o globalservice.o dispatcher.o worker.o handlerqueue.o mainworker.o
+		globalhandler.o globalsetting.o epollworker.o globalservice.o globalnode.o globalgroup.o globalmodule.o \
+		worker.o handlerqueue.o mainworker.o
 
 
 COBJS = http_parser.o
@@ -104,7 +105,11 @@ epollworker.o:activeworker.o accept.o client.o http.o https.o multicurl.o epollw
 
 globalservice.o:globalhandler.o epollworker.o globalservice.cpp globalservice.h
 
-dispatcher.o:globalhandler.o dispatcher.cpp dispatcher.h
+globalnode.o:handler.o globalnode.cpp globalnode.h
+
+globalgroup.o:handler.o globalgroup.cpp globalgroup.h
+
+globalmodule.o:handler.o globalmodule.cpp globalmodule.h
 
 globalsetting.o:accept.o http.o globalsetting.cpp globalsetting.h
 

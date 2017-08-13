@@ -55,7 +55,7 @@ void TimerManager::destroy(void){
 
 // 异步 开始一个计时器
 uint32 TimerManager::startTimerSync(uint32 callbackID, int64 timeCount, Handler* pHandler){
-	LOG_DEBUG("handle=%d callbackID=%d timeCount=%lld", pHandler->getHandle(), callbackID, timeCount);
+//	LOG_DEBUG("handle=%d callbackID=%d timeCount=%lld", pHandler->getHandle(), callbackID, timeCount);
 	TimerHandle* pHandle = this->createTimerHandle();
 	if(NULL == pHandle){
 		LOG_ERROR("not enough time handle handle=%d callbackID=%d timeCount=%lld", pHandler->getHandle(), callbackID, timeCount);
@@ -68,7 +68,7 @@ uint32 TimerManager::startTimerSync(uint32 callbackID, int64 timeCount, Handler*
 	pTask->setCallbackID(callbackID);
 	pTask->setTimeCount(timeCount);
 	pTask->setActiveObject(pHandler->getHandle());
-	LOG_DEBUG("send task to main handle=%d callbackID=%d timeCount=%lld", pHandler->getHandle(), callbackID, timeCount);
+//	LOG_DEBUG("send task to main handle=%d callbackID=%d timeCount=%lld", pHandler->getHandle(), callbackID, timeCount);
 	MainWorker::getInstance()->acceptTask(pTask);
 	pTask->release();
 	return handle;

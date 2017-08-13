@@ -10,10 +10,14 @@
 #define __hive__script__
 
 #include "core.h"
-
 #include "lua.hpp"
 #include "tolua++.h"
+#include "luax.hpp"
 #include "liblua.h"
+extern "C" {
+#include "mime.h"
+}
+
 
 NS_HIVE_BEGIN
 
@@ -150,7 +154,7 @@ public:
 		return ((uint32)tolua_tonumber(m_pState, index, value));
 	}
 	inline const char* getString(int index, uint32* length){
-		return ((const char*)lua_tolstring(m_pState, index, length));
+		return ((const char*)lua_tolstring(m_pState, index, (size_t*)length));
 	}
 	inline bool getBool(int index, bool value=false){
 		return ((bool)tolua_toboolean(m_pState, index, value));
@@ -159,7 +163,7 @@ public:
 		const char* msg = lua_tostring( m_pState, -1 );
 		if( msg == NULL )
 			msg = "(error without message)";
-		fprintf(stderr, "%s\n", msg);
+		LOG_ERROR("lua error:%s\n", msg);
 	}
 protected:
 	lua_State* m_pState;

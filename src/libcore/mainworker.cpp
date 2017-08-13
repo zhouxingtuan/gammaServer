@@ -7,7 +7,6 @@
 //
 
 #include "mainworker.h"
-#include "dispatcher.h"
 
 NS_HIVE_BEGIN
 
@@ -126,7 +125,6 @@ void MainWorker::initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 work
 	// 初始化基类数据
 	ActiveWorker::initialize();
 
-	Dispatcher::createInstance();
 	GlobalSetting::createInstance()->initialize(nodeID);
 	if(NULL == m_pListenerPool){
 		m_pListenerPool = new ListenerDestinationPool();
@@ -135,6 +133,9 @@ void MainWorker::initialize(uint32 nodeID, uint32 epollWorkerNumber, uint32 work
 	}
 	TimerManager::createInstance()->setTimer(m_pTimer);
 	GlobalHandler::createInstance()->initialize();
+	GlobalNode::createInstance();
+	GlobalGroup::createInstance();
+	GlobalModule::createInstance();
 	GlobalService::createInstance()->initialize(epollWorkerNumber);
 	HandlerQueue::createInstance()->createWorker(workerNumber);
 }
@@ -143,6 +144,13 @@ void MainWorker::destroy(void){
 
 	GlobalService::destroyInstance();
 	HandlerQueue::destroyInstance();
+
+	GlobalModule::destroyInstance();
+	GlobalGroup::destroyInstance();
+	GlobalNode::destroyInstance();
+	GlobalHandler::destroyInstance();
+	TimerManager::destroyInstance();
+	GlobalSetting::destroyInstance();
 }
 
 NS_HIVE_END

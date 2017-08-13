@@ -10,11 +10,12 @@
 
 NS_HIVE_BEGIN
 
-LuaHandler::LuaHandler(void) : Handler(), m_pScript(NULL) {
+LuaHandler::LuaHandler(void) : Handler(), m_pScript(NULL), m_pDBRedisPool(NULL), m_pDBMysqlPool(NULL), m_pMD5Pool(NULL)
+{
 
 }
 LuaHandler::~LuaHandler(void){
-	SAFE_RELEASE(m_pScript);
+	destroyHandler();
 }
 
 void LuaHandler::onReceivePacket(Packet* pPacket, Task* pTask){
@@ -57,23 +58,44 @@ void LuaHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseCo
 }
 void LuaHandler::onInitialize(const std::string& param){
 	LOG_DEBUG("onInitialize called handle=%d param=%s", getHandle(), param.c_str());
-	if(NULL == m_pScript){
-		m_pScript = new Script();
-		m_pScript->retain();
-    	m_pScript->setState(NULL);
-    	m_pScript->requireFile(param);
-	}
-	m_pScript->callFunctionUR("onInitialize", this, "Handler", param.c_str(), param.length(), 0);
+	initializeHandler();
+	m_pScript->requireFile(param);
+	m_pScript->callFunctionUR("onInitialize", this, "LuaHandler", param.c_str(), param.length(), 0);
 }
 void LuaHandler::onDestroy(void){
 	LOG_DEBUG("onDestroy called handle=%d", getHandle());
 	m_pScript->callFunction("onDestroy", 0);
-	SAFE_RELEASE(m_pScript);
+	destroyHandler();
 }
 int64 LuaHandler::onTimerUpdate(uint32 callbackID){
-	LOG_DEBUG("callbackID=%d", callbackID);
+//	LOG_DEBUG("callbackID=%d", callbackID);
 	m_pScript->callFunctionN("onTimerUpdate", callbackID, 0);
 	return -1;
+}
+void LuaHandler::initializeHandler(void){
+	if(NULL == m_pDBRedisPool){
+		m_pDBRedisPool = new DBRedisPool();
+		m_pDBRedisPool->retain();
+	}
+	if(NULL == m_pDBMysqlPool){
+		m_pDBMysqlPool = new DBMysqlPool();
+		m_pDBMysqlPool->retain();
+	}
+	if(NULL == m_pMD5Pool){
+		m_pMD5Pool = new MD5Pool();
+		m_pMD5Pool->retain();
+	}
+	if(NULL == m_pScript){
+		m_pScript = new Script();
+		m_pScript->retain();
+    	m_pScript->setState(NULL);
+	}
+}
+void LuaHandler::destroyHandler(void){
+	SAFE_RELEASE(m_pScript);
+	SAFE_RELEASE(m_pDBRedisPool);
+	SAFE_RELEASE(m_pDBMysqlPool);
+	SAFE_RELEASE(m_pMD5Pool);
 }
 
 NS_HIVE_END

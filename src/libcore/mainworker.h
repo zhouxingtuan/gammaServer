@@ -19,6 +19,9 @@
 #include "globalhandler.h"
 #include "globalsetting.h"
 #include "globalservice.h"
+#include "globalnode.h"
+#include "globalgroup.h"
+#include "globalmodule.h"
 #include "timerhandle.h"
 
 NS_HIVE_BEGIN

@@ -6,9 +6,9 @@
 // To change this template use File | Settings | File Templates.
 //
 
-#include "script.h"
+#include "eproto.h"
 #include "manual.hpp"
-
+#include "script.h"
 
 NS_HIVE_BEGIN
 
@@ -37,10 +37,16 @@ void Script::setState(lua_State* pState){
 	// open standard libs
 	luaL_openlibs( m_pState );
 	lua_settop( m_pState, 0 );
+	// open mime
+	luaopen_mime_core(m_pState);
+	// open rapidjson
+	luaopen_rapidjson(m_pState);
+	// open eproto
+	luaopen_eproto_cpp(m_pState);
 	// open my lua lib
 	tolua_liblua_open(m_pState);
 	// extend libs
-	tolua_liblua_extend_open(m_pState);
+	tolua_liblua_manual_open(m_pState);
 }
 
 NS_HIVE_END

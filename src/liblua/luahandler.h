@@ -11,13 +11,33 @@
 
 #include "core.h"
 #include "script.h"
+#include "md5.h"
+#include "dbmysql.h"
+#include "dbredis.h"
 
 NS_HIVE_BEGIN
+
+#define DEFINE_CREATE_REMOVE(_POOL_, _OBJECT_)\
+	_OBJECT_* create##_OBJECT_(void){ return _POOL_->create(); }\
+	bool remove##_OBJECT_(_OBJECT_* pObj){ return this->remove##_OBJECT_(pObj->getHandle()); }\
+	bool remove##_OBJECT_(uint32 handle){\
+		_OBJECT_* pObj;\
+		pObj = _POOL_->get(handle);\
+		if(NULL != pObj){\
+			pObj->closeDB();\
+			_POOL_->idle(handle);\
+			return true;\
+		}\
+		return false;\
+	}
 
 class LuaHandler : public Handler
 {
 public:
 	Script* m_pScript;
+	DBRedisPool* m_pDBRedisPool;
+	DBMysqlPool* m_pDBMysqlPool;
+	MD5Pool* m_pMD5Pool;
 public:
 	LuaHandler(void);
 	virtual ~LuaHandler(void);
@@ -38,8 +58,46 @@ public:
 	virtual void onDestroy(void);
 	virtual int64 onTimerUpdate(uint32 callbackID);
 
+	DBRedis* createRedis(void){ return m_pDBRedisPool->create(); }
+	bool removeRedis(DBRedis* pDBRedis){ return this->removeRedis(pDBRedis->getHandle()); }
+	bool removeRedis(uint32 handle){
+		DBRedis* pDBRedis;
+		pDBRedis = m_pDBRedisPool->get(handle);
+		if(NULL != pDBRedis){
+			pDBRedis->closeRedis();
+			m_pDBRedisPool->idle(handle);
+			return true;
+		}
+		return false;
+	}
 
+	DBMysql* createMysql(void){ return m_pDBMysqlPool->create(); }
+	bool removeMysql(DBMysql* pDBMysql){ return this->removeMysql(pDBMysql->getHandle()); }
+	bool removeMysql(uint32 handle){
+		DBMysql* pDBMysql;
+		pDBMysql = m_pDBMysqlPool->get(handle);
+		if(NULL != pDBMysql){
+			pDBMysql->closeMysql();
+			m_pDBMysqlPool->idle(handle);
+			return true;
+		}
+		return false;
+	}
 
+	MD5* createMD5(void){ return m_pMD5Pool->create(); }
+	bool removeMD5(MD5* pMD5){ return this->removeMD5(pMD5->getHandle()); }
+	bool removeMD5(uint32 handle){
+		MD5* pMD5;
+		pMD5 = m_pMD5Pool->get(handle);
+		if(NULL != pMD5){
+			m_pMD5Pool->idle(handle);
+			return true;
+		}
+		return false;
+	}
+
+	void initializeHandler(void);
+	void destroyHandler(void);
 };
 
 NS_HIVE_END

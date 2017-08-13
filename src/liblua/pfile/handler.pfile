@@ -16,6 +16,8 @@ class Handler
 	unsigned int getIndex(void) const;
 	unsigned int getNode(void) const;
 	unsigned int getHandle(void) const;											// 获取当前的句柄
+	uint32 getModuleType(void) const;
+	uint32 getModuleIndex(void) const;
 
 	void identifyHive(uint32 connectHandle);
 	void openClient(uint32 callbackID, const char* ip, uint16 port, bool isNeedEncrypt, bool isNeedDecrypt, uint8 acceptIndex);
@@ -25,11 +27,29 @@ class Handler
 	void closeListener(uint32 callbackID, uint32 listenerHandle);
 	void closeConnect(uint32 callbackID, uint32 connectHandle);
 	void bindAccept(uint32 acceptHandle, uint32 bindHandle);
-	void sendToDestination(uint32 command, uint32 destination, const char* ptr, uint32 length);
+	bool sendToNode(uint32 command, uint32 connectHandle, uint32 destination, const char* ptr, uint32 length);
+	bool sendToDestination(uint32 connectHandle, uint32 destination, const char* ptr, uint32 length);
+	bool responseDestination(uint32 connectHandle, uint32 destination, const char* ptr, uint32 length);
+	bool sendToGroup(const char* groupName, const char* moduleName, uint32 moduleIndex, const char* ptr, uint32 length);
+	bool responseGroup(uint32 connectHandle, uint32 destination, const char* ptr, uint32 length);
 
-    uint32 startTimer(uint32 callbackID, int64 timeCount);			        // 开始一个计时器
+	void addGroup(const char* groupName);
+    void removeGroup(const char* groupName);
+	bool getGroupRoute(const char* groupName, const char* moduleName, uint32& connectHandle, uint32& command);
+	bool setGroupRoute(const char* groupName, uint32 connectHandle);
+	bool removeGroupRoute(const char* groupName, uint32 connectHandle);
+	void appendGroupModule(const char* groupName, const char* moduleName, uint32 command);
+	void removeGroupModule(const char* groupName, const char* moduleName);
+
+	uint32 getModuleSize(uint32 moduleType);
+	uint32 randModuleHandle(uint32 moduleType);
+	uint32 getModuleHandle(uint32 moduleType, uint32 moduleIndex);
+
+    uint32 startTimer(uint32 callbackID, int64 timeCount);			        // 开始一个计时器，单位毫秒
     void removeTimer(uint32 handle);								        // 移除计时器
     void changeTimer(uint32 handle, int64 timeCount);				        // 更改计时器的时间
     int64 leftTimer(uint32 handle);									        // 获取计时器剩余时间
+
+	uint32 hash(const char* str, uint32 length);
 };// end class Handler
 

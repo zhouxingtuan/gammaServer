@@ -100,12 +100,14 @@ bool GlobalHandler::createPool(uint32 poolType,
 	return result;
 }
 // 创建一个目标Handler
-uint32 GlobalHandler::createDestination(uint32 poolType, uint32 index, const std::string& param){
+uint32 GlobalHandler::createDestination(uint32 poolType, uint32 index, uint32 moduleType, uint32 moduleIndex, const std::string& param){
 	Handler* pHandler;
 	uint32 handle = 0;
 	lock();
 	pHandler = (Handler*)m_pGroup->createDestination(poolType, index);
 	if(NULL != pHandler){
+        pHandler->setModuleType(moduleType);
+        pHandler->setModuleIndex(moduleIndex);
 		handle = pHandler->getHandle();
 		pHandler->retain();
 	}
@@ -115,6 +117,13 @@ uint32 GlobalHandler::createDestination(uint32 poolType, uint32 index, const std
 		pHandler->release();
 	}
 	return handle;
+}
+uint32 GlobalHandler::getNextDestinationIndex(uint32 poolType, uint32 number){
+	uint32 index = 0;
+	lock();
+	index = m_pGroup->getNextDestinationIndex(poolType, number);
+	unlock();
+	return index;
 }
 void GlobalHandler::checkOnDestroy(uint32 handle){
 	Handler* pHandler;

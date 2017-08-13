@@ -1,0 +1,12 @@
+
+class DBMysql
+{
+	bool connectMySql(const char* ip, const char* user, const char* pwd, const char* db, uint16 port);
+	void closeMysql(void);
+	bool pingMysql(void);
+	int64 getLastAutoID(void);
+	void setAutoCommit(bool on);
+	bool commit(void);
+	bool rollback(void);
+};
+

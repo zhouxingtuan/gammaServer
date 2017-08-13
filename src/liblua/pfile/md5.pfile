@@ -1,0 +1,12 @@
+
+
+class MD5
+{
+	/* update with the string */
+	void update(const char* ptr, unsigned int length);
+
+	/* get c type string */
+	const char* getString(void);
+};
+
+

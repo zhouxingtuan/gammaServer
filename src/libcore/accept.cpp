@@ -11,7 +11,7 @@
 #include "globalservice.h"
 #include "epollworker.h"
 #include "mainworker.h"
-#include "dispatcher.h"
+#include "globalmodule.h"
 #include "globalsetting.h"
 
 NS_HIVE_BEGIN
@@ -68,8 +68,10 @@ void Accept::epollOut(void){
 	}while(1);
 }
 void Accept::epollRemove(void){
-	getEpollWorker()->notifyCloseConnect(this);
-	getEpollWorker()->closeAccept(this->getHandle());
+	if(getSocketFD() > 0){
+		getEpollWorker()->notifyCloseConnect(this);
+    	getEpollWorker()->closeAccept(this->getHandle());
+	}
 }
 void Accept::epollCheck(void){
 	if( m_packetQueue.empty() ){
@@ -181,7 +183,7 @@ void Accept::resetData(void){
 	m_isNeedDecrypt = false;
 }
 void Accept::dispatchPacket(Packet* pPacket, uint8 command){
-	LOG_DEBUG("Accept handle=%d dispatchPacket command=%d", getHandle(), command);
+//	LOG_DEBUG("Accept handle=%d dispatchPacket command=%d", getHandle(), command);
 	// 对收到的消息进行解密处理：从body开始解密；头部已经在判断长度的时候解密
 	if( this->isNeedDecrypt() ){
 		LOG_DEBUG("Accept handle=%d dispatchPacket command=%d need decrypt", getHandle(), command);
@@ -198,8 +200,15 @@ void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 	if(NULL == func){
 		LOG_DEBUG("Accept handle=%d dispatchPacket command=%d function not found.", getHandle(), command);
 		// 这里不执行的命令，发送消息给后面的服务执行
+		uint32 destination = pPacket->getDestination();
 		pPacket->setDestination(this->getHandle());
-		Dispatcher::getInstance()->dispatchCommand(pPacket, command);
+		if( destination == 0 ){
+			LOG_DEBUG("GlobalModule::dispatchRandom command=%d", command);
+			GlobalModule::getInstance()->dispatchRandom(pPacket, command);
+		}else{
+			LOG_DEBUG("GlobalModule::dispatch command=%d destination=%d", command, destination);
+			GlobalModule::getInstance()->dispatch(pPacket, command, destination);
+		}
 	}else{
 		func(this, pPacket, command);
 	}

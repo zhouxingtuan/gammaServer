@@ -71,53 +71,59 @@ void HandlerCreator::initializeSO(Token::TokenMap& config){
 	int module_count = atoi(config["module_count"].c_str());
 	LOG_DEBUG("initializeSO module_count=%d", module_count);
 	for(int i=1; i<=module_count; ++i){
-		sprintf(key, "module_name_%d", i);
-		std::string moduleName = config[key];
 		sprintf(key, "module_so_%d", i);
 		std::string soName = config[key];
 		sprintf(key, "module_param_%d", i);
 		std::string param = config[key];
-		sprintf(key, "module_command_%d", i);
-		uint32 command = atoi(config[key].c_str());
-		if(command >= COMMAND_NUMBER){
-			LOG_ERROR("moduleName=%s command >= COMMAND_NUMBER(%d)", moduleName.c_str(), COMMAND_NUMBER);
+		sprintf(key, "module_type_%d", i);
+		uint32 moduleType = atoi(config[key].c_str());
+		if(moduleType >= COMMAND_NUMBER){
+			LOG_ERROR("moduleType=%d moduleType >= COMMAND_NUMBER(%d)", moduleType, COMMAND_NUMBER);
 			continue;
 		}
-		sprintf(key, "module_pool_type_%d", i);
-		uint32 poolType = atoi(config[key].c_str());
-		if(poolType >= DESTINATION_MAX_GROUP){
-			LOG_ERROR("moduleName=%s poolType >= DESTINATION_MAX_GROUP(%d)", moduleName.c_str(), DESTINATION_MAX_GROUP);
-			continue;
-		}
+		sprintf(key, "module_version_%d", i);
+		uint32 moduleVersion = atoi(config[key].c_str());
 		sprintf(key, "module_index_%d", i);
 		std::string beginEndStr = config[key];
-		uint32 beginIndex = 0;
-		uint32 endIndex = 0;
-		parseBeginEnd(beginEndStr, beginIndex, endIndex);
-		loadModule(soName, moduleName, param, command, poolType, beginIndex, endIndex);
+		uint32 beginModuleIndex = 0;
+		uint32 endModuleIndex = 0;
+		parseBeginEnd(beginEndStr, beginModuleIndex, endModuleIndex);
+		loadModule(soName, param, moduleVersion, moduleType, beginModuleIndex, endModuleIndex);
 	}
 }
-void HandlerCreator::loadModule(const std::string& soName, const std::string& moduleName, const std::string& param,
-		uint32 command, uint32 poolType, uint32 beginIndex, uint32 endIndex){
-	LOG_DEBUG("load SO soName=%s moduleName=%s command=%d poolType=%d beginIndex=%d endIndex=%d",
-		soName.c_str(), moduleName.c_str(), command, poolType, beginIndex, endIndex);
-	unloadModule(moduleName);
+void HandlerCreator::loadModule(const std::string& soName, const std::string& param, uint32 moduleVersion,
+		uint32 moduleType, uint32 beginModuleIndex, uint32 endModuleIndex){
+	LOG_DEBUG("load SO soName=%s moduleType=%d beginModuleIndex=%d endModuleIndex=%d",
+		soName.c_str(), moduleType, beginModuleIndex, endModuleIndex);
+	unloadModule(moduleType);
 	loadSO(soName);
+	// 预先分配一个区间的index
+	uint32 number = endModuleIndex + 1 - beginModuleIndex;
+	uint32 endIndex = GlobalHandler::getInstance()->getNextDestinationIndex(HANDLER_TYPE_MAIN, number);
+	uint32 beginIndex = endIndex + 1 - number;
+	if( beginIndex > endIndex ){
+		LOG_ERROR("loadModule failed beginIndex=%d < endIndex=%d", beginIndex, endIndex);
+		return;
+	}
+
 	ModuleInformation* pModuleInfo = new ModuleInformation();
 	pModuleInfo->soName = soName;
-	pModuleInfo->moduleName = moduleName;
-	pModuleInfo->command = command;
-	pModuleInfo->poolType = poolType;
+	pModuleInfo->moduleType = moduleType;
+	pModuleInfo->poolType = HANDLER_TYPE_MAIN;
 	pModuleInfo->beginIndex = beginIndex;
 	pModuleInfo->endIndex = endIndex;
-	m_moduleInfoMap.insert(std::make_pair(moduleName, pModuleInfo));
+	m_moduleInfoMap.insert(std::make_pair(moduleType, pModuleInfo));
 	// load the modules
-	for(uint32 i=beginIndex; i<=endIndex; ++i){
-         GlobalHandler::getInstance()->createDestination(poolType, i, param);
+	uint32 index = beginIndex;
+	for(uint32 moduleIndex=beginModuleIndex; moduleIndex<=endModuleIndex; ++moduleIndex){
+        uint32 handle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN, index, moduleType, moduleIndex, param);
+        ++index;
+        // 添加handler到分组管理
+		GlobalModule::getInstance()->addInformation(moduleType, moduleIndex, handle, moduleVersion);
 	}
 }
-void HandlerCreator::unloadModule(const std::string& moduleName){
-	ModuleInformationMap::iterator itCur = m_moduleInfoMap.find(moduleName);
+void HandlerCreator::unloadModule(uint32 moduleType){
+	ModuleInformationMap::iterator itCur = m_moduleInfoMap.find(moduleType);
 	if(itCur != m_moduleInfoMap.end()){
 		unloadModuleInformation(itCur->second);
 		m_moduleInfoMap.erase(itCur);
@@ -210,15 +216,15 @@ void HandlerCreator::unloadAllSO(void){
 }
 void HandlerCreator::unloadSOInformation(SOInformation* pInfo){
 	// find and remove all the so objects
-	std::vector<std::string> removeModuleNames;
+	std::vector<uint32> removeModuleTypes;
 	for( auto &kv : m_moduleInfoMap ){
 		ModuleInformation* pModuleInfo = kv.second;
 		if(pModuleInfo->soName == pInfo->soName){
-            removeModuleNames.push_back(pModuleInfo->moduleName);
+            removeModuleTypes.push_back(pModuleInfo->moduleType);
 		}
 	}
-	for(auto &name : removeModuleNames){
-		unloadModule(name);
+	for(auto &moduleType : removeModuleTypes){
+		unloadModule(moduleType);
 	}
 	pInfo->destroyFunc();
 	// close the SO file
@@ -230,12 +236,9 @@ Handler* HandlerCreator::createObject(uint32 index, uint32 poolType){
 	SOInformation* pInfo = findMatchInfo(index, poolType, &pModuleInfo);
 	if(NULL != pInfo){
 		Handler* pHandler = pInfo->createFunc(index, poolType);
-		if(NULL != pHandler && pModuleInfo->command > COMMAND_HIVE_RESPONSE){
-			// register Handler to the command Dispatcher
-			uint32 handle = pHandler->getHandle();
-			Dispatcher::getInstance()->appendCommandListener(pModuleInfo->command, handle);
-		}
 		return pHandler;
+	}else{
+		LOG_ERROR("HandlerCreator::createObject findMatchInfo failed index=%d poolType=%d", index, poolType);
 	}
 	return NULL;
 }
@@ -245,12 +248,9 @@ void HandlerCreator::releaseObject(Handler* pObj){
 	ModuleInformation* pModuleInfo = NULL;
 	SOInformation* pInfo = findMatchInfo(index, poolType, &pModuleInfo);
 	if(NULL != pInfo){
-		// unregister Handler from the command Dispatcher
-		if(pModuleInfo->command > COMMAND_HIVE_RESPONSE){
-			uint32 handle = pObj->getHandle();
-            Dispatcher::getInstance()->removeCommandListener(pModuleInfo->command, handle);
-		}
 		pInfo->releaseFunc(pObj);
+	}else{
+		LOG_ERROR("HandlerCreator::releaseObject findMatchInfo failed index=%d poolType=%d", index, poolType);
 	}
 }
 SOInformation* HandlerCreator::findMatchInfo(uint32 index, uint32 poolType, ModuleInformation** ppModuleInfo){

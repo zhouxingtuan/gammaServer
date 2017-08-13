@@ -32,59 +32,105 @@ class Handler
 };// end class Handler
 -- ]]
 
-local print = print
-local m_pHandler
+local tostring = tostring
+local debug = debug
+local error_function = print
+local print_error = function(msg, traceMsg)
+	error_function("----------------------------------------")
+	error_function("LUA ERROR: " .. tostring(msg) .. "\n")
+	error_function(traceMsg)
+	error_function("----------------------------------------")
+end
+local register_error
+function set_register_error_function(callback)
+	register_error = callback
+end
 
-print("main loaded")
+-- traceback
+function __G__TRACKBACK__(msg)
+	local traceMsg = debug.traceback()
+	print_error(msg, traceMsg)
+	if register_error ~= nil then
+		return register_error(msg, traceMsg)
+	end
+end
+local __G__TRACKBACK__ = __G__TRACKBACK__
+local xpcall = xpcall
+
+local rpc
+
+local initEnvironment = function()
+	local config = require("config")
+	local package = package
+	package.path = "./?.lua;"
+	package.cpath = "./?.so;"
+	for _,p in pairs(config.path) do
+		package.path = package.path .. "./"..p.."/?.lua;"
+		package.cpath = package.cpath .. "./"..p.."/?.so;"
+	end
+	for _,p in pairs(config.path) do
+		local rp = p..".init"
+		require(rp)
+	end
+	local log = require("log")
+	log.level = config.log_level or "trace"
+	error_function = log_error
+	rpc = require("rpc")
+end
 
 function onInitialize(pHandler, param)
-	print("onInitialize called", pHandler:getHandle(), param)
-	m_pHandler = pHandler
+	return xpcall(function()
+		-- 打开Lua的日志文件
+		local config = require("config")
+		local nodeID = pHandler:getNode()
+		local moduleType = pHandler:getModuleType()
+		local moduleIndex = pHandler:getModuleIndex()
+		local handle = pHandler:getHandle()
+		local arr = {nodeID, moduleType, moduleIndex, handle }
+		local str = table.concat(arr, "_")
+		local moduleName = config.moduleName or "gamma"
+		local log = require("log")
+		log.open(moduleName.."_"..str..".log")
 
+		return rpc:onInitialize(pHandler, param)
+	end, __G__TRACKBACK__)
 end
 function onDestroy()
-	print("onDestroy called")
-
+	return xpcall(function() return rpc:onDestroy() end, __G__TRACKBACK__)
 end
 function onTimerUpdate(callbackID)
-	print("onTimerUpdate called", callbackID)
-
+	return xpcall(function() return rpc:onTimerUpdate(callbackID) end, __G__TRACKBACK__)
 end
 function onReceivePacket(command, destination, buffer)
-	print("onReceivePacket called", command, destination, #buffer)
-
+	return xpcall(function() return rpc:onReceivePacket(command, destination, buffer) end, __G__TRACKBACK__)
 end
 function onCurlResponse(isRequestOK, callbackID, buffer)
-	print("onCurlResponse called", isRequestOK, callbackID, #buffer)
-
+	return xpcall(function() return rpc:onCurlResponse(isRequestOK, callbackID, buffer) end, __G__TRACKBACK__)
 end
 function onOpenClientOK(clientHandle)
-	print("onOpenClientOK called", clientHandle)
-
+	return xpcall(function() return rpc:onOpenClientOK(clientHandle) end, __G__TRACKBACK__)
 end
 function onOpenClient(callbackID, clientHandle)
-	print("onOpenClient called", callbackID, clientHandle)
-
+	return xpcall(function() return rpc:onOpenClient(callbackID, clientHandle) end, __G__TRACKBACK__)
 end
 function onOpenSocketListener(callbackID, listenerHandle)
-	print("onOpenSocketListener called", callbackID, listenerHandle)
-
+	return xpcall(function() return rpc:onOpenSocketListener(callbackID, listenerHandle) end, __G__TRACKBACK__)
 end
 function onOpenHttpListener(callbackID, listenerHandle)
-	print("onOpenHttpListener called", callbackID, listenerHandle)
-
+	return xpcall(function() return rpc:onOpenHttpListener(callbackID, listenerHandle) end, __G__TRACKBACK__)
 end
 function onOpenHttpsListener(callbackID, listenerHandle)
-	print("onOpenHttpsListener called", callbackID, listenerHandle)
-
+	return xpcall(function() return rpc:onOpenHttpsListener(callbackID, listenerHandle) end, __G__TRACKBACK__)
 end
 function onCloseListener(callbackID, connectHandle)
-	print("onCloseListener called", callbackID, connectHandle)
-
+	return xpcall(function() return rpc:onCloseListener(callbackID, connectHandle) end, __G__TRACKBACK__)
+end
+function onCloseConnect(callbackID, connectHandle)
+	return xpcall(function() return rpc:onCloseConnect(callbackID, connectHandle) end, __G__TRACKBACK__)
 end
 
-
-
+-- 初始化环境变量配置
+initEnvironment()
 
 
 

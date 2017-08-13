@@ -3,5 +3,11 @@ $#include "manual.hpp"
 
 $pfile "handler.pfile"
 
+$pfile "md5.pfile"
 
+$pfile "dbmysql.pfile"
+
+$pfile "dbredis.pfile"
+
+$pfile "luahandler.pfile"
 

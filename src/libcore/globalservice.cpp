@@ -7,6 +7,7 @@
 //
 
 #include "globalservice.h"
+#include "globalnode.h"
 #include "globalsetting.h"
 
 NS_HIVE_BEGIN
@@ -87,17 +88,21 @@ bool GlobalService::dispatchTask(uint32 handle, Task* pTask){
 		return dispatchTaskToEpollWorker(service, pTask);
 	}
 }
-bool GlobalService::sendToNode(uint32 nodeID, Packet* pPacket){
+bool GlobalService::dispatchToService(uint32 handle, Packet* pPacket){
+	DestinationHandle h(handle);
+	return sendToNode(h.node, handle, pPacket);
+}
+bool GlobalService::sendToNode(uint32 nodeID, uint32 handle, Packet* pPacket){
 	if(0 == nodeID || GlobalSetting::getInstance()->getNodeID() == nodeID){
-		return sendToService(pPacket->getHead()->destination.handle, pPacket);
+		return sendToService(handle, pPacket);
 	}
 	// 发送消息给其它网络节点
-	uint32 handle = getNodeConnect(nodeID);
-	if(0 == handle){
+	uint32 connectHandle = GlobalNode::getInstance()->getNodeConnect(nodeID);
+	if(0 == connectHandle){
 		LOG_ERROR("node connect not found=%d", nodeID);
 		return false;
 	}
-	return dispatchToEpollWorker(handle, pPacket);
+	return dispatchToEpollWorker(connectHandle, pPacket);
 }
 bool GlobalService::sendToService(uint32 handle, Packet* pPacket){
 	DestinationHandle h(handle);
@@ -108,9 +113,7 @@ bool GlobalService::sendToService(uint32 handle, Packet* pPacket){
 		return dispatchToEpollWorker(handle, pPacket);
 	}
 }
-bool GlobalService::dispatchToService(Packet* pPacket){
-	return sendToNode(pPacket->getHead()->destination.node, pPacket);
-}
+
 bool GlobalService::dispatchToEpollWorker(uint32 handle, Packet* pPacket){
 	DestinationHandle h(handle);
 	uint32 service = h.service;
@@ -147,7 +150,6 @@ void GlobalService::initialize(uint16 epollWorkerNumber){
 		}
 		m_epollWorkers[i] = pWorker;
 	}
-	m_nodeConnects.resize(MAX_NODE_NUMBER + 1, 0);
 }
 void GlobalService::destroy(void){
 	for(auto pWorker : m_epollWorkers){
@@ -156,7 +158,6 @@ void GlobalService::destroy(void){
 		}
 	}
 	m_epollWorkers.clear();
-	m_nodeConnects.clear();
 }
 
 NS_HIVE_END

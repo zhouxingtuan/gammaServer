@@ -102,6 +102,28 @@ public:
 		}
 		return n;
 	}
+	inline int appendWrite(const void* ptr, int length){
+		setCursor(getLength());
+		return write(ptr, length);
+	}
+	inline int offsetRead(void* ptr, int length, int offset){
+		if(offset < 0){
+			setCursor(getLength() + offset);
+		}else{
+			setCursor(offset);
+		}
+		return read(ptr, length);
+	}
+	inline int popEnd(int popSize){
+		int length = getLength();
+		if(popSize <= 0 || popSize + (int)sizeof(PacketHead) > length){
+			return 0;
+		}
+		int newLength = length - popSize;
+		m_pBuffer->resize(newLength);
+		recordLength();
+		return popSize;
+	}
 	inline void setCommand(unsigned int cmd){ getHead()->command = cmd; }
 	inline void setDestination(unsigned int handle){ getHead()->destination = handle; }
 	inline void recordLength(void){ getHead()->length = getLength(); }

@@ -38,10 +38,12 @@ void MainHandler::onReceivePacket(Packet* pPacket, Task* pTask){
 			pPacket->readBegin();
 			// get all the node info and record
 			recordHiveInfo(pPacket);
+			recordModuleInfo(pPacket);
 			pPacket->readEnd();
 			// response the remote node, current node info
 			pPacket->writeBegin(COMMAND_HIVE_RESPONSE, connectHandle);
 			writeHiveInfo(pPacket);
+			writeModuleInfo(pPacket);
 			pPacket->writeEnd();
 			bool result = GlobalService::getInstance()->sendToService(connectHandle, pPacket);
 			LOG_DEBUG("COMMAND_HIVE_RESPONSE to connectHandle=%d command=%d result=%d", connectHandle, pPacket->getCommand(), result);
@@ -52,6 +54,7 @@ void MainHandler::onReceivePacket(Packet* pPacket, Task* pTask){
 			LOG_DEBUG("COMMAND_HIVE_RESPONSE get connectHandle=%d", connectHandle);
 			// record all the node info
 			recordHiveInfo(pPacket);
+			recordModuleInfo(pPacket);
 			break;
 		}
 		default:{
@@ -70,7 +73,7 @@ void MainHandler::onOpenClientOK(uint32 clientHandle, OpenClientOKTask* pTask){
 	HandleToNodeMap::iterator itCur = m_handleToNode.find(clientHandle);
 	if(itCur != m_handleToNode.end()){
 		uint32 id = itCur->second;
-		GlobalService::getInstance()->setNodeConnect(id, clientHandle);
+		GlobalNode::getInstance()->setNodeConnect(id, clientHandle);
 	}
 	// register the client to remote node
 	identifyHive(clientHandle);
@@ -103,7 +106,7 @@ void MainHandler::onCloseConnect(uint32 callbackID, uint32 connectHandle, CloseC
     if(itCur != m_handleToNode.end()){
         uint32 id = itCur->second;
         m_handleToNode.erase(itCur);
-        GlobalService::getInstance()->removeNodeConnect(id);
+        GlobalNode::getInstance()->removeNodeConnect(id);
         // connect again in seconds
         LOG_DEBUG("schedule node to reconnect id=%d", id);
         startTimer(id, NODE_RECONNECT_TIME);
@@ -141,12 +144,45 @@ void MainHandler::writeHiveInfo(Packet* pPacket){
 		}
 	}
 }
+void MainHandler::writeModuleInfo(Packet* pPacket){
+	ModuleTypeVector modules;
+	GlobalModule::getInstance()->copyModules(modules);
+	int moduleSize = (int)modules.size();
+	pPacket->write(&moduleSize, sizeof(int));
+	for( auto &group : modules ){
+		ModuleHandlerInformationVector& infoVec = group.infoVec;
+		int arrayOffset = pPacket->beginArray<int32>();
+		for( auto &info : infoVec ){
+			pPacket->writeArray<int32>(&info, sizeof(ModuleHandlerInformation), arrayOffset);
+		}
+	}
+}
+void MainHandler::recordModuleInfo(Packet* pPacket){
+	int moduleSize = 0;
+	pPacket->read(&moduleSize, sizeof(int32));
+	for(int i=0; i<moduleSize; ++i){
+		int arraySize = 0;
+		pPacket->read(&arraySize, sizeof(int32));
+		for(int j=0; j<arraySize; ++j){
+			ModuleHandlerInformation info;
+			pPacket->read(&info, sizeof(ModuleHandlerInformation));
+			if(info.handle > 0){
+				bool result = GlobalModule::getInstance()->addInformation(info.moduleType, info.moduleIndex, info.handle, info.version);
+                LOG_DEBUG("addInformation moduleType=%d moduleIndex=%d handle=%d version=%d result=%d",
+                    info.moduleType, info.moduleIndex, info.handle, info.version,result);
+			}else{
+				LOG_DEBUG("info.handle <= 0 skip");
+			}
+		}
+	}
+}
 void MainHandler::registerHive(uint32 connectHandle){
 	LOG_DEBUG("start register hive connectHandle=%d", connectHandle);
 	Packet* pPacket = new Packet(1024);
 	pPacket->retain();
 	pPacket->writeBegin(COMMAND_HIVE_REGISTER, connectHandle);
 	writeHiveInfo(pPacket);
+	writeModuleInfo(pPacket);
 	pPacket->writeEnd();
 	bool result = GlobalService::getInstance()->sendToService(connectHandle, pPacket);
 	LOG_DEBUG("registerHive to connectHandle=%d command=%d result=%d", connectHandle, pPacket->getCommand(), result);
@@ -186,9 +222,9 @@ bool MainHandler::unregisterNode(uint32 id){
 	HiveInformation& info = m_hiveNodes[id];
 	if(info.id > 0){
 		info.reset();                           // reset the data
-		uint32 connectHandle = GlobalService::getInstance()->getNodeConnect(id);
+		uint32 connectHandle = GlobalNode::getInstance()->getNodeConnect(id);
 		if(connectHandle > 0){
-			GlobalService::getInstance()->removeNodeConnect(id);    // remove the node connection
+			GlobalNode::getInstance()->removeNodeConnect(id);    // remove the node connection
 			closeConnect(0, connectHandle);    // close connection
 			return true;
 		}
@@ -214,7 +250,7 @@ void MainHandler::checkNodeConnect(uint32 id){
 		LOG_DEBUG("the current node is the destination node");
 	}else{
 		// if the connection is already connected, skip
-		uint32 connectHandle = GlobalService::getInstance()->getNodeConnect(id);
+		uint32 connectHandle = GlobalNode::getInstance()->getNodeConnect(id);
 		if(connectHandle > 0){
 			// do nothing
 			LOG_DEBUG("the current node is already connected id=%d connectHandle=%d", id, connectHandle);

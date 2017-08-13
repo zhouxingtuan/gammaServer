@@ -10,7 +10,6 @@
 #include "epollhandler.h"
 #include "mainhandler.h"
 #include "handlercreator.h"
-#include "dispatcher.h"
 
 NS_HIVE_BEGIN
 
@@ -40,6 +39,7 @@ void loadConfig(const char* fileName){
 	int 				worker_number 		= atoi(config["worker_number"].c_str());
 	const std::string& 	netkey 				= config["netkey"];
 	const std::string& 	password 			= config["password"];
+	int             	log_level 			= atoi(config["log_level"].c_str());
 
 	// # inner ip and port to connect between node
 	const std::string& 	inner_addr 			= config["inner_addr"];
@@ -60,6 +60,7 @@ void loadConfig(const char* fileName){
 	const std::string& 	https_private 		= config["https_private"];
 
 	// init the core
+	setLogLevel(log_level);
 	GlobalSetting::createInstance();
 	GlobalSetting::getInstance()->setKey(netkey.c_str());
 	GlobalSetting::getInstance()->setPassword(password);
@@ -79,6 +80,8 @@ void loadConfig(const char* fileName){
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_RESPONSE, onCommandResponse);
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_HIVE_REGISTER, onCommandHiveRegister);
 	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_HIVE_RESPONSE, onCommandHiveResponse);
+	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_DISPATCH_TRANSFER, onCommandDispatchTransfer);
+	GlobalSetting::getInstance()->setAcceptCommandFunction(COMMAND_RESPONSE_TRANSFER, onCommandResponseTransfer);
 	MainWorker::getInstance()->initialize((uint32)node_id, (uint32)epoll_number, (uint32)worker_number);
 
 	// create main handler; HANDLER_TYPE_MAIN included
@@ -87,7 +90,7 @@ void loadConfig(const char* fileName){
 	}
 
 	// create MainHandler
-	uint32 mainHandle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN, MAIN_HANDLER_INDEX, "");
+	uint32 mainHandle = GlobalHandler::getInstance()->createDestination(HANDLER_TYPE_MAIN, MAIN_HANDLER_INDEX, 0, 0, "");
 	MainHandler* pMain = GlobalHandler::getInstance()->getDestination<MainHandler>(mainHandle);
 	LOG_DEBUG("MainHandler handle=%d mainHandle=%d", pMain->getHandle(), mainHandle);
 
@@ -124,7 +127,7 @@ void loadConfig(const char* fileName){
 
 	parseIPAndPort(https_addr, pMain->m_httpsIP, pMain->m_httpsPort);
 
-	Dispatcher::getInstance()->appendCommandListener(COMMAND_HIVE_REGISTER, mainHandle);
+	GlobalModule::getInstance()->addInformation(MAIN_HANDLER_MODULE_TYPE, node_id, mainHandle, 1);
 
 	// kick start main handler
 	StartMainHandlerTask* pTask = new StartMainHandlerTask();

@@ -1,0 +1,16 @@
+
+const char* getTimeStringUS(void);
+
+class LuaHandler : public Handler
+{
+	DBRedis* createRedis(void);
+	bool removeRedis(DBRedis* pDBRedis);
+
+	DBMysql* createMysql(void);
+	bool removeMysql(DBMysql* pDBMysql);
+
+	MD5* createMD5(void);
+	bool removeMD5(MD5* pMD5);
+
+};
+

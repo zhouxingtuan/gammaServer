@@ -1,0 +1,8 @@
+
+class DBRedis
+{
+	bool connectRedis(const char* ip, uint16 port);
+	void closeRedis(void);
+	bool identifyRedis(const char* pwd);
+};
+

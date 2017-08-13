@@ -15,6 +15,7 @@ NS_HIVE_BEGIN
 
 #define HANDLER_TYPE_MAIN 0
 #define MAIN_HANDLER_INDEX 1
+#define MAIN_HANDLER_MODULE_TYPE 0
 
 #define DEFAULT_ACCEPT_INDEX 0
 
@@ -122,6 +123,8 @@ public:
 	void registerHive(uint32 connectHandle);
 	void recordHiveInfo(Packet* pPacket);
 	void writeHiveInfo(Packet* pPacket);
+	void writeModuleInfo(Packet* pPacket);
+	void recordModuleInfo(Packet* pPacket);
 protected:
 	void checkNodeConnect(uint32 id);
 	void openInnerListener(void);

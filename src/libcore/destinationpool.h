@@ -10,6 +10,7 @@
 #define __hive__destinationpool__
 
 #include "destination.h"
+#include "log.h"
 
 NS_HIVE_BEGIN
 
@@ -79,18 +80,21 @@ public:
 	// 当超出最大缓存数值的时候，会返回NULL
 	_OBJECT_* create(uint32 index){
 		if(m_useCount >= m_maxHashNumber || index >= m_maxHashNumber){
+			LOG_ERROR("create failed m_useCount=%d m_maxHashNumber=%d index=%d", m_useCount, m_maxHashNumber, index);
 			return NULL;
 		}
 		_OBJECT_* pObj;
 		if(index == 0){
 			pObj = getIdleObject();
 			if(NULL == pObj){
+				LOG_ERROR("create failed getIdleObject == NULL");
                 return NULL;
             }
             index = getNextSlot();
 		}else{
 			pObj = m_createFunction(index, m_poolType);
 			if(NULL == pObj){
+				LOG_ERROR("create failed m_createFunction == NULL");
 				return NULL;
 			}
 		}
@@ -119,6 +123,7 @@ public:
 		if( NULL != pObj && pObj->getHandle() == handle ){
 			return pObj;
 		}
+		LOG_ERROR("get NULL handle=%d", handle);
 		return NULL;
 	}
 	_OBJECT_* getByIndex(uint32 index){

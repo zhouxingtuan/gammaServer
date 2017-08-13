@@ -145,7 +145,7 @@ Packet::~Packet(void){
 }
 /*--------------------------------------------------------------------*/
 Client::Client(void) : RefObject(), Sync(), Thread(),
-	m_fd(0), m_port(0), m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_pingTime(0),
+	m_fd(0), m_port(0), m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_isNeedReconnect(false), m_pingTime(0),
 	m_tempReadPacket(NULL), m_pInterface(NULL) {
 	memset(m_ip, 0, sizeof(m_ip));
 }
@@ -163,7 +163,7 @@ void Client::releasePacket(void){
 }
 void Client::identifyHive(void){
 	char temp[256] = {0};
-	uint32_t t = time(NULL);
+	unsigned int t = (unsigned int)time(NULL);
 	srand(t);
 	uint32_t nodeID = rand();
 	const std::string& password = getPassword();
@@ -197,12 +197,14 @@ void Client::checkAndPingServer(void){
 }
 void Client::reconnectSocket(void){
 	removeSocket();
-	startThread();
+	if(m_isNeedReconnect){
+		startThread();
+	}
 }
-bool Client::sendData(unsigned int command, unsigned int handle, const char* pData, unsigned int length){
+bool Client::sendData(unsigned int moduleType, unsigned int moduleIndex, const char* pData, unsigned int length){
 	Packet* pPacket = new Packet(sizeof(PacketHead) + length);
 	pPacket->retain();
-	pPacket->writeBegin(command, handle);
+	pPacket->writeBegin(moduleType, moduleIndex);
 	pPacket->write(pData, length);
 	pPacket->writeEnd();
 	bool ret = receivePacket(pPacket);

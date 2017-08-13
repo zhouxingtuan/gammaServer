@@ -47,6 +47,7 @@ public:
 		DestinationHandle h(handle);
 		ObjectDestinationPool* pPool = getPool(h.getType());
 		if(NULL == pPool){
+			LOG_ERROR("getDestination NULL == pPool type=%d handle=%d", h.getType(), handle);
 			return NULL;
 		}
 		return pPool->get(handle);
@@ -54,6 +55,7 @@ public:
 	_OBJECT_* getDestinationByIndex(uint32 poolType, uint32 index){
 		ObjectDestinationPool* pPool = getPool(poolType);
 		if(NULL == pPool){
+			LOG_ERROR("getDestination NULL == pPool type=%d index=%d", poolType, index);
 			return NULL;
 		}
 		return pPool->getByIndex(index);
@@ -65,10 +67,22 @@ public:
 		}
 		return pPool->create(index);
 	}
+	uint32 getNextDestinationIndex(uint32 poolType, uint32 number){
+		ObjectDestinationPool* pPool = getPool(poolType);
+		if(NULL == pPool){
+			return 0;
+		}
+		uint32 index = 0;
+		for(uint32 i=0;i<number; ++i){
+			index = pPool->getNextSlot();
+		}
+		return index;
+	}
 	bool idleDestination(uint32 handle){
 		DestinationHandle h(handle);
 		ObjectDestinationPool* pPool = getPool(h.getType());
 		if(NULL == pPool){
+			LOG_ERROR("idleDestination NULL == pPool type=%d handle=%d", h.getType(), handle);
 			return false;
 		}
 		return pPool->idle(handle);
@@ -77,6 +91,7 @@ public:
 		DestinationHandle h(handle);
 		ObjectDestinationPool* pPool = getPool(h.getType());
 		if(NULL == pPool){
+			LOG_ERROR("removeDestination NULL == pPool type=%d handle=%d", h.getType(), handle);
 			return false;
 		}
 		return pPool->remove(handle);
@@ -84,12 +99,14 @@ public:
 	bool removeDestinationByIndex(uint32 poolType, uint32 index){
 		ObjectDestinationPool* pPool = getPool(poolType);
 		if(NULL == pPool){
+			LOG_ERROR("removeDestinationByIndex NULL == pPool type=%d index=%d", poolType, index);
 			return false;
 		}
 		return pPool->removeByIndex(index);
 	}
 	ObjectDestinationPool* getPool(uint32 poolType){
 		if(poolType >= (uint32)m_pools.size()){
+			LOG_ERROR("poolType=%d >= (uint32)m_pools.size()=%d", poolType, (uint32)m_pools.size());
 			return NULL;
 		}
 		return m_pools[poolType];
@@ -98,6 +115,7 @@ public:
 		typename ObjectDestinationPool::CreateFunction create,
 		typename ObjectDestinationPool::DestroyFunction destroy){
 		if(poolType >= (uint32)m_pools.size()){
+			LOG_ERROR("createPool poolType=%d >= (uint32)m_pools.size()=%d", poolType, (uint32)m_pools.size());
 			return NULL;
 		}
 		ObjectDestinationPool* pPool = m_pools[poolType];

@@ -69,9 +69,9 @@ NS_HIVE_BEGIN
 #ifndef uint32_t
 typedef unsigned int uint32_t;
 #endif
-#ifndef uint64_t
-typedef unsigned long long int uint64_t;
-#endif
+//#ifndef uint64_t
+//typedef unsigned long long int uint64_t;
+//#endif
 #define BINARY_HASH_SEED 5381
 uint64_t binary_murmur_hash64A( const void * key, int len, unsigned int seed=BINARY_HASH_SEED );	// 64-bit hash for 64-bit platforms
 #define binary_hash64 binary_murmur_hash64A
@@ -278,10 +278,10 @@ typedef struct ClientEvent{
 #define CONNECT_KEEP_ONLINE_TIME 5
 
 #define COMMAND_DISPATCH_BY_HANDLE 0
-#define COMMAND_PING 1
-#define COMMAND_PONG 2
-#define COMMAND_REGISTER 3
-#define COMMAND_RESPONSE 4
+#define COMMAND_PING 255
+#define COMMAND_PONG 254
+#define COMMAND_REGISTER 253
+#define COMMAND_RESPONSE 252
 
 class Client : public RefObject, public Sync, public Thread
 {
@@ -296,7 +296,7 @@ public:
 	virtual void dispatchEvent(void);	// 这个函数需要在主循环中调用，用来分发事件
 
 	// 6 <= command <= 255
-	virtual bool sendData(unsigned int command, unsigned int handle, const char* pData, unsigned int length);
+	virtual bool sendData(unsigned int moduleType, unsigned int moduleIndex, const char* pData, unsigned int length);
 	virtual void reconnectSocket(void);
 	virtual bool receivePacket(Packet* pPacket);
 	virtual void removeSocket(void);
@@ -311,7 +311,9 @@ public:
 	inline void setIsNeedEncrypt(bool need) { m_isNeedEncrypt = need; }
 	inline bool isNeedDecrypt(void) const { return m_isNeedDecrypt; }
 	inline void setIsNeedDecrypt(bool need) { m_isNeedDecrypt = need; }
-	inline void setKey(const std::string& key){ m_key = key; }
+	inline void setIsNeedReconnect(bool need) { m_isNeedReconnect = need; }
+	inline bool isNeedReconnect(void) { return m_isNeedReconnect; }
+	inline void setKey(const std::string& key) { m_key = key; }
 	inline const std::string& getKey(void) const { return m_key; }
 	inline void setPassword(const std::string& password){ m_password = password; }
 	inline const std::string& getPassword(void) const { return m_password; }
@@ -335,6 +337,7 @@ protected:
     unsigned short m_port;
 	bool m_isNeedEncrypt;			// 是否需要解密
 	bool m_isNeedDecrypt;			// 是否需要加密
+	bool m_isNeedReconnect;			// 是否需要发起重连
 	int m_pingTime;                 // ping服务器的时间
 	std::string m_key;				// 网络秘钥
 	std::string m_password;         // 连接密码

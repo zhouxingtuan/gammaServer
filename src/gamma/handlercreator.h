@@ -33,8 +33,7 @@ typedef struct SOInformation{
 
 typedef struct ModuleInformation{
 	std::string soName;
-	std::string moduleName;
-	uint32 command;
+	uint32 moduleType;
 	uint32 poolType;
 	uint32 beginIndex;
 	uint32 endIndex;
@@ -44,7 +43,7 @@ class HandlerCreator : public RefObject, public Sync
 {
 public:
 	typedef std::map<std::string, SOInformation*> SOInformationMap;
-	typedef std::map<std::string, ModuleInformation*> ModuleInformationMap;
+	typedef std::map<uint32, ModuleInformation*> ModuleInformationMap;
 
 	SOInformationMap m_soInfoMap;
 	ModuleInformationMap m_moduleInfoMap;
@@ -57,9 +56,9 @@ public:
 	static void destroyInstance(void);
 
 	void initializeSO(Token::TokenMap& config);
-	void loadModule(const std::string& soName, const std::string& moduleName, const std::string& param,
-		uint32 command, uint32 poolType, uint32 beginIndex, uint32 endIndex);
-	void unloadModule(const std::string& moduleName);
+	void loadModule(const std::string& soName, const std::string& param, uint32 moduleVersion,
+		uint32 moduleType, uint32 beginModuleIndex, uint32 endModuleIndex);
+	void unloadModule(uint32 moduleType);
 	void unloadModuleInformation(ModuleInformation* pModuleInfo);
 	void loadSO(const std::string& name);
 	void unloadSO(const std::string& name);

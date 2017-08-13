@@ -7,9 +7,10 @@
 //
 
 #include "epollhandler.h"
-#include "dispatcher.h"
 #include "http.h"
 #include "http_parser.h"
+#include "globalmodule.h"
+#include "mainhandler.h"
 
 NS_HIVE_BEGIN
 
@@ -108,8 +109,8 @@ void onReceiveHttp(Http* pHttp){
 		return;
 	}
 	uint32 command = COMMAND_DISPATCH_BY_HANDLE;
-	uint32 handle = 0;
-	// find cmd and handle
+	uint32 destination = 0;
+	// find cmd and destination
 	Token::TokenVector urlVector;
 	std::string url(pHttp->getUrl(), pHttp->getUrlLength());
 	Token::splitArray(url, "/", urlVector);
@@ -131,7 +132,7 @@ void onReceiveHttp(Http* pHttp){
 		command = GlobalSetting::getInstance()->getCommand(urlVector[0]);
 	}else{
 		command = GlobalSetting::getInstance()->getCommand(urlVector[0]);
-		handle = atoi(urlVector[1].c_str());
+		destination = atoi(urlVector[1].c_str());
 	}
 	if(command == INVALID_COMMAND){
 		LOG_ERROR("INVALID_COMMAND found commandStr=%s", urlVector[0].c_str());
@@ -144,22 +145,25 @@ void onReceiveHttp(Http* pHttp){
 		pHttp->responseRequest(invalid_command_response, sizeof(invalid_command_response));
 		return;
 	}
-	LOG_DEBUG("get url commandStr=%s command=%d handle=%d", urlVector[0].c_str(), command, handle);
+	LOG_DEBUG("get url commandStr=%s command=%d destination=%d", urlVector[0].c_str(), command, destination);
 	// dispatch the packet
 	Packet* pPacket = new Packet(sizeof(PacketHead) + pHttp->getBodyLength());
 	pPacket->retain();
-	pPacket->writeBegin(command, handle);
+	pPacket->writeBegin(command, pHttp->getHandle());   // 这里填写当前连接的handle
 	pPacket->write(pHttp->getBody(), pHttp->getBodyLength());
 	pPacket->writeEnd();
 	// 判断cmd执行后续操作
 	if(command == COMMAND_DISPATCH_BY_HANDLE){
 		LOG_DEBUG("onReceiveHttp handle=%d dispatchToService", pHttp->getHandle());
-		GlobalService::getInstance()->dispatchToService(pPacket);
+		GlobalService::getInstance()->dispatchToService(destination, pPacket);   // 这里使用目的地handle进行消息的分发
 	}else{
 		LOG_DEBUG("onReceiveHttp handle=%d dispatchPacket command=%d function not found.", pHttp->getHandle(), command);
 		// 这里不执行的命令，发送消息给后面的服务执行
-		pPacket->setDestination(pHttp->getHandle());
-		Dispatcher::getInstance()->dispatchCommand(pPacket, command);
+		if( destination == 0 ){
+			GlobalModule::getInstance()->dispatchRandom(pPacket, command);
+		}else{
+			GlobalModule::getInstance()->dispatch(pPacket, command, destination);
+		}
 	}
 	pPacket->release();
 }
@@ -185,13 +189,13 @@ void onHttpReceivePacket(Http* pHttp, Packet* pPacket){
     pHttp->responseEnd();
 }
 void onCommandPing(Accept* pAccept, Packet* pPacket, uint32 command){
-	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
+//	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 	pAccept->setOnline(true);
 	pPacket->setCommand(COMMAND_PONG);
 	pAccept->sendPacket(pPacket);
 }
 void onCommandPong(Accept* pAccept, Packet* pPacket, uint32 command){
-	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
+//	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 	pAccept->setOnline(true);
 }
 void onCommandRegister(Accept* pAccept, Packet* pPacket, uint32 command){
@@ -260,7 +264,9 @@ void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
 	pPacket->setDestination(pAccept->getHandle());
-	Dispatcher::getInstance()->dispatchCommand(pPacket, command);
+	uint32 nodeID = GlobalSetting::getInstance()->getNodeID();
+	// 发送消息给main模块
+	GlobalModule::getInstance()->dispatch(pPacket, MAIN_HANDLER_MODULE_TYPE, nodeID);
 }
 void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 	LOG_DEBUG("handle=%d packet length=%d command=%d", pAccept->getHandle(), pPacket->getLength(), command);
@@ -274,7 +280,31 @@ void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command){
 	}
 }
 void onCommandDispatchByHandle(Accept* pAccept, Packet* pPacket, uint32 command){
-	GlobalService::getInstance()->dispatchToService(pPacket);
+	uint32 handle = pPacket->getDestination();
+	uint32 destination = pAccept->getHandle();
+	LOG_DEBUG("handle=%d destination=%d", destination, handle);
+	pPacket->setDestination(destination);   // 填写当前连接的handle
+	GlobalService::getInstance()->dispatchToService(handle, pPacket);
+}
+void onCommandDispatchTransfer(Accept* pAccept, Packet* pPacket, uint32 command){
+	LOG_DEBUG("handle=%d destination=%d", pAccept->getHandle(), pPacket->getDestination());
+	uint32 handle = 0;
+	int offset = (int)(sizeof(uint32));
+	pPacket->offsetRead(&handle, sizeof(uint32), -offset);
+	// 弹出末尾的数据
+	pPacket->popEnd( sizeof(uint32) );
+	LOG_DEBUG("onCommandDispatchTransfer handle=%d offset=%d", handle, offset);
+	GlobalModule::getInstance()->dispatchByHandle(pPacket, handle);
+}
+void onCommandResponseTransfer(Accept* pAccept, Packet* pPacket, uint32 command){
+	LOG_DEBUG("handle=%d destination=%d", pAccept->getHandle(), pPacket->getDestination());
+	uint32 handle = 0;
+	int offset = (int)(sizeof(uint32));
+	pPacket->offsetRead(&handle, sizeof(uint32), -offset);
+	// 弹出末尾的数据
+	pPacket->popEnd( sizeof(uint32) );
+	LOG_DEBUG("onCommandResponseTransfer handle=%d offset=%d", handle, offset);
+	GlobalService::getInstance()->dispatchToService(handle, pPacket);
 }
 
 NS_HIVE_END

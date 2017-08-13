@@ -15,16 +15,13 @@
 NS_HIVE_BEGIN
 
 #define MAX_EPOLL_WORKER_NUMBER 31
-#define MAX_NODE_NUMBER 255
 
 class GlobalService : public RefObject, public Sync
 {
 public:
 	typedef std::vector<EpollWorker*> EpollWorkerVector;
-	typedef std::vector<uint32> NodeConnectHandle;
 public:
 	EpollWorkerVector m_epollWorkers;
-	NodeConnectHandle m_nodeConnects;
 	std::atomic<uint32> m_epollMagic;
 	uint32 m_epollWorkerNumber;
 public:
@@ -43,36 +40,16 @@ public:
 	bool dispatchTask(uint32 handle, Task* pTask);
 	bool dispatchTaskToEpollWorkerHandle(uint32 handle, Task* pTask);
 	bool dispatchTaskToEpollWorker(uint32 service, Task* pTask);
-	// 发送消息给某一个节点
-	bool sendToNode(uint32 nodeID, Packet* pPacket);
-	// 发送消息给当前节点的某一个连接，或者Handler
-	bool sendToService(uint32 handle, Packet* pPacket);
+
 	// 从网络收到消息进行分发操作；根据Packet内部记录的数据nodeID,service
-	bool dispatchToService(Packet* pPacket);
+	bool dispatchToService(uint32 handle, Packet* pPacket);
+	// 发送消息给某一个节点；nodeID查找到网络连接，handle指向对方节点的Handler
+	bool sendToNode(uint32 nodeID, uint32 handle, Packet* pPacket);
+	// 发送消息给当前节点的某一个连接，或者Handler；handle和packet中的destination可以不一样
+	bool sendToService(uint32 handle, Packet* pPacket);
+	// 分发消息给网络连接，handle和packet的destination可以不一样
 	bool dispatchToEpollWorker(uint32 handle, Packet* pPacket);
 
-	uint32 getNodeConnect(uint32 nodeID){
-		uint32 handle = 0;
-		lock();
-		if(nodeID < (uint32)m_nodeConnects.size()){
-			handle = m_nodeConnects[nodeID];
-		}
-		unlock();
-		return handle;
-	}
-	bool setNodeConnect(uint32 nodeID, uint32 handle){
-		bool result = false;
-		lock();
-		if(nodeID < (uint32)m_nodeConnects.size()){
-			m_nodeConnects[nodeID] = handle;
-			result = true;
-		}
-		unlock();
-		return result;
-	}
-	bool removeNodeConnect(uint32 nodeID){
-		return setNodeConnect(nodeID, 0);
-	}
 	EpollWorker* getWorker(uint32 service){
 		if(service >= (uint32)m_epollWorkers.size()){
 			return NULL;

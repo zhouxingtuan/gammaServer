@@ -29,6 +29,8 @@ void onCommandResponse(Accept* pAccept, Packet* pPacket, uint32 command);
 void onCommandHiveRegister(Accept* pAccept, Packet* pPacket, uint32 command);
 void onCommandHiveResponse(Accept* pAccept, Packet* pPacket, uint32 command);
 void onCommandDispatchByHandle(Accept* pAccept, Packet* pPacket, uint32 command);
+void onCommandDispatchTransfer(Accept* pAccept, Packet* pPacket, uint32 command);
+void onCommandResponseTransfer(Accept* pAccept, Packet* pPacket, uint32 command);
 
 NS_HIVE_END
 

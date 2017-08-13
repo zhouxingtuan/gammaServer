@@ -9,8 +9,9 @@
 #ifndef __hive__liblua__
 #define __hive__liblua__
 
-NS_HIVE_BEGIN
+#include "lua.hpp"
 
-NS_HIVE_END
+/* Exported function */
+TOLUA_API int  tolua_liblua_open (lua_State* tolua_S);
 
 #endif

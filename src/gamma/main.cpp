@@ -10,7 +10,6 @@
 #include "configloader.h"
 #include "mainhandler.h"
 #include "epollhandler.h"
-#include "dispatcher.h"
 
 //jemalloc
 #define JEMALLOC_NO_DEMANGLE
@@ -42,6 +41,7 @@ static char defaultConfigFile[] = "config.ini";
 
 int main(int argc, char *argv[])
 {
+	srand(time(NULL));
 	char* config = defaultConfigFile;
 	if( argc > 1 ){
 		config = argv[1];

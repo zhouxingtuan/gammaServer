@@ -13,6 +13,7 @@
 #include "task.h"
 #include "packet.h"
 #include "timer.h"
+#include "util.h"
 
 NS_HIVE_BEGIN
 
@@ -44,6 +45,8 @@ public:
 public:
 	TaskQueue m_taskQueue;		// 当前主体对象需要完成的任务队列，确保任务独占主体的资源
 	bool m_isInHandlerQueue;	// 标记当前主体对象是否已经在队列中等待Worker处理
+	uint32 m_moduleType;        // 所属模块的类型
+	uint32 m_moduleIndex;       // 所属模块的下标
 public:
 	Handler(void);
 	virtual ~Handler(void);
@@ -71,7 +74,23 @@ public:
 	void closeConnect(uint32 callbackID, uint32 connectHandle);
 	void bindAccept(uint32 acceptHandle, uint32 bindHandle);
 	void sendCurlRequest(RequestData* pRequest);
-	void sendToDestination(uint32 command, uint32 destination, const char* ptr, uint32 length);
+	bool sendToNode(uint32 command, uint32 connectHandle, uint32 destination, const char* ptr, uint32 length);
+	bool sendToDestination(uint32 connectHandle, uint32 destination, const char* ptr, uint32 length);
+	bool responseDestination(uint32 connectHandle, uint32 destination, const char* ptr, uint32 length);
+	bool sendToGroup(const char* groupName, const char* moduleName, uint32 moduleIndex, const char* ptr, uint32 length);
+	bool responseGroup(uint32 connectHandle, uint32 destination, const char* ptr, uint32 length);
+
+	void addGroup(const char* groupName);
+    void removeGroup(const char* groupName);
+	bool getGroupRoute(const char* groupName, const char* moduleName, uint32& connectHandle, uint32& command);
+	bool setGroupRoute(const char* groupName, uint32 connectHandle);
+	bool removeGroupRoute(const char* groupName, uint32 connectHandle);
+	void appendGroupModule(const char* groupName, const char* moduleName, uint32 command);
+	void removeGroupModule(const char* groupName, const char* moduleName);
+
+	uint32 getModuleSize(uint32 moduleType);
+	uint32 randModuleHandle(uint32 moduleType);
+	uint32 getModuleHandle(uint32 moduleType, uint32 moduleIndex);
 
 	bool receivePacket(Packet* pPacket);							        // 收到一个Packet
     void acceptTask(Task* pTask); 									        // Task 调用接收任务
@@ -84,7 +103,14 @@ public:
     void changeTimer(uint32 handle, int64 timeCount);				        // 更改计时器的时间
     int64 leftTimer(uint32 handle);									        // 获取计时器剩余时间
 
+	inline void setModuleType(uint32 moduleType){ m_moduleType = moduleType; }
+	inline void setModuleIndex(uint32 moduleIndex){ m_moduleIndex = moduleIndex; }
+	inline uint32 getModuleType(void) const { return m_moduleType; }
+	inline uint32 getModuleIndex(void) const { return m_moduleIndex; }
+
+	uint32 hash(const char* str, uint32 length);
 protected:
+	bool checkResponse(uint32 connectHandle, uint32 destination, const char* ptr, uint32 length);
 	void releaseTask(void);									                // 放弃掉所有任务
 	void doTask(void);										                // 执行任务内容
     bool isFinished(void){ return m_taskQueue.empty(); }	                // 是否已经结束
@@ -101,7 +127,7 @@ public:
 	}
 
 	virtual void doHandlerTask(Handler* pHandler){
-		LOG_DEBUG("--ReceivePacketTask::doHandlerTask");
+//		LOG_DEBUG("ReceivePacketTask::doHandlerTask");
     	pHandler->onReceivePacket(m_pPacket, this);
 	}
 	virtual void doActiveTask(ActiveWorker* pHandler){}

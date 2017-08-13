@@ -51,8 +51,9 @@ bool Client::epollActive(uint32 events){
 		socklen_t len = sizeof(error);
 		if( getsockopt(this->getSocketFD(), SOL_SOCKET, SO_ERROR, &error, &len) < 0 ){
 			LOG_ERROR("failed to connect to handle=%d ip=%s port=%d", getHandle(), getIP(), getPort());
-			getEpollWorker()->notifyCloseConnect(this);
-			getEpollWorker()->closeClient(this->getHandle());
+			epollRemove();
+//			getEpollWorker()->notifyCloseConnect(this);
+//			getEpollWorker()->closeClient(this->getHandle());
 //			closeSocket();
 		}
 		if(error){
@@ -61,8 +62,9 @@ bool Client::epollActive(uint32 events){
 				return true;
 			}
 			LOG_ERROR("failed to connect to handle=%d ip=%s port=%d", getHandle(), getIP(), getPort());
-			getEpollWorker()->notifyCloseConnect(this);
-			getEpollWorker()->closeClient(this->getHandle());
+			epollRemove();
+//			getEpollWorker()->notifyCloseConnect(this);
+//			getEpollWorker()->closeClient(this->getHandle());
 //			closeSocket();
 			return true;
 		}
@@ -75,8 +77,10 @@ bool Client::epollActive(uint32 events){
 	return false;
 }
 void Client::epollRemove(void){
-	getEpollWorker()->notifyCloseConnect(this);
-	getEpollWorker()->closeClient(this->getHandle());
+	if(getSocketFD() > 0){
+		getEpollWorker()->notifyCloseConnect(this);
+    	getEpollWorker()->closeClient(this->getHandle());
+	}
 }
 
 NS_HIVE_END

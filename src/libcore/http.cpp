@@ -183,11 +183,12 @@ void Http::epollOut(void){
 }
 void Http::epollRemove(void){
 	LOG_DEBUG("handle=%d", this->getHandle());
-	// 移除回调
-	GlobalSetting::getInstance()->getRemoveHttpFunction()(this);
-	// 清理状态，移除出epoll
-//	this->resetData();
-	getEpollWorker()->closeHttp(this->getHandle());
+	if(getSocketFD() > 0){
+		// 移除回调
+    	GlobalSetting::getInstance()->getRemoveHttpFunction()(this);
+    	// 清理状态，移除出epoll
+    	getEpollWorker()->closeHttp(this->getHandle());
+	}
 }
 bool Http::checkEpollState(uint32 events){
 	if( this->isInEpoll() ){

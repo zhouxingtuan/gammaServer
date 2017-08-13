@@ -278,7 +278,8 @@ uint32 EpollWorker::openHttps(int fd, const char* ip, uint16 port){
 bool EpollWorker::closeAccept(uint32 handle){
 	Accept* pAccept = this->getDestination<Accept>(handle);
 	if(NULL == pAccept){
-		LOG_ERROR("can not find Accept handle=%d", handle);
+		DestinationHandle h(handle);
+		LOG_ERROR("can not find Accept handle=%d type=%d index=%d", handle, h.getType(), h.getIndex());
 		return false;
 	}
 	m_pEpoll->objectRemove(pAccept);
@@ -290,7 +291,8 @@ bool EpollWorker::closeAccept(uint32 handle){
 bool EpollWorker::closeClient(uint32 handle){
 	Client* pClient = this->getDestination<Client>(handle);
 	if(NULL == pClient){
-		LOG_ERROR("can not find Client handle=%d", handle);
+		DestinationHandle h(handle);
+		LOG_ERROR("can not find Client handle=%d type=%d index=%d", handle, h.getType(), h.getIndex());
 		return false;
 	}
 	m_pEpoll->objectRemove(pClient);
@@ -302,7 +304,8 @@ bool EpollWorker::closeClient(uint32 handle){
 bool EpollWorker::closeHttp(uint32 handle){
 	Http* pHttp = this->getDestination<Http>(handle);
 	if(NULL == pHttp){
-		LOG_ERROR("can not find Http handle=%d", handle);
+		DestinationHandle h(handle);
+		LOG_ERROR("can not find Http handle=%d type=%d index=%d", handle, h.getType(), h.getIndex());
 		return false;
 	}
 	pHttp->resetData();
