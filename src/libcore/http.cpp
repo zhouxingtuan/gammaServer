@@ -230,7 +230,7 @@ void Http::responseBegin(uint32 length){
 // 追加一个请求字符串
 void Http::responseAppend(const char* ptr, uint32 length){
 	Buffer* pBuffer = this->createBuffer(length);
-	pBuffer->write(ptr, (int)length, 0);
+	pBuffer->write(ptr, (int)length, (int)pBuffer->size());
 }
 void Http::responseEnd(void){
 	this->setOffset(0);
