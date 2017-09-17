@@ -54,9 +54,11 @@ public:
 	inline char* getCursorPtr(void){ return m_pBuffer->data() + m_cursor; }
 	inline char* getDataPtr(void){ return m_pBuffer->data(); }
 	inline int getLength(void) const { return (int)m_pBuffer->size(); }
+	inline int getLengthInHead(void) { return getHead()->length; }
 	inline bool isCursorEnd(void) const { return getCursor() >= getLength(); }
-	inline char* getBody(void){ return getOffsetPtr(sizeof(PacketHead)); }
-	inline int getBodyLength(void) const { return (getLength() - sizeof(PacketHead)); }
+	inline bool isReceiveEnd(void) { return getCursor() >= getHead()->length; }
+	inline char* getBody(void){ return getOffsetPtr(PACKET_HEAD_LENGTH); }
+	inline int getBodyLength(void) const { return (getLength() - PACKET_HEAD_LENGTH); }
 
 	inline void readBegin(void){
 		setCursor((int)sizeof(PacketHead));

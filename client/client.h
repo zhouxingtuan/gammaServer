@@ -180,6 +180,8 @@ typedef struct PacketHead {
 	unsigned int destination;		// 4 目标服务句柄
 } PacketHead;
 
+#define PACKET_HEAD_LENGTH sizeof(PacketHead)
+
 class Packet : public RefObject
 {
 public:
@@ -198,9 +200,11 @@ public:
 	inline char* getCursorPtr(void){ return m_pBuffer->data() + m_cursor; }
 	inline char* getDataPtr(void){ return m_pBuffer->data(); }
 	inline int getLength(void) const { return (int)m_pBuffer->size(); }
+	inline int getLengthInHead(void) { return getHead()->length; }
 	inline bool isCursorEnd(void) const { return getCursor() >= getLength(); }
-	inline char* getBody(void){ return getOffsetPtr(sizeof(PacketHead)); }
-	inline int getBodyLength(void) const { return (getLength() - sizeof(PacketHead)); }
+	inline bool isReceiveEnd(void) { return getCursor() >= getHead()->length; }
+	inline char* getBody(void){ return getOffsetPtr(PACKET_HEAD_LENGTH); }
+	inline int getBodyLength(void) const { return (getLength() - PACKET_HEAD_LENGTH); }
 
 	inline int write(const void* ptr, int length){
 		int n = m_pBuffer->write(ptr, length, getCursor());
@@ -243,7 +247,6 @@ protected:
 };// end class Packet
 /*--------------------------------------------------------------------*/
 #define CLIENT_SELECT_TIMEOUT 30
-#define PACKET_HEAD_LENGTH 8
 #define IP_SIZE 18
 class Client;
 class ClientInterface
@@ -331,6 +334,7 @@ protected:
 	void checkAndPingServer(void);
 	void dispatchPacket(Packet* pPacket);
 	void releasePacket(void);
+	bool onParsePacket(char* recvBuffer, int nread);
 protected:
     int m_fd;
     char m_ip[IP_SIZE];//192.168.110.110
@@ -346,6 +350,8 @@ protected:
 	ClientEventQueue m_tempEventQueue;
 	Packet* m_tempReadPacket;
 	ClientInterface* m_pInterface;
+    char m_tempLength;
+    char m_tempHead[PACKET_HEAD_LENGTH];
 };//end class Client
 /*--------------------------------------------------------------------*/
 

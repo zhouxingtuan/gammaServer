@@ -53,7 +53,7 @@ class EpollWorker : public ActiveWorker, public Thread
 public:
 
 public:
-	char m_pReadBuffer[EPOLL_READ_BUFFER_SIZE];
+	char m_pReadBuffer[EPOLL_READ_BUFFER_SIZE+PACKET_HEAD_LENGTH];
 
 	EpollObjectDestinationGroup* m_pGroup;
 	MultiCurl* m_pMultiCurl;

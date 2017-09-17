@@ -19,7 +19,7 @@ NS_HIVE_BEGIN
 Accept::Accept(void) : EpollConnectObject(), TimerObject(),
  	m_timerCallback(NULL), m_pEpollWorker(NULL), m_tempReadPacket(NULL), m_bindHandle(0),
  	m_connectionState(CS_DISCONNECT), m_isOnline(0),
-	m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_acceptIndex(0) {
+	m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_acceptIndex(0), m_tempLength(0) {
 
 }
 Accept::~Accept(void){
@@ -181,6 +181,7 @@ void Accept::resetData(void){
 	m_bindHandle = 0;
 	m_isNeedEncrypt = false;
 	m_isNeedDecrypt = false;
+	m_tempLength = 0;
 }
 void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 //	LOG_DEBUG("Accept handle=%d dispatchPacket command=%d", getHandle(), command);
@@ -216,7 +217,12 @@ void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 int Accept::readSocket(void){
 	char* recvBuffer = getEpollWorker()->getReadBuffer();
 	int nread;
-	nread = read(this->getSocketFD(), recvBuffer, EPOLL_READ_BUFFER_SIZE);
+	if(m_tempLength > 0){
+        memcpy(recvBuffer, m_tempHead, m_tempLength);
+	}else{
+	    m_tempLength = 0;
+	}
+	nread = read(this->getSocketFD(), recvBuffer+m_tempLength, EPOLL_READ_BUFFER_SIZE);
     if(nread < 0){
         switch(errno){
         case EINTR: return 1; 	// 读数据失败，处理信号中断
@@ -226,6 +232,10 @@ int Accept::readSocket(void){
         return -1;
     }else if(nread == 0){
         return -1;
+    }
+    if(m_tempLength > 0){
+        nread += m_tempLength;
+        m_tempLength = 0;
     }
     AcceptReadFunction func = GlobalSetting::getInstance()->getAcceptReadFunction(this->getAcceptIndex());
     if(NULL == func){

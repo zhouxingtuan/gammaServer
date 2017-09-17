@@ -6,6 +6,6 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-local path = { "base", "proto", "db", "login", "player" }
+local path = { "base", "proto", "login", "player" }
 
 return path

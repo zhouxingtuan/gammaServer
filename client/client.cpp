@@ -146,7 +146,7 @@ Packet::~Packet(void){
 /*--------------------------------------------------------------------*/
 Client::Client(void) : RefObject(), Sync(), Thread(),
 	m_fd(0), m_port(0), m_isNeedEncrypt(false), m_isNeedDecrypt(false), m_isNeedReconnect(false), m_pingTime(0),
-	m_tempReadPacket(NULL), m_pInterface(NULL) {
+	m_tempReadPacket(NULL), m_pInterface(NULL), m_tempLength(0) {
 	memset(m_ip, 0, sizeof(m_ip));
 }
 Client::~Client(void){
@@ -224,6 +224,7 @@ bool Client::receivePacket(Packet* pPacket){
 }
 int Client::threadFunction(void){
 	assert(NULL != m_pInterface && "m_pInterface for Client can not be NULL");
+	m_tempLength = 0;
 	if( !connectServer() ){
 		addClientEvent(CLIENT_EVENT_CONN_FAILED, NULL);
 		return 0;
@@ -389,20 +390,17 @@ void Client::removeSocket(void){
 	releasePacket();	// 取消所有数据包的发送
 }
 bool Client::readSocket(void){
-	char recvBuffer[8192];
-    char* recvBufferPtr;
+	char recvBuffer[8192+PACKET_HEAD_LENGTH];
     int nread;
-    int packetLength;
-    int writeLength;
-    Packet* pPacket;
-    pPacket = m_tempReadPacket;
-    if( pPacket == NULL ){
-        nread = read(m_fd, recvBuffer, 8192);
+    if(m_tempLength > 0){
+        memcpy(recvBuffer, m_tempHead, m_tempLength);
     }else{
-        nread = read(m_fd, pPacket->getCursorPtr(), pPacket->getLength()-pPacket->getCursor());
+        m_tempLength = 0;
     }
+    nread = (int)read(m_fd, recvBuffer+m_tempLength, 8192);
     if(nread < 0){
-        switch(errno){
+		int n = errno;
+        switch(n){
         case EINTR: return true; // 读数据失败，处理信号中断
         case EAGAIN:    // 可以下次重新调用
             return true;
@@ -412,45 +410,84 @@ bool Client::readSocket(void){
     }else if(nread == 0){
         return false;
     }
-    //check stick message
+    if(m_tempLength > 0){
+        nread += m_tempLength;
+        m_tempLength = 0;
+    }
+    return onParsePacket(recvBuffer, nread);
+}
+bool Client::onParsePacket(char* recvBuffer, int nread){
+    Packet* pPacket;
+    pPacket = m_tempReadPacket;
     if( NULL != pPacket ){
-    	pPacket->moveCursor(nread);
-    	if( pPacket->isCursorEnd() ){
+    	int needLength = pPacket->getLengthInHead() - pPacket->getCursor();
+    	if( needLength > nread ){
+			// 数据不够，仍然继续等待后续数据
+			pPacket->write(recvBuffer, nread);
+			return true;
+    	}else{
+			// 数据包已经完整，发送这个消息
+			pPacket->write(recvBuffer, needLength);
 			// 派发消息给对应的消息处理器
 			dispatchPacket(pPacket);
-    		pPacket->release();		// 对应Packet创建时的retain
+			pPacket->release();		// 对应Packet创建时的retain
 			pPacket = NULL;
+			// 使用完临时数据之后，需要直接清除
+			m_tempReadPacket = NULL;
+			// 剩下的消息需要继续解析
+			if(nread == needLength){
+				return true;
+			}
+			recvBuffer += needLength;
+			nread -= needLength;
     	}
-    }else{
-		if( nread < PACKET_HEAD_LENGTH ){
-			return true;
-		}
-		//这里读取的信息很可能包含多条信息，这时候需要解析出来；这几条信息因为太短，在发送时被底层socket合并了
-		recvBufferPtr = recvBuffer;
-        do{
-        	// 对头部数据进行解密
-        	if( this->isNeedDecrypt() ){
-				binary_decrypt(recvBufferPtr, 8, this->getKey().c_str());
-			}
-            packetLength = ((PacketHead*)(recvBufferPtr))->length;
-			if( packetLength < PACKET_HEAD_LENGTH ){
-				break;	// 这里直接将数据丢弃
-			}
-            writeLength = std::min( (int)(nread-(recvBufferPtr-recvBuffer)), packetLength );
-			// 创建Packet对象，并将数据写入
-			pPacket = new Packet(packetLength);
-			pPacket->retain();	// 如果数据没有全部收到，那么m_tempReadPacket会保持这个retain状态
-			pPacket->write( recvBufferPtr, writeLength );
-            recvBufferPtr += writeLength;
-            if( pPacket->isCursorEnd() ){
-                // 派发消息给对应的消息处理器
-				dispatchPacket(pPacket);
-                pPacket->release();
-                pPacket = NULL;
-            }
-            // 如果消息没有全部接收，那么将会放到临时包中等待下一次读数据操作
-        }while(nread-(recvBufferPtr-recvBuffer) > PACKET_HEAD_LENGTH);
     }
+    // 解析剩余的数据包
+	char* recvBufferPtr;
+	int packetLength;
+	int writeLength;
+	bool isSuccessParsePacket = true;
+	if( nread < (int)PACKET_HEAD_LENGTH ){
+	    if(nread > 0){
+            m_tempLength = nread;
+	        memcpy(m_tempHead, recvBuffer, nread);
+	    }
+		return true;
+	}
+	//这里读取的信息很可能包含多条信息，这时候需要解析出来；这几条信息因为太短，在发送时被底层socket合并了
+	recvBufferPtr = recvBuffer;
+	do{
+		// 对头部数据进行解密
+		if( isNeedDecrypt() ){
+			binary_decrypt(recvBufferPtr, PACKET_HEAD_LENGTH, getKey().c_str());
+		}
+		packetLength = ((PacketHead*)(recvBufferPtr))->length;
+		if( packetLength < (int)PACKET_HEAD_LENGTH ){
+			fprintf(stderr, "head length is invalid packetLength=%d left=%d \n", packetLength, (int)(nread-(recvBufferPtr-recvBuffer)));
+			m_tempReadPacket = NULL;
+			isSuccessParsePacket = false;
+			break;	// 这里直接将数据丢弃
+		}
+		writeLength = std::min( (int)(nread-(recvBufferPtr-recvBuffer)), packetLength );
+		// 创建Packet对象，并将数据写入
+		pPacket = new Packet(packetLength);
+		pPacket->retain();	// 如果数据没有全部收到，那么m_tempReadPacket会保持这个retain状态
+		pPacket->write( recvBufferPtr, writeLength );
+		recvBufferPtr += writeLength;
+		if( pPacket->isReceiveEnd() ){
+			// 派发消息给对应的消息处理器
+			dispatchPacket(pPacket);
+			pPacket->release();
+			pPacket = NULL;
+		}
+		// 如果消息没有全部接收，那么将会放到临时包中等待下一次读数据操作
+	}while(nread-(recvBufferPtr-recvBuffer) >= (int)PACKET_HEAD_LENGTH);
+	if(NULL == pPacket && isSuccessParsePacket){
+	    m_tempLength = nread-(recvBufferPtr-recvBuffer);
+        if(m_tempLength > 0){
+            memcpy(m_tempHead, recvBufferPtr, m_tempLength);
+        }
+	}
 	m_tempReadPacket = pPacket;
     return true;
 }

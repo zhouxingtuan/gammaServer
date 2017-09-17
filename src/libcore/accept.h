@@ -38,7 +38,7 @@ class Accept : public EpollConnectObject, public TimerObject
 {
 public:
 	typedef std::deque<Packet*> PacketQueue;
-protected:
+public:
 	ConnectTimeoutCallback m_timerCallback;	// 回调函数
 	PacketQueue m_packetQueue;
 	EpollWorker* m_pEpollWorker;
@@ -49,6 +49,8 @@ protected:
 	bool m_isNeedEncrypt;			// 是否需要解密
 	bool m_isNeedDecrypt;			// 是否需要加密
 	uint8 m_acceptIndex;			// 解析接收数据的方法下标
+	char m_tempLength;              // 128
+    char m_tempHead[PACKET_HEAD_LENGTH];
 public:
 	explicit Accept(void);
 	virtual ~Accept(void);
