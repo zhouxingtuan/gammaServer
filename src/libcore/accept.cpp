@@ -215,6 +215,9 @@ void Accept::dispatchPacket(Packet* pPacket, uint8 command){
 	}
 }
 int Accept::readSocket(void){
+	if( this->getSocketFD() <= 0 ){
+		return -1;
+	}
 	char* recvBuffer = getEpollWorker()->getReadBuffer();
 	int nread;
 	if(m_tempLength > 0){
