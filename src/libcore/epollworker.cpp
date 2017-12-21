@@ -234,6 +234,10 @@ void EpollWorker::receiveClient(Client* pClient){
 	pTask->release();
 }
 uint32 EpollWorker::openHttp(int fd, const char* ip, uint16 port){
+	if(fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0)|O_NONBLOCK) == -1){
+	    LOG_ERROR("set none block failed fd=%d", fd);
+		return 0;
+	}
 	Http* pHttp = (Http*)m_pGroup->createDestination(POOL_TYPE_HTTP, 0);
 	if(NULL == pHttp){
 		LOG_ERROR("create http NULL == pHttp");
@@ -268,6 +272,11 @@ uint32 EpollWorker::openHttps(int fd, const char* ip, uint16 port){
 	if( !pHttps->bindSSL(m_pSSLCTX) ){
 		closeHttps(handle);
 		LOG_ERROR("bind ssl failed fd=%d", fd);
+		return 0;
+	}
+	if(fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0)|O_NONBLOCK) == -1){
+		closeHttps(handle);
+		LOG_ERROR("set none block failed fd=%d", fd);
 		return 0;
 	}
 	// 读取数据
